@@ -32,12 +32,13 @@ def save_dic_to_yaml(dic, yaml_path):
 
 def initialize_furniture_config(furniture_name, step_path):
     yaml_name = furniture_name + ".yaml"
-    step_list = get_file_list(step_path)
+    furniture_step_path = join(step_path, furniture_name)
+    step_list = get_file_list(furniture_step_path)
     step_list.sort()
     furniture_info = {}
     for class_id, step_file in enumerate(step_list):
         step_name = os.path.splitext(step_file)[0]
-        part_name = step_name.replace(step_path + '/', "")
+        part_name = step_name.replace(furniture_step_path + '/', "")
         part_type = None
         quantity = 0        
         if step_name.find("ea)") == -1:
