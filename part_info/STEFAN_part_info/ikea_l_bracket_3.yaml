@@ -1,0 +1,51 @@
+assembly_points:
+- id: 0
+  is_used: false
+  pose:
+    position:
+    - '0.00000E+5'
+    - '-1.00000E+1'
+    - '1.00000E+1'
+    quaternion:
+    - '5.00000E-1'
+    - '5.00000E-1'
+    - '-5.00000E-1'
+    - '-5.00000E-1'
+- id: 1
+  is_used: false
+  pose:
+    position:
+    - '0.00000E+5'
+    - '0.00000E+5'
+    - '0.00000E+5'
+    quaternion:
+    - '0.00000E+5'
+    - '0.00000E+5'
+    - '0.00000E+5'
+    - '1.00000E+0'
+- id: 2
+  is_used: false
+  pose:
+    position:
+    - '0.00000E+5'
+    - '0.00000E+5'
+    - '1.50000E+0'
+    quaternion:
+    - '0.00000E+5'
+    - '0.00000E+5'
+    - '0.00000E+5'
+    - '1.00000E+0'
+- id: 3
+  is_used: false
+  pose:
+    position:
+    - '0.00000E+5'
+    - '-2.00000E+1'
+    - '1.00000E+1'
+    quaternion:
+    - '5.00000E-1'
+    - '5.00000E-1'
+    - '-5.00000E-1'
+    - '-5.00000E-1'
+assembly_targets: []
+type: ikea_l_bracket

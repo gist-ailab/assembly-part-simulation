@@ -1,0 +1,50 @@
+flat_head_screw_iso:
+  class_id: 0
+  model_file: ./step_file/flat_head_screw_iso(6ea).STEP
+  quantity: 6
+  type: connector_part
+ikea_l_bracket:
+  class_id: 1
+  model_file: ./step_file/ikea_l_bracket(4ea).STEP
+  quantity: 4
+  type: connector_part
+ikea_stefan_bottom:
+  class_id: 2
+  model_file: ./step_file/ikea_stefan_bottom.STEP
+  quantity: 1
+  type: furniture_part
+ikea_stefan_long:
+  class_id: 3
+  model_file: ./step_file/ikea_stefan_long.STEP
+  quantity: 1
+  type: furniture_part
+ikea_stefan_middle:
+  class_id: 4
+  model_file: ./step_file/ikea_stefan_middle.STEP
+  quantity: 1
+  type: furniture_part
+ikea_stefan_short:
+  class_id: 5
+  model_file: ./step_file/ikea_stefan_short.STEP
+  quantity: 1
+  type: furniture_part
+ikea_stefan_side_left:
+  class_id: 6
+  model_file: ./step_file/ikea_stefan_side_left.STEP
+  quantity: 1
+  type: furniture_part
+ikea_stefan_side_right:
+  class_id: 7
+  model_file: ./step_file/ikea_stefan_side_right.STEP
+  quantity: 1
+  type: furniture_part
+ikea_wood_pin:
+  class_id: 8
+  model_file: ./step_file/ikea_wood_pin(14ea).STEP
+  quantity: 14
+  type: connector_part
+pan_head_screw_iso:
+  class_id: 9
+  model_file: ./step_file/pan_head_screw_iso(4ea).STEP
+  quantity: 4
+  type: connector_part
