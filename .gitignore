@@ -1,8 +1,10 @@
 # extracted yaml files
-*.yaml
+# *.yaml
+# /furniture_info
+
+# FreeCAD files
 /FCDocument
 
-/furniture_info
 
 # debugging
 /__pycache__
