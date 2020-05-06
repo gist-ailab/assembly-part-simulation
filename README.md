@@ -24,14 +24,14 @@ assembly using freecad
 |   |   flat_head_screw_iso_1.yaml
 |   |   flat_head_screw_iso_2.yaml
 |   |   ...
-│   └─FURNITURE_NAME_part_info
-|      
+│      
 ├─step_file
 |   ├─STEFAN
 |   |   flat_head_screw_iso(6ea).STEP
 |   |   ikea_l_bracket(4ea).STEP
 |   |   ikea_stefan_bottom.STEP
 |   |   ...
-
+|   └─FURNITURE_NAME
+|   
 
 ```
