@@ -1,0 +1,524 @@
+sequence_id: 1 # id는 스코어 높은 순서대로
+total_score: 999
+assemblies:
+  - assembly_id: 1 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "single peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_long_0, ikea_l_bracket_0] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[6], [0]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+        ikea_stefan_short_0: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_l_bracket_0: {}
+        ikea_l_bracket_1: {}
+        ikea_l_bracket_2: {}
+        ikea_l_bracket_3: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+        ikea_stefan_short_0: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_l_bracket_1: {}
+        ikea_l_bracket_2: {}
+        ikea_l_bracket_3: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+
+  - assembly_id: 2 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "single peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_long_0, ikea_l_bracket_1] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[7], [0]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+        ikea_stefan_short_0: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_l_bracket_1: {}
+        ikea_l_bracket_2: {}
+        ikea_l_bracket_3: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_l_bracket_2: {}
+        ikea_l_bracket_3: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+
+  - assembly_id: 3 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "single peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_short_0, ikea_l_bracket_2] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[6], [0]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_l_bracket_2: {}
+        ikea_l_bracket_3: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_l_bracket_3: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+
+  - assembly_id: 4 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "single peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_short_0, ikea_l_bracket_3] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[7], [0]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_l_bracket_3: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+
+  - assembly_id: 5 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "single peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_short_0, ikea_wood_pin_0] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[3], [0]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+            ikea_wood_pin_0: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+
+  - assembly_id: 6 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "single peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_short_0, ikea_wood_pin_1] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[5], [0]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+            ikea_wood_pin_0: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_1: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+            ikea_wood_pin_0: {}
+            ikea_wood_pin_1: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+
+  - assembly_id: 7 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "single peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_short_0, ikea_wood_pin_2] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[0], [1]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+            ikea_wood_pin_0: {}
+            ikea_wood_pin_1: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_2: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+            ikea_wood_pin_0: {}
+            ikea_wood_pin_1: {}
+            ikea_wood_pin_2: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+
+  - assembly_id: 8 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "single peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_short_0, ikea_wood_pin_3] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[2], [1]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+            ikea_wood_pin_0: {}
+            ikea_wood_pin_1: {}
+            ikea_wood_pin_2: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+            ikea_wood_pin_0: {}
+            ikea_wood_pin_1: {}
+            ikea_wood_pin_2: {}
+            ikea_wood_pin_3: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+
+  - assembly_id: 9 # 조립 단계 순서별로 부여. 단위 조립은 부품 A + 부품 B
+    assembly_skill: "dual peg-in-hole"
+    score: 000 # 해당 조립 단계의 점수
+    assembly_part_pairs: [ikea_stefan_side_right_0, ikea_stefan_short_0] # [[부품 A의 instance id], [부품 B의 instance id]]
+    # [[부품 A의 assembly_point_id], [부품 B의 assembly_point_id]]
+    # multi peg-in-hole인 경우 여러개. e.g. : [[2, 3], [1,2]]
+    assembly_point_pairs: [[10, 11], [3, 5]]
+    assembly_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_short_0: {}
+            ikea_l_bracket_2: {}
+            ikea_l_bracket_3: {}
+            ikea_wood_pin_0: {}
+            ikea_wood_pin_1: {}
+            ikea_wood_pin_2: {}
+            ikea_wood_pin_3: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
+    assembly_desired_status:
+        ikea_stefan_long_0: {}
+            ikea_l_bracket_0: {}
+            ikea_l_bracket_1: {}
+        ikea_stefan_middle_0: {}
+        ikea_stefan_bottom_0: {}
+        ikea_stefan_side_left_0: {}
+        ikea_stefan_side_right_0: {}
+            ikea_stefan_short_0: {}
+                ikea_l_bracket_2: {}
+                ikea_l_bracket_3: {}
+                ikea_wood_pin_0: {}
+                ikea_wood_pin_1: {}
+                ikea_wood_pin_2: {}
+                ikea_wood_pin_3: {}
+        ikea_wood_pin_4: {}
+        ikea_wood_pin_5: {}
+        ikea_wood_pin_6: {}
+        ikea_wood_pin_7: {}
+        ikea_wood_pin_8: {}
+        ikea_wood_pin_9: {}
+        ikea_wood_pin_10: {}
+        ikea_wood_pin_11: {}
+        ikea_wood_pin_12: {}
+        ikea_wood_pin_13: {}
