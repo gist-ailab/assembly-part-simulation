@@ -89,9 +89,13 @@ def close_doc(close_doc_name):
     FreeCAD.closeDocument(close_doc_name)
 
 def get_active_doc():
-    doc = FreeCAD.ActiveDocument
     
-    return doc
+    return FreeCAD.ActiveDocument
+
+def get_active_obj():
+    doc = get_active_doc()
+    
+    return doc.ActiveObject
 
 def copy_shape_to_doc(shape, label):
     doc = get_active_doc()
@@ -107,6 +111,7 @@ def load_step_file(path, doc_name):
         print("Please create active document")
         return False
     Part.insert(path, doc_name)
+    obj = get_active_obj()
 
     return True
 
@@ -204,7 +209,7 @@ def get_assembly_points(step_path, step_name):
     """
     assembly_points = []
     doc_name = "extract_part_info"
-    doc = create_doc(doc_name, headless=True)
+    doc = create_doc(doc_name, headless=False)
     file_path = step_path
     while not load_step_file(file_path, doc_name):
         pass
@@ -224,8 +229,7 @@ def get_assembly_points(step_path, step_name):
             "pose": {
                 "position": float_to_exponential(circle.position),
                 "quaternion": float_to_exponential(circle.quaternion)
-            },
-            "is_used": False
+            }
         }
         assembly_points.append(assembly_point)
         circle_shape = circle.create_circle()
