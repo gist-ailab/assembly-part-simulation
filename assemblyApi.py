@@ -13,9 +13,7 @@ from os.path import join, isfile, isdir
 
 # file path
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-STATUS_PATH = join(CURRENT_PATH, "assembly_status")
-if not os.path.isdir(STATUS_PATH):
-    os.mkdir(STATUS_PATH)
+
 
 
 """how to use a2plus
