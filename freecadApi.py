@@ -18,44 +18,6 @@ if not os.path.isdir(FREECAD_DOCUMENT_PATH):
 else:
     pass
 
-class Circle(object):
-    def __init__(self, radius, position, XAxis, YAxis, ZAxis):
-        self.radius = radius
-        self.position = position
-        self.XAxis = XAxis
-        self.YAxis = YAxis
-        self.direction = ZAxis
-        self.quaternion = get_quat_from_dcm(self.XAxis, self.YAxis, self.direction)
-    
-    def create_circle(self):
-        position = Base.Vector(self.position)
-        direction = Base.Vector(self.direction)
-        
-        self.shape = Part.makeCircle(self.radius, position, direction, 0, 360)
-        
-        return self.shape
-    
-    def set_name(self, name):
-        self._name = name
-
-    def visualize_frame(self):
-        doc = get_active_doc()
-        obj = get_object(self._name)
-        obj_O = Base.Vector(self.position)
-        obj_frame = []
-        
-        obj_frame.append(obj_O + Base.Vector(self.XAxis))
-        obj_frame.append(obj_O + Base.Vector(self.YAxis))
-        obj_frame.append(obj_O + Base.Vector(self.direction))
-        
-        for idx, axis_point in enumerate(obj_frame):
-            frame_name = self._name + "_axis_" + str(idx)        
-            frame = doc.addObject("Part::Polygon", frame_name)
-            frame.Nodes = [obj_O, axis_point]
-            doc.recompute()
-            color = [0., 0., 0.]
-            color[idx] = 1.0
-            set_obj_color(frame_name, tuple(color))
 
 def float_to_exponential(float_value_list):
     ex_list = []
@@ -155,8 +117,48 @@ def load_step_file(path, doc_name):
 
     return True
 
+#-------------------------------------------------------------
+#region extract cad info
 
+class Circle(object):
+    def __init__(self, radius, position, XAxis, YAxis, ZAxis, edge_id):
+        self.radius = radius
+        self.position = position
+        self.XAxis = XAxis
+        self.YAxis = YAxis
+        self.direction = ZAxis
+        self.edge_id = edge_id
+        self.quaternion = get_quat_from_dcm(self.XAxis, self.YAxis, self.direction)
+    
+    def create_circle(self):
+        position = Base.Vector(self.position)
+        direction = Base.Vector(self.direction)
+        
+        self.shape = Part.makeCircle(self.radius, position, direction, 0, 360)
+        
+        return self.shape
+    
+    def set_name(self, name):
+        self._name = name
 
+    def visualize_frame(self):
+        doc = get_active_doc()
+        obj = get_object(self._name)
+        obj_O = Base.Vector(self.position)
+        obj_frame = []
+        
+        obj_frame.append(obj_O + Base.Vector(self.XAxis))
+        obj_frame.append(obj_O + Base.Vector(self.YAxis))
+        obj_frame.append(obj_O + Base.Vector(self.direction))
+        
+        for idx, axis_point in enumerate(obj_frame):
+            frame_name = self._name + "_axis_" + str(idx)        
+            frame = doc.addObject("Part::Polygon", frame_name)
+            frame.Nodes = [obj_O, axis_point]
+            doc.recompute()
+            color = [0., 0., 0.]
+            color[idx] = 1.0
+            set_obj_color(frame_name, tuple(color))
 
 def get_circle_wire(shape):
     """get only circle wires from FreeCAD shape
@@ -200,7 +202,7 @@ def get_circle_wire(shape):
 
     return circle_wires
 
-def wire_to_circle(circle_wire):
+def wire_to_circle(circle_wire, Edges):
     """wire to class(Circle)
     
     - check each edges in wire
@@ -226,7 +228,8 @@ def wire_to_circle(circle_wire):
         if pos_r in unique_circle:
             pass
         else:
-            circle = Circle(radius, position, XAxis, YAxis, ZAxis)
+            edge_id = Edges.index(edge)
+            circle = Circle(radius, position, XAxis, YAxis, ZAxis, edge_id)
             unique_circle.append(pos_r)
             Circles.append(circle)
     
@@ -258,17 +261,20 @@ def get_assembly_points(step_path, step_name):
         pass
     obj = doc.ActiveObject
     shape = obj.Shape
+    Edges = shape.Edges
     print(f"Extract Object Name: {obj.Name}")
     circle_wires = get_circle_wire(shape)
     active_cirlce = []
     for idx, wire in enumerate(circle_wires):
-        circle_list = wire_to_circle(wire)
+        circle_list = wire_to_circle(wire, Edges)
         if len(circle_list) > 1:
             print("too many circle in one wire!!")
             continue
         circle = circle_list[0]
         assembly_point = {
             "id": idx,
+            "Edge_id": circle.edge_id,
+            "radius": circle.radius,
             "pose": {
                 "position": float_to_exponential(circle.position),
                 "quaternion": float_to_exponential(circle.quaternion)
@@ -304,3 +310,35 @@ def get_assembly_points(step_path, step_name):
     close_doc(doc_name)
 
     return assembly_points
+
+#endregion
+
+#------------------------------------------------------------
+#region assembly
+import a2plib
+from a2p_importpart import importPartFromFile
+import a2p_constraints as a2pconst
+import a2p_solversystem as solver
+
+class circular_edge_constraint(object):
+    def __init__(self, doc, )
+
+def constraint_circular_edge(doc, obj1, edge1, obj2, edge2):
+    # obj1, obj2 are a2pPart
+    # edge1, edge2 == "Edge71", "Edge3"
+    s1 = a2plib.SelectionExObject(doc, obj1, edge1)
+    s2 = a2plib.SelectionExObject(doc, obj2, edge2)
+    cc = a2pconst.CircularEdgeConstraint([s1, s2])
+
+def solve_constraints(doc):
+    solsys = solver.SolverSystem()
+    solsys.solveSystem(doc)
+
+def assemble_A_and_B(partA_name, partB_name):
+    doc_name = "assemble"
+    # load assemble points
+    # for all assemble points pairs 
+
+
+
+#endregion
