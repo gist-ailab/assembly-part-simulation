@@ -34,6 +34,28 @@ class Circle(object):
         self.shape = Part.makeCircle(self.radius, position, direction, 0, 360)
         
         return self.shape
+    
+    def set_name(self, name):
+        self._name = name
+
+    def visualize_frame(self):
+        doc = get_active_doc()
+        obj = get_object(self._name)
+        obj_O = Base.Vector(self.position)
+        obj_frame = []
+        
+        obj_frame.append(obj_O + Base.Vector(self.XAxis))
+        obj_frame.append(obj_O + Base.Vector(self.YAxis))
+        obj_frame.append(obj_O + Base.Vector(self.direction))
+        
+        for idx, axis_point in enumerate(obj_frame):
+            frame_name = self._name + "_axis_" + str(idx)        
+            frame = doc.addObject("Part::Polygon", frame_name)
+            frame.Nodes = [obj_O, axis_point]
+            doc.recompute()
+            color = [0., 0., 0.]
+            color[idx] = 1.0
+            set_obj_color(frame_name, tuple(color))
 
 def float_to_exponential(float_value_list):
     ex_list = []
@@ -97,6 +119,24 @@ def get_active_obj():
     
     return doc.ActiveObject
 
+def get_object(obj_name):
+    doc = get_active_doc()
+    
+    return doc.getObject(obj_name)
+
+def set_obj_visibility(obj_name, visible=True):
+    gui_doc = FreeCADGui.ActiveDocument
+    gui_obj = gui_doc.getObject(obj_name)
+    gui_obj.Visibility = visible
+
+def set_obj_color(obj_name, color=(1., 1., 1.)):
+    """set object color
+    color is tuple of float (0~1)
+    """ 
+    gui_doc = FreeCADGui.ActiveDocument
+    gui_obj = gui_doc.getObject(obj_name)
+    gui_obj.LineColor = color
+    
 def copy_shape_to_doc(shape, label):
     doc = get_active_doc()
     if doc == None:
@@ -104,7 +144,7 @@ def copy_shape_to_doc(shape, label):
         return False
     copied_shape = shape.copy()
     show_shape_in_doc(copied_shape, label)
-    
+        
 def load_step_file(path, doc_name):
     doc = get_active_doc()
     if doc == None:
@@ -114,6 +154,9 @@ def load_step_file(path, doc_name):
     obj = get_active_obj()
 
     return True
+
+
+
 
 def get_circle_wire(shape):
     """get only circle wires from FreeCAD shape
@@ -209,7 +252,7 @@ def get_assembly_points(step_path, step_name):
     """
     assembly_points = []
     doc_name = "extract_part_info"
-    doc = create_doc(doc_name, headless=False)
+    doc = create_doc(doc_name, headless=False) # if headless==True, created obj has no visibility
     file_path = step_path
     while not load_step_file(file_path, doc_name):
         pass
@@ -234,6 +277,8 @@ def get_assembly_points(step_path, step_name):
         assembly_points.append(assembly_point)
         circle_shape = circle.create_circle()
         circle_name = "circle_edge" + "_" + str(idx)
+        circle.set_name(circle_name)
+        circle.visualize_frame()
         show_shape_in_doc(circle_shape, circle_name)
         active_cirlce.append(circle)
 

@@ -2,7 +2,7 @@
 import os
 from os.path import join, isfile, isdir
 from os import listdir
-from fileApi import get_dir_list, get_file_list
+from fileApi import get_dir_list, get_file_list, save_dic_to_yaml
 from freecadApi import get_assembly_points
 
 
