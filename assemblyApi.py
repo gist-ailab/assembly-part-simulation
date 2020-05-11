@@ -18,12 +18,13 @@ CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 """how to use a2plus
 0. save FCStd file
+    - a2p_test.FCStd
 1. add a part from external file(*.FCStd) 
     - added part is <class 'FeaturePython'>
         == a2plib.isA2pPart / a2plib.isA2pObject is True
 
 2. select two edge for assemble
-    - sel = FreeCADGui.Selection.GetSelction()
+    - sel = FreeCADGui.Selection.getSelction()
     - sel.addSelection(obj, ["Edge2",position]) ex. edge3, edge14
 
 3. create instance of Selection class in a2plib
