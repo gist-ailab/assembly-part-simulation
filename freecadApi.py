@@ -10,6 +10,7 @@ from FreeCAD import Base
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 from decimal import Decimal
+import importOBJ
 
 import a2plib
 from a2p_importpart import importPartFromFile
@@ -23,9 +24,9 @@ if not os.path.isdir(OUTPUT_PATH):
 FREECAD_DOCUMENT_PATH = join(OUTPUT_PATH, "FCDocument")
 if not os.path.isdir(FREECAD_DOCUMENT_PATH):
     os.mkdir(FREECAD_DOCUMENT_PATH)
-else:
-    pass
-
+OBJ_PATH = join(OUTPUT_PATH, "obj")
+if not os.path.isdir(OBJ_PATH):
+    os.mkdir(OBJ_PATH)
 
 def float_to_exponential(float_value_list):
     ex_list = []
@@ -43,6 +44,13 @@ def get_quat_from_dcm(x, y, z):
 
 #--------------------------------------------
 #region freecad basic Api
+
+def edge_to_face(edges):
+#     >>> import Part
+# >>> _=Part.Face(Part.Wire(Part.__sortEdges__([App.ActiveDocument.Shape002.Shape.Edge1, ])))
+# >>> if _.isNull(): raise RuntimeError('Failed to create face')
+# >>> App.ActiveDocument.addObject('Part::Feature','Face').Shape=_
+# del _
 
 def show_shape_in_doc(shape, label):
     doc = get_active_doc()
@@ -66,6 +74,11 @@ def compound_doc_objects(label):
     compound = doc.ActiveObject
     compound.Links = object_list
     doc.recompute()
+
+def export_doc_objects_to_obj(doc, save_name):
+    objs = doc.findObjects()
+    save_path = join(OBJ_PATH, save_name + ".obj") 
+    importOBJ.export(objs, save_path)
 
 def create_doc(doc_name):
     doc = FreeCAD.newDocument(doc_name)
@@ -322,7 +335,7 @@ def get_assembly_points(step_path, step_name, logger):
         circle.visualize_frame()
         show_shape_in_doc(circle_shape, circle_name)
         active_cirlce.append(circle)
-
+    export_doc_objects_to_obj(doc, step_name)
     compound_name = step_name + "_compound"
     compound_doc_objects(compound_name)
     save_doc_name = step_name
