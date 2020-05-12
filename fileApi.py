@@ -16,3 +16,9 @@ def get_dir_list(path):
 def save_dic_to_yaml(dic, yaml_path):
     with open(yaml_path, 'w') as y_file:
         _ = yaml.dump(dic, y_file, default_flow_style=False)
+
+def load_yaml_to_dic(yaml_path):
+    with open(yaml_path, 'r') as y_file:
+        dic = yaml.load(y_file, Loader=yaml.FullLoader)
+
+    return dic

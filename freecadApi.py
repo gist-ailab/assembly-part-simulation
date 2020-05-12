@@ -269,7 +269,7 @@ def wire_to_circle(circle_wire, Edges):
     
     return Circles
 
-def get_assembly_points(step_path, step_name):
+def get_assembly_points(step_path, step_name, logger):
     """get assembly_points from step file
 
     Arguments:
@@ -296,7 +296,7 @@ def get_assembly_points(step_path, step_name):
     obj = doc.ActiveObject
     shape = obj.Shape
     Edges = shape.Edges
-    print(f"Extract Object Name: {obj.Name}")
+    logger.debug(f"Extract Object Name: {obj.Name}")
     circle_wires = get_circle_wire(shape)
     active_cirlce = []
     for idx, wire in enumerate(circle_wires):
@@ -308,7 +308,7 @@ def get_assembly_points(step_path, step_name):
         circle.get_edge_index_from_shape(shape)
         assembly_point = {
             "id": idx,
-            "Edge_id": circle.edge_indexes,
+            "edge_indexes": circle.edge_indexes,
             "radius": circle.radius,
             "pose": {
                 "position": float_to_exponential(circle.position),
