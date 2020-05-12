@@ -1,6 +1,7 @@
 import import_fcstd
 import FreeCAD
 import FreeCADGui
+FreeCADGui.showMainWindow()
 import os
 from os.path import join, isfile, isdir
 from os import listdir
@@ -9,10 +10,17 @@ from FreeCAD import Base
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 from decimal import Decimal
+
+import a2plib
+from a2p_importpart import importPartFromFile
+import a2p_constraints as a2pconst
+import a2p_solversystem as solver
+
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
-FREECAD_DOCUMENT_PATH = join(CURRENT_PATH, "FCDocument")
-
-
+OUTPUT_PATH = join(CURRENT_PATH, "output")
+if not os.path.isdir(OUTPUT_PATH):
+    os.mkdir(OUTPUT_PATH)
+FREECAD_DOCUMENT_PATH = join(OUTPUT_PATH, "FCDocument")
 if not os.path.isdir(FREECAD_DOCUMENT_PATH):
     os.mkdir(FREECAD_DOCUMENT_PATH)
 else:
@@ -32,7 +40,10 @@ def get_quat_from_dcm(x, y, z):
     r = list(r)
 
     return r
-    
+
+#--------------------------------------------
+#region freecad basic Api
+
 def show_shape_in_doc(shape, label):
     doc = get_active_doc()
     if doc == None:
@@ -56,9 +67,7 @@ def compound_doc_objects(label):
     compound.Links = object_list
     doc.recompute()
 
-def create_doc(doc_name, headless=False):
-    if not headless:
-        FreeCADGui.showMainWindow()
+def create_doc(doc_name):
     doc = FreeCAD.newDocument(doc_name)
 
     return doc
@@ -117,17 +126,19 @@ def load_step_file(path, doc_name):
 
     return True
 
+#endregion
+
 #-------------------------------------------------------------
-#region extract cad info
+#region extract cad info Api
 
 class Circle(object):
-    def __init__(self, radius, position, XAxis, YAxis, ZAxis, edge_id):
+    def __init__(self, radius, position, XAxis, YAxis, ZAxis):
         self.radius = radius
         self.position = position
         self.XAxis = XAxis
         self.YAxis = YAxis
         self.direction = ZAxis
-        self.edge_id = edge_id
+        self.edge_indexes = []
         self.quaternion = get_quat_from_dcm(self.XAxis, self.YAxis, self.direction)
     
     def create_circle(self):
@@ -160,6 +171,17 @@ class Circle(object):
             color[idx] = 1.0
             set_obj_color(frame_name, tuple(color))
 
+    def get_edge_index_from_shape(self, shape):
+        edges = shape.Edges
+        for ind, edge in enumerate(edges):
+            if not check_circle_edge(edge):
+                continue
+            circle = edge.Curve
+            position = [circle.Center.x, circle.Center.y, circle.Center.z]
+            radius = circle.Radius
+            if self.position == position and self.radius == radius:
+                self.edge_indexes.append(ind)
+
 def get_circle_wire(shape):
     """get only circle wires from FreeCAD shape
 
@@ -174,33 +196,46 @@ def get_circle_wire(shape):
         circle_wires {list} -- [circle wires in shape]
     """
     circle_wires = []
-    plane_condition = 1e-3
     for idx, f in enumerate(shape.Faces):
         wires = f.Wires
         for wire in wires:
             is_circle = True
-            bbox = wire.BoundBox
-            X_Length = bbox.XLength
-            Y_Length = bbox.YLength
-            Z_Length = bbox.ZLength
-            if X_Length < plane_condition or Y_Length < plane_condition or Z_Length < plane_condition:
-                pass
-            else:
-                is_circle = False
+            if not check_plane_wire(wire):
                 continue
             edges = wire.Edges
             for edge in edges:
-                try:
-                    if(isinstance(edge.Curve, Part.Circle)):
-                        pass
-                    else:
-                        is_circle = False
-                except:
+                if not check_circle_edge(edge):
                     is_circle = False
             if is_circle:
                 circle_wires.append(wire)
 
     return circle_wires
+
+def check_plane_wire(wire):
+    is_plane = True
+    plane_condition = 1e-3
+    bbox = wire.BoundBox
+    X_Length = bbox.XLength
+    Y_Length = bbox.YLength
+    Z_Length = bbox.ZLength
+    if X_Length < plane_condition or Y_Length < plane_condition or Z_Length < plane_condition:
+        pass
+    else:
+        is_plane = False
+    
+    return is_plane
+
+def check_circle_edge(edge):
+    is_circle = True
+    try:
+        if(isinstance(edge.Curve, Part.Circle)):
+            pass
+        else:
+            is_circle = False
+    except:
+        is_circle = False
+
+    return is_circle
 
 def wire_to_circle(circle_wire, Edges):
     """wire to class(Circle)
@@ -228,8 +263,7 @@ def wire_to_circle(circle_wire, Edges):
         if pos_r in unique_circle:
             pass
         else:
-            edge_id = Edges.index(edge)
-            circle = Circle(radius, position, XAxis, YAxis, ZAxis, edge_id)
+            circle = Circle(radius, position, XAxis, YAxis, ZAxis)
             unique_circle.append(pos_r)
             Circles.append(circle)
     
@@ -255,7 +289,7 @@ def get_assembly_points(step_path, step_name):
     """
     assembly_points = []
     doc_name = "extract_part_info"
-    doc = create_doc(doc_name, headless=False) # if headless==True, created obj has no visibility
+    doc = create_doc(doc_name)
     file_path = step_path
     while not load_step_file(file_path, doc_name):
         pass
@@ -271,9 +305,10 @@ def get_assembly_points(step_path, step_name):
             print("too many circle in one wire!!")
             continue
         circle = circle_list[0]
+        circle.get_edge_index_from_shape(shape)
         assembly_point = {
             "id": idx,
-            "Edge_id": circle.edge_id,
+            "Edge_id": circle.edge_indexes,
             "radius": circle.radius,
             "pose": {
                 "position": float_to_exponential(circle.position),
@@ -288,21 +323,6 @@ def get_assembly_points(step_path, step_name):
         show_shape_in_doc(circle_shape, circle_name)
         active_cirlce.append(circle)
 
-    # new_circles = check_symmetry(active_cirlce)
-    # for n_idx, circle in enumerate(new_circles):
-    #     assembly_point = {
-    #         "id": n_idx + idx + 1,
-    #         "pose": {
-    #             "position": float_to_exponential(circle.position),
-    #             "direction": float_to_exponential(circle.quaternion)
-    #         },
-    #         "is_used": False
-    #     }
-    #     assembly_points.append(assembly_point)
-    #     circle_shape = circle.create_circle()
-    #     circle_name = "circle_edge" + "_" + str(n_idx + idx + 1)
-    #     show_shape_in_doc(circle_shape, circle_name)
-
     compound_name = step_name + "_compound"
     compound_doc_objects(compound_name)
     save_doc_name = step_name
@@ -314,27 +334,56 @@ def get_assembly_points(step_path, step_name):
 #endregion
 
 #------------------------------------------------------------
-#region assembly
-import a2plib
-from a2p_importpart import importPartFromFile
-import a2p_constraints as a2pconst
-import a2p_solversystem as solver
+#region assembly Api
 
-class circular_edge_constraint(object):
-    def __init__(self, doc, )
+def constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge):
+    """add circular edge constraint in document
 
-def constraint_circular_edge(doc, obj1, edge1, obj2, edge2):
-    # obj1, obj2 are a2pPart
-    # edge1, edge2 == "Edge71", "Edge3"
-    s1 = a2plib.SelectionExObject(doc, obj1, edge1)
-    s2 = a2plib.SelectionExObject(doc, obj2, edge2)
+    Arguments:
+        doc {FreeCAD Document} -- [document that assembly part in]
+        parent_obj {a2pPart} -- [Part that import by a2pimport function]
+        child_obj {a2pPart} -- [Part that import by a2pimport function]
+        parent_edge {[string]} -- [Edge{index}]
+        child_edge {[string]} -- [Edge{index}]
+    
+    Conetents:
+        class SelectionExObject:
+            'allows for selection gate functions to interface with classification functions below'
+            def __init__(self, doc, Object, subElementName):
+                self.doc = doc
+                self.Object = Object
+                self.ObjectName = Object.Name
+                self.SubElementNames = [subElementName]  
+        class CircularEdgeConstraint(BasicConstraint):
+            def __init__(self,selection):
+                BasicConstraint.__init__(self, selection)
+                self.typeInfo = 'circularEdge'
+                self.constraintBaseName = 'circularEdge'
+                self.iconPath = ':/icons/a2p_CircularEdgeConstraint.svg'
+                self.create(selection)
+    """
+    parent_obj.fixedPosition = True
+    child_obj.fixedPosition = False
+    s1 = a2plib.SelectionExObject(doc, parent_obj, parent_edge)
+    s2 = a2plib.SelectionExObject(doc, child_obj, child_edge)
     cc = a2pconst.CircularEdgeConstraint([s1, s2])
 
 def solve_constraints(doc):
+    """solve constraints in document
+
+    Arguments:
+        doc {FreeCAD Document} -- [document that assembly part in]
+    """
     solsys = solver.SolverSystem()
     solsys.solveSystem(doc)
 
-def assemble_A_and_B(partA_name, partB_name):
+def assemble_parts(parent_name, child_name):
+    """assemle two parts
+
+    Arguments:
+        parent_name {[string]} -- [instance name of parent part]
+        child_name {[string]} -- [instance name of child part]
+    """
     doc_name = "assemble"
     # load assemble points
     # for all assemble points pairs 
