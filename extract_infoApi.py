@@ -92,7 +92,7 @@ def get_part_info(furniture_info):
 
     return part_info
 
-def initialize_furniture_config(furniture_name):
+def initialize_furniture_config(furniture_name, logger):
     """initialize furniture information
         1. extract assembly points for each parts
         2. save furniture info for each parts in furniture_name.yaml
@@ -100,7 +100,6 @@ def initialize_furniture_config(furniture_name):
     Arguments:
         furniture_name {[type]} -- [description]
     """
-    logger = logging.getLogger(furniture_name)
     # initialize furniture info
     initialize_furniture_info(furniture_name, logger)    
     # initialize part instance
@@ -111,7 +110,8 @@ def initialize_furniture_config(furniture_name):
 
 #----------------------------------------------
 #region extract from Instruction
-def load_instruction_info(instruction_num=1):
+
+def load_instruction_info(instruction_step=1):
     instruction = {
         "ikea_l_bracket": {
             "type": "connector",
@@ -134,5 +134,35 @@ def load_instruction_info(instruction_num=1):
     }
     return instruction
 
-        
+#endregion
+ 
+#----------------------------------------------
+#region extract from assembly_status
 
+def initialize_assembly_status(furniture_name, instruction_step, logger):
+    if instruction_step == 1: # start assemble
+        initialize_initial_assemble_status(furniture_name, logger)
+        previous_step_status_dir = None
+    else:       
+        previous_step_status_dir = join(STATUS_DIR, furniture_name, str(instruction_step))
+    pass
+
+def initialize_initial_assemble_status(furniture_name, logger):
+    # logger.info(f"Save {furniture_name} assemble status")
+    # init
+    # yaml_name = 
+    pass
+
+def get_initial_assemble_status(furniture_name):
+    assemble_status = {}
+
+    part_info_path = join(PART_INFO_DIR, furniture_name + ".yaml")
+    part_info = load_yaml_to_dic(part_info_path)
+    
+    for instance_name in part_info.keys():
+        assemble_status[instance_name] = {
+
+        }
+    return part_info
+
+#endregion
