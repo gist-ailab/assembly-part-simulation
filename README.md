@@ -27,7 +27,7 @@ assembly using freecad
 |   |   |   ...
 |   |   └─FURNITURE_NAME
 |   |
-|   ├─furniture_info: furniture information of each furniture to assemlby
+|   ├─furniture_info: Extracted CAD information of each furniture to assemlby
 |   |   STEFAN.yaml
 |   |   ...
 |   |
