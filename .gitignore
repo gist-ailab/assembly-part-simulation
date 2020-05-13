@@ -5,7 +5,7 @@
 # FreeCAD files
 # /FCDocument
 
-#.idea
+.idea
 # debugging
 /__pycache__
 
