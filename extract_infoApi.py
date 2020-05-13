@@ -21,6 +21,19 @@ if not os.path.isdir(STATUS_DIR):
     os.mkdir(STATUS_DIR)
 PART_TYPE = ["furniture_part", "connector_part"]
 
+condition = [
+    [0, 1, 2], # flat_head_screw_iso
+    [1, 2], # ikea_l_bracket
+    [], # ikea_stefan_bottom
+    [3,4,5,7,8,9,10,11], # ikea_stefan_long
+    [0,1,2,6,7,8,9,11], # ikea_stefan_middle
+    [3,4,5,7,8,9,10,11], # ikea_stefan_short
+    [0,1,2,4,5,6,8,9,10,11,13,14,15, 16, 17, 18, 19], # ikea_stefan_side_left 
+    [3,7,12], # ikea_stefan_side_right
+    [], # ikea_wood_pin
+    [0,1,2] # pan_head_screw_iso
+]
+
 
 #----------------------------------------------
 #region extract from CAD files
@@ -36,7 +49,6 @@ def initialize_furniture_info(furniture_name, logger):
         logger.warning("Fail to load input step files")
     # extract cad info
     step_list.sort()
-    
     furniture_info = get_furniture_info(step_list, logger)
     yaml_path = join(FURNITURE_INFO_DIR, yaml_name)
     save_dic_to_yaml(furniture_info, yaml_path)
@@ -56,7 +68,9 @@ def get_furniture_info(step_list, logger):
             part_type = PART_TYPE[1]
             part_name, quantity = part_name.split("(")
             quantity = quantity.replace("ea)", "")
-        assembly_points = get_assembly_points(step_file, part_name, logger)
+        cd = condition[class_id]
+        print(part_name, cd)
+        assembly_points = get_assembly_points(step_file, part_name, logger, condition=cd)
         furniture_info[part_name] = {
             "class_id": class_id,
             "type": part_type,

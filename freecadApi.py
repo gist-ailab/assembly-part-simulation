@@ -11,6 +11,7 @@ from scipy.spatial.transform import Rotation as R
 import numpy as np
 from decimal import Decimal
 import importOBJ
+import Draft
 
 import a2plib
 from a2p_importpart import importPartFromFile
@@ -51,6 +52,7 @@ def edge_to_face(edges):
 # >>> if _.isNull(): raise RuntimeError('Failed to create face')
 # >>> App.ActiveDocument.addObject('Part::Feature','Face').Shape=_
 # del _
+    pass
 
 def show_shape_in_doc(shape, label):
     doc = get_active_doc()
@@ -60,6 +62,9 @@ def show_shape_in_doc(shape, label):
     Part.show(shape)
     obj = doc.ActiveObject
     obj.Label = label
+
+    return obj
+
 
 def compound_doc_objects(label):
     doc = get_active_doc()
@@ -108,6 +113,12 @@ def get_object(obj_name):
     
     return doc.getObject(obj_name)
 
+def get_object_by_label(obj_label):
+    doc = get_active_doc()
+    
+    return doc.getObjectsByLabel(obj_label)[0]
+
+
 def set_obj_visibility(obj_name, visible=True):
     gui_doc = FreeCADGui.ActiveDocument
     gui_obj = gui_doc.getObject(obj_name)
@@ -129,13 +140,14 @@ def copy_shape_to_doc(shape, label):
     copied_shape = shape.copy()
     show_shape_in_doc(copied_shape, label)
         
-def load_step_file(path, doc_name):
+def load_step_file(path, doc_name, obj_name):
     doc = get_active_doc()
     if doc == None:
         print("Please create active document")
         return False
     Part.insert(path, doc_name)
     obj = get_active_obj()
+    obj.Label = obj_name
 
     return True
 
@@ -151,38 +163,33 @@ class Circle(object):
         self.XAxis = XAxis
         self.YAxis = YAxis
         self.direction = ZAxis
-        self.edge_indexes = []
         self.quaternion = get_quat_from_dcm(self.XAxis, self.YAxis, self.direction)
-    
-    def create_circle(self):
+        self.edge_indexes = []
+        
+    def create_circle(self, circle_name):
         position = Base.Vector(self.position)
         direction = Base.Vector(self.direction)
-        
+        self.name = circle_name
         self.shape = Part.makeCircle(self.radius, position, direction, 0, 360)
-        
-        return self.shape
-    
-    def set_name(self, name):
-        self._name = name
+        self.object = show_shape_in_doc(self.shape, circle_name)
 
-    def visualize_frame(self):
+    def visualize_circle_frame(self):
         doc = get_active_doc()
-        obj = get_object(self._name)
         obj_O = Base.Vector(self.position)
-        obj_frame = []
-        
-        obj_frame.append(obj_O + Base.Vector(self.XAxis))
-        obj_frame.append(obj_O + Base.Vector(self.YAxis))
-        obj_frame.append(obj_O + Base.Vector(self.direction))
-        
-        for idx, axis_point in enumerate(obj_frame):
-            frame_name = self._name + "_axis_" + str(idx)        
-            frame = doc.addObject("Part::Polygon", frame_name)
-            frame.Nodes = [obj_O, axis_point]
-            doc.recompute()
-            color = [0., 0., 0.]
-            color[idx] = 1.0
-            set_obj_color(frame_name, tuple(color))
+        obj_axis = {
+            "x": Base.Vector(self.XAxis),
+            "y": Base.Vector(self.YAxis),
+            "z": Base.Vector(self.direction)
+        }
+        visualize_frame(self.name, obj_O, obj_axis)
+
+    def update_frame(self):
+        circle = self.object.Shape.Curve
+        self.position = [circle.Center.x, circle.Center.y, circle.Center.z]
+        self.XAxis = [circle.XAxis.x, circle.XAxis.y, circle.XAxis.z]
+        self.YAxis = [circle.YAxis.x, circle.YAxis.y, circle.YAxis.z]
+        self.direction = [circle.Axis.x, circle.Axis.y, circle.Axis.z]
+        self.quaternion = get_quat_from_dcm(self.XAxis, self.YAxis, self.direction)
 
     def get_edge_index_from_shape(self, shape):
         edges = shape.Edges
@@ -194,6 +201,29 @@ class Circle(object):
             radius = circle.Radius
             if self.position == position and self.radius == radius:
                 self.edge_indexes.append(ind)
+    
+    def reverse(self):
+        rotate_obj(self.object, 180.0, Base.Vector(self.position), Base.Vector(self.XAxis))
+        self.update_frame()
+
+def visualize_frame(obj_name, obj_O, obj_axis):
+    """visualize coordinate of object
+    
+    Arguments:
+        obj_name {[type]} -- [description]
+        obj_O {[type]} -- [description]
+        obj_axis {[type]} -- [description]
+    """
+    doc = get_active_doc()
+    for idx, axis_name in enumerate(obj_axis.keys()):
+        frame_name = obj_name + "_axis_" + axis_name
+        frame = doc.addObject("Part::Polygon", frame_name)
+        frame.Nodes = [obj_O, obj_O + obj_axis[axis_name]]
+        doc.recompute()
+        color = [0., 0., 0.]
+        color[idx] = 1.0
+        set_obj_color(frame_name, tuple(color))
+
 
 def get_circle_wire(shape):
     """get only circle wires from FreeCAD shape
@@ -264,6 +294,7 @@ def wire_to_circle(circle_wire, Edges):
     """
     edges = circle_wire.Edges
     unique_circle = []
+    
     Circles = []
     for edge in edges:
         circle = edge.Curve
@@ -282,7 +313,7 @@ def wire_to_circle(circle_wire, Edges):
     
     return Circles
 
-def get_assembly_points(step_path, step_name, logger):
+def get_assembly_points(step_path, step_name, logger, condition=None):
     """get assembly_points from step file
 
     Arguments:
@@ -300,18 +331,28 @@ def get_assembly_points(step_path, step_name, logger):
             "is_used": False
         }
     """
-    assembly_points = []
+    
     doc_name = "extract_part_info"
     doc = create_doc(doc_name)
     file_path = step_path
-    while not load_step_file(file_path, doc_name):
+    obj_name = step_name
+    while not load_step_file(file_path, doc_name, obj_name):
         pass
+
     obj = doc.ActiveObject
+    # obj_O = Base.Vector(0., 0., 0.)
+    # obj_axis = {
+    #     "x": Base.Vector(1, 0, 0),
+    #     "y": Base.Vector(0, 1, 0),
+    #     "z": Base.Vector(0, 0, 1)
+    # }
+    # visualize_frame(obj_name, obj_O, obj_axis)
+
     shape = obj.Shape
     Edges = shape.Edges
     logger.debug(f"Extract Object Name: {obj.Name}")
     circle_wires = get_circle_wire(shape)
-    active_cirlce = []
+    assembly_points = []
     for idx, wire in enumerate(circle_wires):
         circle_list = wire_to_circle(wire, Edges)
         if len(circle_list) > 1:
@@ -319,6 +360,12 @@ def get_assembly_points(step_path, step_name, logger):
             continue
         circle = circle_list[0]
         circle.get_edge_index_from_shape(shape)
+        circle_name = "circle_edge" + "_" + str(idx)
+        circle.create_circle(circle_name)
+        # check reverse condition
+        if type(condition) == list:
+            if idx in condition:
+                circle.reverse()
         assembly_point = {
             "id": idx,
             "edge_indexes": circle.edge_indexes,
@@ -329,20 +376,39 @@ def get_assembly_points(step_path, step_name, logger):
             }
         }
         assembly_points.append(assembly_point)
-        circle_shape = circle.create_circle()
-        circle_name = "circle_edge" + "_" + str(idx)
-        circle.set_name(circle_name)
-        circle.visualize_frame()
-        show_shape_in_doc(circle_shape, circle_name)
-        active_cirlce.append(circle)
-    export_doc_objects_to_obj(doc, step_name)
-    compound_name = step_name + "_compound"
-    compound_doc_objects(compound_name)
+        circle.visualize_circle_frame()
+        
+    # visualize object frame    
+    # compound_name = step_name + "_compound"
+    # compound_doc_objects(compound_name)
+    
     save_doc_name = step_name
     save_doc(save_doc_name)
     close_doc(doc_name)
 
     return assembly_points
+
+def open_doc(doc_path):
+    FreeCAD.open_doc(doc_path)
+    doc = FreeCAD.ActiveDocument
+
+    return doc
+
+def get_circle_edges_from_doc(doc):
+    objs = doc.findObjects()
+    circle_edges = []
+    for obj in objs:
+        if "circle_edge" in obj.Label:
+            circle_edges.append(obj)
+
+    return circle_edges
+
+def rotate_obj(obj, angle, position, axis):
+    Draft.rotate(obj, angle, position, axis=axis, copy=False)
+
+def _edges_in_doc(doc_path):
+    doc = open_doc(doc_path)
+    Circle_edges = get_circle_edges_from_doc(doc)
 
 #endregion
 
