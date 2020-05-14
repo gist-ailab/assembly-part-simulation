@@ -151,6 +151,15 @@ def load_step_file(path, doc_name, obj_name):
 
     return True
 
+def open_doc(doc_path):
+    FreeCAD.open_doc(doc_path)
+    doc = FreeCAD.ActiveDocument
+
+    return doc
+
+def rotate_obj(obj, angle, position, axis):
+    Draft.rotate(obj, angle, position, axis=axis, copy=False)
+
 #endregion
 
 #-------------------------------------------------------------
@@ -223,7 +232,6 @@ def visualize_frame(obj_name, obj_O, obj_axis):
         color = [0., 0., 0.]
         color[idx] = 1.0
         set_obj_color(frame_name, tuple(color))
-
 
 def get_circle_wire(shape):
     """get only circle wires from FreeCAD shape
@@ -313,6 +321,16 @@ def wire_to_circle(circle_wire, Edges):
     
     return Circles
 
+def _visualize_world_coordinate(frame_name="world"):
+    obj_name = frame_name
+    obj_O = Base.Vector(0., 0., 0.)
+    obj_axis = {
+        "x": Base.Vector(1, 0, 0),
+        "y": Base.Vector(0, 1, 0),
+        "z": Base.Vector(0, 0, 1)
+    }
+    visualize_frame(obj_name, obj_O, obj_axis)
+
 def get_assembly_points(step_path, step_name, logger, condition=None):
     """get assembly_points from step file
 
@@ -331,7 +349,6 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
             "is_used": False
         }
     """
-    
     doc_name = "extract_part_info"
     doc = create_doc(doc_name)
     file_path = step_path
@@ -340,14 +357,6 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
         pass
 
     obj = doc.ActiveObject
-    # obj_O = Base.Vector(0., 0., 0.)
-    # obj_axis = {
-    #     "x": Base.Vector(1, 0, 0),
-    #     "y": Base.Vector(0, 1, 0),
-    #     "z": Base.Vector(0, 0, 1)
-    # }
-    # visualize_frame(obj_name, obj_O, obj_axis)
-
     shape = obj.Shape
     Edges = shape.Edges
     logger.debug(f"Extract Object Name: {obj.Name}")
@@ -387,28 +396,6 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
     close_doc(doc_name)
 
     return assembly_points
-
-def open_doc(doc_path):
-    FreeCAD.open_doc(doc_path)
-    doc = FreeCAD.ActiveDocument
-
-    return doc
-
-def get_circle_edges_from_doc(doc):
-    objs = doc.findObjects()
-    circle_edges = []
-    for obj in objs:
-        if "circle_edge" in obj.Label:
-            circle_edges.append(obj)
-
-    return circle_edges
-
-def rotate_obj(obj, angle, position, axis):
-    Draft.rotate(obj, angle, position, axis=axis, copy=False)
-
-def _edges_in_doc(doc_path):
-    doc = open_doc(doc_path)
-    Circle_edges = get_circle_edges_from_doc(doc)
 
 #endregion
 
