@@ -1,33 +1,33 @@
-import import_fcstd
-import FreeCAD
-import FreeCADGui
-FreeCADGui.showMainWindow()
-import os
-from os.path import join, isfile, isdir
-from os import listdir
-import Part
-from FreeCAD import Base
+from fileApi import *
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 from decimal import Decimal
+#------------------------------------------------
+#region freecad library
+import import_fcstd # add path for import FreeCAD
+import FreeCAD
+import FreeCADGui
+FreeCADGui.showMainWindow() # FreeCADGui should be show before using
+import Part
+from FreeCAD import Base
 import importOBJ
 import Draft
-
 import a2plib
 from a2p_importpart import importPartFromFile
 import a2p_constraints as a2pconst
 import a2p_solversystem as solver
+#eneregion
 
 CURRENT_PATH = os.path.dirname(os.path.realpath(__file__))
+
 OUTPUT_PATH = join(CURRENT_PATH, "output")
-if not os.path.isdir(OUTPUT_PATH):
-    os.mkdir(OUTPUT_PATH)
+check_and_create_dir(OUTPUT_PATH)
+
 FREECAD_DOCUMENT_PATH = join(OUTPUT_PATH, "FCDocument")
-if not os.path.isdir(FREECAD_DOCUMENT_PATH):
-    os.mkdir(FREECAD_DOCUMENT_PATH)
+check_and_create_dir(FREECAD_DOCUMENT_PATH)
+
 OBJ_PATH = join(OUTPUT_PATH, "obj")
-if not os.path.isdir(OBJ_PATH):
-    os.mkdir(OBJ_PATH)
+check_and_create_dir(OBJ_PATH)
 
 def float_to_exponential(float_value_list):
     ex_list = []
@@ -47,13 +47,12 @@ def get_quat_from_dcm(x, y, z):
 #region freecad basic Api
 
 def edge_to_face(edges):
-#     >>> import Part
-# >>> _=Part.Face(Part.Wire(Part.__sortEdges__([App.ActiveDocument.Shape002.Shape.Edge1, ])))
-# >>> if _.isNull(): raise RuntimeError('Failed to create face')
-# >>> App.ActiveDocument.addObject('Part::Feature','Face').Shape=_
-# del _
-    pass
-
+    _ = Part.Face(Part.Wire(Part.__sortEdges__(edges)))
+    if _.isNull(): 
+        raise RuntimeError('Failed to create face')
+    FreeCAD.ActiveDocument.addObject('Part::Feature','Face').Shape= _
+    del _
+    
 def show_shape_in_doc(shape, label):
     doc = get_active_doc()
     if doc == None:
@@ -64,7 +63,6 @@ def show_shape_in_doc(shape, label):
     obj.Label = label
 
     return obj
-
 
 def compound_doc_objects(label):
     doc = get_active_doc()
@@ -117,7 +115,6 @@ def get_object_by_label(obj_label):
     doc = get_active_doc()
     
     return doc.getObjectsByLabel(obj_label)[0]
-
 
 def set_obj_visibility(obj_name, visible=True):
     gui_doc = FreeCADGui.ActiveDocument

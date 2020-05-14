@@ -1,0 +1,27 @@
+ikea_l_bracket:
+  quantity: 4
+  type: connector
+ikea_stefan_long:
+  pose:
+    position:
+    - 0
+    - 0
+    - 0
+    quaternion:
+    - 0
+    - 0
+    - 0
+    - 1
+  type: furniture
+ikea_stefan_short:
+  pose:
+    position:
+    - 0
+    - 0
+    - 0
+    quaternion:
+    - 0
+    - 0
+    - 0
+    - 1
+  type: furniture

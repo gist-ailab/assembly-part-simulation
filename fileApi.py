@@ -22,3 +22,7 @@ def load_yaml_to_dic(yaml_path):
         dic = yaml.load(y_file, Loader=yaml.FullLoader)
 
     return dic
+
+def check_and_create_dir(dir_path):
+    if not os.path.isdir(dir_path):
+        os.mkdir(dir_path)
