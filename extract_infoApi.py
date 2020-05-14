@@ -21,7 +21,7 @@ if not os.path.isdir(STATUS_DIR):
     os.mkdir(STATUS_DIR)
 PART_TYPE = ["furniture_part", "connector_part"]
 
-condition = [
+reverse_condition = [
     [0, 1, 2], # flat_head_screw_iso
     [1, 2], # ikea_l_bracket
     [], # ikea_stefan_bottom
@@ -68,9 +68,7 @@ def get_furniture_info(step_list, logger):
             part_type = PART_TYPE[1]
             part_name, quantity = part_name.split("(")
             quantity = quantity.replace("ea)", "")
-        cd = condition[class_id]
-        print(part_name, cd)
-        assembly_points = get_assembly_points(step_file, part_name, logger, condition=cd)
+        assembly_points = get_assembly_points(step_file, part_name, logger)
         furniture_info[part_name] = {
             "class_id": class_id,
             "type": part_type,
