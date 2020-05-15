@@ -36,6 +36,13 @@ def float_to_exponential(float_value_list):
     
     return ex_list
 
+def get_dcm_from_quat(quat):
+    r = R.from_quat(quat)
+    r = r.as_dcm()
+    r = list(r)
+
+    return r
+
 def get_quat_from_dcm(x, y, z):
     r = R.from_dcm(np.array([x, y, z]))
     r = r.as_quat()
@@ -43,6 +50,18 @@ def get_quat_from_dcm(x, y, z):
 
     return r
 
+def check_parallel(vec1, vec2):
+    epsilon = 0.001
+    inner_product = np.inner(vec1, vec2)
+    length_product = np.linalg.norm(vec1) * np.linalg.norm(vec2)
+    if length_product == 0:
+        return None
+    if inner_product / length_product > 1 - epsilon:
+        return True
+    elif inner_product / length_product < -1 + epsilon:
+        return True
+    else:
+        return False
 #--------------------------------------------
 #region freecad basic Api
 
@@ -187,7 +206,18 @@ class Circle(object):
             "y": Base.Vector(self.YAxis),
             "z": Base.Vector(self.direction)
         }
-        visualize_frame(self.name, obj_O, obj_axis)
+        _visualize_frame(self.name, obj_O, obj_axis)
+
+    def visualize_circle_frame_quat(self):
+        doc = get_active_doc()
+        obj_O = Base.Vector(self.position)
+        xyz = get_dcm_from_quat(self.quaternion)
+        obj_axis = {
+            "x": Base.Vector(xyz[0]),
+            "y": Base.Vector(xyz[1]),
+            "z": Base.Vector(xyz[2])
+        }
+        _visualize_frame(self.name, obj_O, obj_axis)
 
     def update_frame(self):
         circle = self.object.Shape.Curve
@@ -200,7 +230,7 @@ class Circle(object):
     def get_edge_index_from_shape(self, shape):
         edges = shape.Edges
         for ind, edge in enumerate(edges):
-            if not check_circle_edge(edge):
+            if not _check_circle_edge(edge):
                 continue
             circle = edge.Curve
             position = [circle.Center.x, circle.Center.y, circle.Center.z]
@@ -208,11 +238,70 @@ class Circle(object):
             if self.position == position and self.radius == radius:
                 self.edge_indexes.append(ind)
     
+    def get_position_m(self):
+        position = np.array(self.position) * 0.001
+
+        return list(position)
+
     def reverse(self):
         rotate_obj(self.object, 180.0, Base.Vector(self.position), Base.Vector(self.XAxis))
         self.update_frame()
 
-def visualize_frame(obj_name, obj_O, obj_axis):
+class Hole(object):
+    def __init__(self, position, direction, circle):
+        self.position = position
+        self.direction = direction
+        self.circle_group = [circle]
+        self.start_circle = circle
+        self.radius = circle.radius
+        self.min_value = np.inner(np.array(circle.position), np.array(self.direction))
+        self.max_value = self.min_value
+        self.depth = 0
+
+    def check_circle_in_hole(self, circle):
+        dif_dir = np.linalg.norm(np.array(self.direction)- np.array(circle.direction))
+        if not dif_dir < 0.0001:
+            return False
+        if self.position == circle.position:
+            return True
+        dif_vec = np.array(self.position) - np.array(circle.position)
+        direction = np.array(self.direction)
+        parallel = check_parallel(dif_vec, direction)
+        if parallel:
+            return True
+        else:
+            return False
+    
+    def add_circle(self, circle):
+        """add circle to circle_group
+
+        Arguments:
+            circle {Circle} -- [description]
+        """
+        self.circle_group.append(circle)
+        dir_pos = np.inner(np.array(circle.position), np.array(self.direction))
+        if dir_pos < self.min_value:
+            self.start_circle = circle                
+            self.min_value = dir_pos
+        if dir_pos > self.max_value:
+            self.max_value = dir_pos
+        if circle.radius < self.radius:
+            self.radius = circle.radius
+        self.update_depth()
+
+    def update_depth(self):
+        self.depth = float(self.max_value - self.min_value)
+    
+    def create_hole(self, hole_name):
+        position = Base.Vector(self.start_circle.position)
+        direction = Base.Vector(self.direction)
+        radius = self.radius
+        self.name = hole_name
+        self.shape = Part.makeCylinder(self.radius, self.depth, position, direction, 360)
+        self.object = show_shape_in_doc(self.shape, hole_name)
+
+
+def _visualize_frame(obj_name, obj_O, obj_axis):
     """visualize coordinate of object
     
     Arguments:
@@ -230,7 +319,7 @@ def visualize_frame(obj_name, obj_O, obj_axis):
         color[idx] = 1.0
         set_obj_color(frame_name, tuple(color))
 
-def get_circle_wire(shape):
+def _get_circle_wire(shape):
     """get only circle wires from FreeCAD shape
 
     Arguments:
@@ -248,18 +337,18 @@ def get_circle_wire(shape):
         wires = f.Wires
         for wire in wires:
             is_circle = True
-            if not check_plane_wire(wire):
+            if not _check_plane_wire(wire):
                 continue
             edges = wire.Edges
             for edge in edges:
-                if not check_circle_edge(edge):
+                if not _check_circle_edge(edge):
                     is_circle = False
             if is_circle:
                 circle_wires.append(wire)
 
     return circle_wires
 
-def check_plane_wire(wire):
+def _check_plane_wire(wire):
     is_plane = True
     plane_condition = 1e-3
     bbox = wire.BoundBox
@@ -273,7 +362,7 @@ def check_plane_wire(wire):
     
     return is_plane
 
-def check_circle_edge(edge):
+def _check_circle_edge(edge):
     is_circle = True
     try:
         if(isinstance(edge.Curve, Part.Circle)):
@@ -285,7 +374,7 @@ def check_circle_edge(edge):
 
     return is_circle
 
-def wire_to_circle(circle_wire, Edges):
+def _wire_to_circle(circle_wire, Edges):
     """wire to class(Circle)
     
     - check each edges in wire
@@ -315,8 +404,10 @@ def wire_to_circle(circle_wire, Edges):
             circle = Circle(radius, position, XAxis, YAxis, ZAxis)
             unique_circle.append(pos_r)
             Circles.append(circle)
-    
-    return Circles
+    if len(Circles) > 1:
+        return None
+
+    return Circles[0]
 
 def _visualize_world_coordinate(frame_name="world"):
     obj_name = frame_name
@@ -326,7 +417,12 @@ def _visualize_world_coordinate(frame_name="world"):
         "y": Base.Vector(0, 1, 0),
         "z": Base.Vector(0, 0, 1)
     }
-    visualize_frame(obj_name, obj_O, obj_axis)
+    _visualize_frame(obj_name, obj_O, obj_axis)
+
+def _get_hole_from_circle(circle):
+    position = circle.position
+    direction = circle.direction
+
 
 def get_assembly_points(step_path, step_name, logger, condition=None):
     """get assembly_points from step file
@@ -357,14 +453,10 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
     shape = obj.Shape
     Edges = shape.Edges
     logger.debug(f"Extract Object Name: {obj.Name}")
-    circle_wires = get_circle_wire(shape)
-    assembly_points = []
+    circle_wires = _get_circle_wire(shape)
+    assembly_holes = []
     for idx, wire in enumerate(circle_wires):
-        circle_list = wire_to_circle(wire, Edges)
-        if len(circle_list) > 1:
-            print("too many circle in one wire!!")
-            continue
-        circle = circle_list[0]
+        circle = _wire_to_circle(wire, Edges)
         circle.get_edge_index_from_shape(shape)
         circle_name = "circle_edge" + "_" + str(idx)
         circle.create_circle(circle_name)
@@ -372,22 +464,30 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
         if type(condition) == list:
             if idx in condition:
                 circle.reverse()
+        is_used = False
+        for h in assembly_holes:
+            if h.check_circle_in_hole(circle):
+                h.add_circle(circle)
+                is_used = True
+        if not is_used:
+            hole = Hole(circle.position, circle.direction, circle)
+            assembly_holes.append(hole)
+    assembly_points = []
+    for idx, hole in enumerate(assembly_holes):
         assembly_point = {
             "id": idx,
-            "edge_indexes": circle.edge_indexes,
-            "radius": circle.radius,
+            "edge_indexes": hole.start_circle.edge_indexes,
+            "radius": hole.radius,
+            "depth": hole.depth * 0.001,
             "pose": {
-                "position": float_to_exponential(circle.position),
-                "quaternion": float_to_exponential(circle.quaternion)
+                "position": float_to_exponential(hole.start_circle.get_position_m()),
+                "quaternion": float_to_exponential(hole.start_circle.quaternion)
             }
         }
+        hole_name = "assembly_point" + "_" + str(idx)
+        hole.create_hole(hole_name)
+        hole.start_circle.visualize_circle_frame_quat()
         assembly_points.append(assembly_point)
-        circle.visualize_circle_frame()
-        
-    # visualize object frame    
-    # compound_name = step_name + "_compound"
-    # compound_doc_objects(compound_name)
-    
     save_doc_name = step_name
     save_doc(save_doc_name)
     close_doc(doc_name)
@@ -399,7 +499,7 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
 #------------------------------------------------------------
 #region assembly Api
 
-def constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge):
+def _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge):
     """add circular edge constraint in document
 
     Arguments:
@@ -431,7 +531,7 @@ def constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge
     s2 = a2plib.SelectionExObject(doc, child_obj, child_edge)
     cc = a2pconst.CircularEdgeConstraint([s1, s2])
 
-def solve_constraints(doc):
+def _solve_constraints(doc):
     """solve constraints in document
 
     Arguments:

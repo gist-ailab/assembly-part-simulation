@@ -26,15 +26,15 @@ if __name__ == "__main__":
     
     #---------------------------------------
     #region initialize
-    # initialize_furniture_config(FURNITURE_NAME, logger)
+    initialize_furniture_config(FURNITURE_NAME, logger)
 
     #endregion
 
     #---------------------------------------
     #region assembly for each instruction
     
-    initialize_assembly_status(FURNITURE_NAME, instruction_step, logger)
-    start_assemble(FURNITURE_NAME, instruction_step, logger)
+    # initialize_assembly_status(FURNITURE_NAME, instruction_step, logger)
+    # start_assemble(FURNITURE_NAME, instruction_step, logger)
 
     #endregion
 

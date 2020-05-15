@@ -8,7 +8,7 @@
 .idea
 # debugging
 /__pycache__
-
+*.txt
 # vscode setting json
 /.vscode
 *.json

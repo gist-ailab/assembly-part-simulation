@@ -13,7 +13,8 @@ FURNITURE_INFO_DIR = join(OUTPUT_PATH, "furniture_info") # save furniture inform
 check_and_create_dir(FURNITURE_INFO_DIR)
 PART_INFO_DIR = join(OUTPUT_PATH, "part_info") # save furniture instance directory
 check_and_create_dir(PART_INFO_DIR)
-
+TRANSFER_INFO_DIR = join(CURRENT_PATH, "transfer_data")
+check_and_create_dir(TRANSFER_INFO_DIR)
 
 PART_TYPE = ["furniture_part", "connector_part"]
 
@@ -24,12 +25,12 @@ reverse_condition = [
     [3,4,5,7,8,9,10,11], # ikea_stefan_long
     [0,1,2,6,7,8,9,11], # ikea_stefan_middle
     [3,4,5,7,8,9,10,11], # ikea_stefan_short
-    [0,1,2,4,5,6,8,9,10,11,13,14,15, 16, 17, 18, 19], # ikea_stefan_side_left 
-    [3,7,12], # ikea_stefan_side_right
+    [3,7,12], # ikea_stefan_side_left
+    [0,1,2,4,5,6,8,9,10,11,13,14,15, 16, 17, 18, 19], # ikea_stefan_side_right
     [], # ikea_wood_pin
     [0,1,2] # pan_head_screw_iso
 ]
-
+check_reverse = True
 
 #----------------------------------------------
 #region extract from CAD files
@@ -48,7 +49,7 @@ def initialize_furniture_info(furniture_name, logger):
     furniture_info = get_furniture_info(step_list, logger)
     yaml_path = join(FURNITURE_INFO_DIR, yaml_name)
     save_dic_to_yaml(furniture_info, yaml_path)
-
+    
 def get_furniture_info(step_list, logger):
     logger.debug("extract furniture information")
     furniture_info = {}
@@ -64,7 +65,11 @@ def get_furniture_info(step_list, logger):
             part_type = PART_TYPE[1]
             part_name, quantity = part_name.split("(")
             quantity = quantity.replace("ea)", "")
-        assembly_points = get_assembly_points(step_file, part_name, logger)
+        if check_reverse:
+            cd = reverse_condition[class_id]
+        else:
+            cd = None
+        assembly_points = get_assembly_points(step_file, part_name, logger, condition=cd)
         furniture_info[part_name] = {
             "class_id": class_id,
             "type": part_type,
@@ -128,5 +133,6 @@ def initialize_furniture_config(furniture_name, logger):
     initialize_furniture_info(furniture_name, logger)    
     # initialize part instance
     initialize_part_info(furniture_name, logger)
+    
 
 #endregion
