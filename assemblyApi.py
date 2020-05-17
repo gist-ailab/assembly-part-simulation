@@ -1,6 +1,5 @@
 import os
 from fileApi import *
-from extract_infoApi import get_initial_part_status
 import logging
 
 
@@ -13,6 +12,10 @@ OUTPUT_PATH = join(CURRENT_PATH, "output")
 check_and_create_dir(OUTPUT_PATH)
 STATUS_DIR = join(OUTPUT_PATH, "assembly_status")
 check_and_create_dir(STATUS_DIR)
+#----------------------------------------------------
+FURNITURE_INFO_DIR = join(OUTPUT_PATH, "furniture_info") # save furniture information directory
+PART_INFO_DIR = join(OUTPUT_PATH, "part_info") # save furniture instance directory
+FREECAD_DOCUMENT_PATH = join(OUTPUT_PATH, "FCDocument")
 
 def _load_instruction_info(furniture_name, instruction_step=1):
     instruction = "instruction_" + str(instruction_step) + ".yaml"
@@ -36,7 +39,7 @@ def _get_previous_assemble_status_list(furniture_name, instruction_step):
     """
     status_list = []
     if instruction_step == 1: # start assemble
-        initial_status = get_initial_part_status(furniture_name)
+        initial_status = _get_initial_part_status(furniture_name)
         status_list.append(initial_status)
     else:
         previous_instruction = "instruction_" + str(instruction_step - 1) 
@@ -47,6 +50,25 @@ def _get_previous_assemble_status_list(furniture_name, instruction_step):
             status_list.append(load_yaml_to_dic(status))
 
     return status_list
+
+def _get_initial_part_status(furniture_name):
+    furniture_info_path = join(FURNITURE_INFO_DIR, furniture_name + ".yaml")
+    furniture_info = load_yaml_to_dic(furniture_info_path)
+    
+    initial_status = {}
+
+    for part_name in furniture_info.keys():
+        quantity = furniture_info[part_name]["quantity"]
+        for q in range(quantity):
+            instance_name = part_name + "_" + str(q)
+            doc_name = part_name + ".FCStd"
+            instance_info = {
+                "child": [],
+                "document": doc_name
+            }
+            initial_status[instance_name] = instance_info 
+
+    return initial_status
 
 def initialize_assembly_status(furniture_name, instruction_step, logger):
     logger.info(f"Initialize before instruction {instruction_step} assembly")
@@ -84,7 +106,18 @@ def start_assemble(furniture_name, instruction_step, logger):
     if instruction_info == None:
         logger.warning(f"No instruction {instruction_step}")
         return None
+    parts_sequence = get_part_sequence(instruction_info) # 파트 조립 순서 
+    assemlbe_parts(parts_sequence)
+
+def assemble_part(furniture_name, part_a_name, part_b_name):
+    part_a_info = _get_part_info(furniture_name, part_a_name)
+
+def _get_part_info(furniture_name, part_name):
+    parts_info_path = join(PART_INFO_DIR, furniture_name + ".yaml")
+    parts_info = load_yaml_to_dic(parts_info_path)
+    part_type = parts_info[part_name]["type"]
     
+
 
 def _check_same_status(status_1, status_2):
     

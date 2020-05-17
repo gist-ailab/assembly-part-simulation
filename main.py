@@ -2,7 +2,7 @@ import os
 from os.path import join, isfile, isdir
 from os import listdir
 from fileApi import get_dir_list, get_file_list, save_dic_to_yaml
-from extract_infoApi import initialize_furniture_config
+# from extract_infoApi import initialize_furniture_config
 from assemblyApi import initialize_assembly_status, start_assemble
 
 import logging
@@ -24,17 +24,17 @@ if __name__ == "__main__":
     
     #endregion
     
-    #---------------------------------------
+    #---------------------------------------------------
     #region initialize
-    initialize_furniture_config(FURNITURE_NAME, logger)
+    # initialize_furniture_config(FURNITURE_NAME, logger)
 
     #endregion
 
-    #---------------------------------------
+    #---------------------------------------------------
     #region assembly for each instruction
     
-    # initialize_assembly_status(FURNITURE_NAME, instruction_step, logger)
-    # start_assemble(FURNITURE_NAME, instruction_step, logger)
+    initialize_assembly_status(FURNITURE_NAME, instruction_step, logger)
+    start_assemble(FURNITURE_NAME, instruction_step, logger)
 
     #endregion
 

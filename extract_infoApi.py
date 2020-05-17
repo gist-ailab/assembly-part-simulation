@@ -105,22 +105,6 @@ def get_part_info(furniture_info):
 
     return part_info
 
-def get_initial_part_status(furniture_name):
-    yaml_name = furniture_name + ".yaml"
-    furniture_info_path = join(FURNITURE_INFO_DIR, furniture_name + ".yaml")
-    furniture_info = load_yaml_to_dic(furniture_info_path)
-    
-    initial_status = {}
-
-    for part_name in furniture_info.keys():
-        quantity = furniture_info[part_name]["quantity"]
-        for q in range(quantity):
-            instance_name = part_name + "_" + str(q)
-            instance_info = {}
-            initial_status[instance_name] = instance_info 
-
-    return initial_status
-
 def initialize_furniture_config(furniture_name, logger):
     """initialize furniture information
         1. extract assembly points for each parts

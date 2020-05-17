@@ -540,17 +540,16 @@ def _solve_constraints(doc):
     solsys = solver.SolverSystem()
     solsys.solveSystem(doc)
 
-def assemble_parts(parent_name, child_name):
+def assemble_parts(assemble_doc, parent_doc, child_doc):
     """assemle two parts
 
     Arguments:
-        parent_name {[string]} -- [instance name of parent part]
-        child_name {[string]} -- [instance name of child part]
+        assemble_doc{[string]} -- [instance PATH of assemble document]
+        parent_doc {[string]} -- [instance PATH of parent document]
+        child_doc {[string]} -- [instance PATH of child document]
     """
-    doc_name = "assemble"
-    # load assemble points
-    # for all assemble points pairs 
-
+    importPartFromFile(doc, parent_doc)
+    importPartFromFile(doc, child_doc)
 
 
 #endregion
