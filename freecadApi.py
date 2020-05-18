@@ -28,6 +28,9 @@ check_and_create_dir(OUTPUT_PATH)
 FREECAD_DOCUMENT_PATH = join(OUTPUT_PATH, "FCDocument")
 check_and_create_dir(FREECAD_DOCUMENT_PATH)
 
+ASSEMBLY_DOCUMENT_DIR = join(OUTPUT_PATH, "assemlby_document")
+check_and_create_dir(ASSEMBLY_DOCUMENT_DIR)
+
 OBJ_PATH = join(OUTPUT_PATH, "obj")
 check_and_create_dir(OBJ_PATH)
 
@@ -115,6 +118,12 @@ def save_doc_as(save_doc_name):
     doc = get_active_doc()
     doc.saveAs(save_doc_path)
 
+def save_assem_doc_as(save_doc_name):
+    save_doc_name += ".FCStd"
+    save_doc_path = join(ASSEMBLY_DOCUMENT_DIR, save_doc_name)
+    doc = get_active_doc()
+    doc.saveAs(save_doc_path)
+
 def close_doc(close_doc_name):
     FreeCAD.closeDocument(close_doc_name)
 
@@ -191,7 +200,7 @@ class Circle(object):
         self.YAxis = YAxis
         self.direction = ZAxis
         self.quaternion = get_quat_from_dcm(self.XAxis, self.YAxis, self.direction)
-        self.edge_indexes = []
+        self.edge_index = []
         
     def create_circle(self, circle_name):
         position = Base.Vector(self.position)
@@ -236,9 +245,12 @@ class Circle(object):
                 continue
             circle = edge.Curve
             position = [circle.Center.x, circle.Center.y, circle.Center.z]
+            axis = [circle.Axis.x, circle.Axis.y, circle.Axis.z]
             radius = circle.Radius
             if self.position == position and self.radius == radius:
-                self.edge_indexes.append(ind)
+                if self.direction == axis:
+                    self.edge_index.append(ind)
+                    break
     
     def get_position_m(self):
         position = np.array(self.position) * 0.001
@@ -455,6 +467,7 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
     logger.debug(f"Extract Object Name: {obj.Name}")
     circle_wires = _get_circle_wire(shape)
     assembly_holes = []
+    #region find circles from cad file
     for idx, wire in enumerate(circle_wires):
         circle = _wire_to_circle(wire, Edges)
         circle_name = "circle_edge" + "_" + str(idx)
@@ -471,15 +484,18 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
         if not is_used:
             hole = Hole(circle.position, circle.direction, circle)
             assembly_holes.append(hole)
-    assembly_points = []
+    #endregion
+    assembly_points = {}
     for idx, hole in enumerate(assembly_holes):
-        assembly_point = {
-            "id": idx,
+        hole.start_circle.get_edge_index_from_shape(shape)
+        key = "id_" + str(idx)
+        assembly_point[key] = {
             "radius": hole.radius,
+            "edge_idx": hole.start_circle.edge_index
             "depth": hole.depth * 0.001,
             "pose": {
-                "position": float_to_exponential(hole.start_circle.get_position_m()),
-                "quaternion": float_to_exponential(hole.start_circle.quaternion)
+                "position": float(hole.start_circle.get_position_m()),
+                "quaternion": float(hole.start_circle.quaternion)
             }
         }
         hole_name = "assembly_point" + "_" + str(idx)
@@ -525,20 +541,23 @@ def _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edg
     """
     parent_obj.fixedPosition = True
     child_obj.fixedPosition = False
-    s1 = a2plib.SelectionExObject(doc, parent_obj, parent_edge)
-    s2 = a2plib.SelectionExObject(doc, child_obj, child_edge)
+    s1 = a2plib.SelectionExObject(doc, parent_obj, "Edge" + str(parent_edge))
+    s2 = a2plib.SelectionExObject(doc, child_obj, "Edge" + str(child_edge))
     cc = a2pconst.CircularEdgeConstraint([s1, s2])
 
-def _solve_constraints(doc):
-    """solve constraints in document
+    return cc
 
-    Arguments:
-        doc {FreeCAD Document} -- [document that assembly part in]
-    """
-    solsys = solver.SolverSystem()
-    solsys.solveSystem(doc)
-
-def assemble_parts(part_a_info, part_a_doc, part_b_info, part_b_doc):
+def initialize_assembly_doc(instance_info):
+    for instance_name in instance_info.keys():
+        part_name = instance_info[instance_name]["part"]
+        doc_name = instance_name
+        doc = create_doc(doc_name)
+        part_doc = join(FREECAD_DOCUMENT_PATH, part_name + ".FCStd")
+        importPartFromFile(doc, part_doc)
+        save_assem_doc_as(doc_name)
+        close_doc(doc_name)
+    
+def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pairs):
     """assemle two parts
 
     Arguments:
@@ -546,23 +565,81 @@ def assemble_parts(part_a_info, part_a_doc, part_b_info, part_b_doc):
         parent_doc {[string]} -- [instance PATH of parent document]
         child_doc {[string]} -- [instance PATH of child document]
     """
+    #region calculate parent
+    part_a_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_a_doc)
+    part_b_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_b_doc)
+    doc_a = open_doc(part_a_doc_path)
+    doc_b = open_doc(part_b_doc_path)
+    objs_a = doc_a.findObjects()
+    objs_b = doc_b.findObjects()
+    area_a = _get_objs_area(objs_a)
+    area_b = _get_objs_area(objs_b)
+    if area_a < area_b:
+        parent = 1
+    else:
+        parent = 0
+    #endregion
+    
+    #region copy objects in current document
     time_stamp = datetime.now().strftime('%m-%d %H:%M:%S')
     doc_name = "assmebly_" +  time_stamp
     doc = create_doc(doc_name)
-    save_doc_as(doc_name)
+    save_assem_doc_as(doc_name)
     
-    part_a = importPartFromFile(doc, part_a_doc)
-    part_b = importPartFromFile(doc, part_b_doc)
-    shape_a = part_a.Shape
-    shape_b = part_b.Shape
-    if shape_a.Area > shape_b.Area:
-        parent = 0
-    else:
-        parent = 1
+    _copy_objects_in_docs(doc, objs_a + objs_b)
+    close_doc(doc_a.Name)
+    close_doc(doc_b.Name)
+    solsys = solver.SolverSystem()
+    solsys.solveSystem(doc)
+    parts_in_doc = [obj for obj in doc.findObjects() if a2plib.isA2pObject(obj)]
+    parts_a = part_a_info.keys()
+    parts_b = part_b_info.keys()
+    parts_dic = {}
+    for part_instance in parts_a + parts_b:
+        obj_name = "b_" part_instance + "_001"
+        parts_dic[part_instance] = doc.getObject(obj_name)
+    #endregion
+    assemble_point_pairs = []
+    constraint_num = 0
+    for pair in assembly_pairs:
+        if parent == 0:
+            parent_name, p_ap = pair[0]
+            child_name, c_ap = pair[1]
+            parent_edge = part_a_info[parent_name][p_ap]
+            child_edge = part_b_info[child_name][c_ap]
+        else:
+            parent_name, p_ap = pair[1]
+            child_name, c_ap = pair[0]
+            parent_edge = part_b_info[parent_name][p_ap]
+            child_edge = part_a_info[child_name][c_ap]
+        parent_obj = parts_dic[parent_name]
+        child_obj = parts_dic[child_name]
+        _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge)
+        solve = solsys.solveSystem(doc)
+        if solve:
+            assemble_point_pairs.append(pair)
     
-    
-    doc.save()
+    #TODO: more constraints
 
-    return parent, doc_name
+    doc.save()
+    close_doc(doc_name)
+
+    return parent, doc_name, assemble_point_pairs
+
+def _copy_objects_in_docs(doc, objs):
+    """copy object from other doc 
+    """
+    for obj in objs:
+        doc.copyObject(obj)
+
+def _get_objs_area(objs):
+    area = 0
+    for obj in objs:
+        try:
+            area += obj.Shape.Area
+        except:
+            pass
+
+    return area
 
 #endregion

@@ -1,6 +1,6 @@
 import os
 from fileApi import *
-from freecadApi import assemble_parts
+from freecadApi import assemble_parts, initialize_assembly_doc
 import logging
 
 
@@ -42,14 +42,17 @@ def start_assemble(furniture_name, instruction_step, logger):
         part_A = parts_sequence[0]
         
         for seq_idx, part_B in enumerate(parts_sequence[1:]):
-            parent_part, result_document = _assemble_part_A_B(part_A, part_B)
+            #TODO:
+            parent_part, result_document, assemble_pairs = _assemble_part_A_B(part_A, part_B)
             if parent_part == part_A:
                 child_part = part_B
             elif parent_part == part_B:
                 child_part = part_A
             else:
                 logger.warning("error no assembly result")
-            # update status
+            # assemble pairs 
+            # [(part_name, ), 1]
+            #region update status
             new_status = {}
             for previous_parent in _current_status.keys():
                 if previous_parent == child_part:
@@ -57,7 +60,10 @@ def start_assemble(furniture_name, instruction_step, logger):
                 else:
                     new_status[previous_parent] = _current_status[previous_parent]
                 if previous_parent == parent_part:
-                    new_status[parent_part]["child"].append(child_part)
+                    child_status = {
+                        "unused_points": _current_status[child_part]
+                    }
+                    new_status[parent_part]["child"][child_part] = 
                     new_status[parent_part]["document"] = result_document
                 else:
                     pass
@@ -66,33 +72,84 @@ def start_assemble(furniture_name, instruction_step, logger):
             save_dic_to_yaml(new_status, new_status_path)
             _current_status = new_status
             part_A = parent_part
-    
-def _assemble_part_A_B(part_a_name, part_b_name):
-    part_a_info, part_a_doc = _get_assemble_info(part_a_name)
-    part_b_info, part_b_doc = _get_assemble_info(part_b_name)
-    parent_part, result_doc = assemble_parts(part_a_info, part_a_doc, part_b_info, part_b_doc)
+            #endregion
 
-    return parent_part, result_doc
+
+def _assemble_part_A_B(part_a_name, part_b_name):
+    """
+    part_a_name: instance name of part
+    """
+    part_a_assembly_points, part_a_doc = _get_assemble_info(part_a_name)
+    part_b_assemlby_points, part_b_doc = _get_assemble_info(part_b_name)
+    
+    point_pairs = _get_point_pairs(part_a_assembly_points, part_b_assemlby_points)
+    parent_idx, result_doc, assembly_point_pairs = assemble_parts(part_a_assembly_points, 
+                                                                   part_b_assemlby_points,
+                                                                   part_a_doc, part_b_doc, 
+                                                                   point_pairs)
+    if parent_idx == 0:
+        parent_part = part_a_name
+    else:
+        parent_part = part_b_name
+
+    return parent_part, result_doc, assembly_point_pairs
+
+def _get_point_pairs(assembly_points_a, assemlby_points_b):
+    """
+    return:
+        assembly_pairs {list of tuple}
+            [((part_in_a, point_key), (part_in_b, point_key)), ...]
+    """
+    assemlby_pairs = []
+    assembly_points_a_list = []
+    assembly_points_b_list = []
+    for p_a in assembly_points_a.keys():
+        for ap_a in assembly_points_a[p_a].keys():
+            assembly_points_a_list.append((p_a, ap_a))
+    for p_b in assembly_points_b.keys():
+        for ap_b in assembly_points_b[p_b].keys():
+            assembly_points_b_list.append((p_b, ap_b))
+    for ap_a in assembly_points_a_list:
+        for ap_b in assembly_points_b_list:
+            assemlby_pairs.append((ap_a, ap_b))
+        
+    return assemlby_pairs
 
 def _get_assemble_info(instance_name):
     """get assemlby points and document of part_instance
-    1. get assemlby points info from furniture_info
-        both parent and child
-    2. get document name from current status
+    1. get document name from current status
+    2. get assemlby points info from furniture_info
+        parent:
+            id_0:
+                point_info_dic
+            id_1:
+                point_info_dic
+            id_3:
+                point_info_dic
+        child1:
+            id_0:
+                point_info_dic
+            ...
     Arguments:
-        part_name {string} -- [instance name of part]
+        instance_name {string} -- [instance name of part]
     """
     part_doc = _current_status[instance_name]["document"]
     
-    part_info = {}
-    part_info["parent"] = _instance_info[instance_name]["part"]
-    part_info["child"] = {}
-    child_list = _current_status[instance_name]["child"]
+    assembly_points = {}
+    assembly_points[instance_name] = _current_status[instance_name]["unused_points"]
+    child_list = _current_status[instance_name]["child"].keys()
     for child_instance in child_list:
-        part_name = _instance_info[child_instance]["part"]
-        part_info["child"].append(_furniture_info[part_name])
+        assembly_points[child_instance] = _current_status[instance_name]["child"]["unused_points"]
+    for assembly_instance in assembly_points.keys():
+        points_info = {}
+        part_name = _instance_info[assembly_instance]["part"]
+        points_candidate = _furniture_info[part_name]["assembly_points"]
+        for point_idx in assembly_points[assembly_instance]:
+            key = "id_" + str(point_idx)
+            points_info[key] = points_candidate[key]
+        assembly_points[assembly_instance] = points_info
     
-    return part_info, part_doc
+    return assembly_info, part_doc
 
 def _initialize_assembly_status(furniture_name, instruction_step, logger):
     global _furniture_name, _instruction_step, _initial_status
@@ -147,6 +204,7 @@ def _get_previous_assemble_status_list(logger):
     """
     status_list = []
     if _instruction_step == 1: # start assemble
+        initialize_assembly_doc(_instance_info)
         status = _get_initial_part_status()
         status_list.append(status)
     else:
@@ -163,12 +221,15 @@ def _get_initial_part_status():
     initial_status = {}
     for part_name in _furniture_info.keys():
         quantity = _furniture_info[part_name]["quantity"]
+        assembly_point_num = len(_furniture_info[part_name]["assembly_points"].keys())
         for q in range(quantity):
             instance_name = part_name + "_" + str(q)
-            doc_name = part_name + ".FCStd"
+            doc_name = instance_name + ".FCStd"
             instance_info = {
-                "child": [],
-                "document": doc_name
+                "child": {},
+                "unused_points": range(assembly_point_num),
+                "document": doc_name,
+                "assembly_sequence": []
             }
             initial_status[instance_name] = instance_info 
 
