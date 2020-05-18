@@ -77,13 +77,21 @@ def _assemble_part_A_B(part_a_name, part_b_name):
 def _get_assemble_info(instance_name):
     """get assemlby points and document of part_instance
     1. get assemlby points info from furniture_info
+        both parent and child
     2. get document name from current status
     Arguments:
         part_name {string} -- [instance name of part]
     """
-    part_name = _instance_info[instance_name]["part"]
-    part_info = _furniture_info[part_name] 
     part_doc = _current_status[instance_name]["document"]
+    
+    part_info = {}
+    part_info["parent"] = _instance_info[instance_name]["part"]
+    part_info["child"] = {}
+    child_list = _current_status[instance_name]["child"]
+    for child_instance in child_list:
+        part_name = _instance_info[child_instance]["part"]
+        part_info["child"].append(_furniture_info[part_name])
+    
     return part_info, part_doc
 
 def _initialize_assembly_status(furniture_name, instruction_step, logger):

@@ -2,6 +2,8 @@ from fileApi import *
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 from decimal import Decimal
+from datetime import datetime
+import time
 #------------------------------------------------
 #region freecad library
 import import_fcstd # add path for import FreeCAD
@@ -107,7 +109,7 @@ def create_doc(doc_name):
 
     return doc
 
-def save_doc(save_doc_name):
+def save_doc_as(save_doc_name):
     save_doc_name += ".FCStd"
     save_doc_path = join(FREECAD_DOCUMENT_PATH, save_doc_name)
     doc = get_active_doc()
@@ -485,7 +487,7 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
         hole.start_circle.visualize_circle_frame_quat()
         assembly_points.append(assembly_point)
     save_doc_name = step_name
-    save_doc(save_doc_name)
+    save_doc_as(save_doc_name)
     close_doc(doc_name)
 
     return assembly_points
@@ -544,10 +546,22 @@ def assemble_parts(part_a_info, part_a_doc, part_b_info, part_b_doc):
         parent_doc {[string]} -- [instance PATH of parent document]
         child_doc {[string]} -- [instance PATH of child document]
     """
-    # importPartFromFile(doc, parent_doc)
-    # importPartFromFile(doc, child_doc)
-    parent = 0
-    doc_name = "assmebly_time_stamp"
+    time_stamp = datetime.now().strftime('%m-%d %H:%M:%S')
+    doc_name = "assmebly_" +  time_stamp
+    doc = create_doc(doc_name)
+    save_doc_as(doc_name)
+    
+    part_a = importPartFromFile(doc, part_a_doc)
+    part_b = importPartFromFile(doc, part_b_doc)
+    shape_a = part_a.Shape
+    shape_b = part_b.Shape
+    if shape_a.Area > shape_b.Area:
+        parent = 0
+    else:
+        parent = 1
+    
+    
+    doc.save()
 
     return parent, doc_name
 
