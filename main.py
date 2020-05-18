@@ -33,7 +33,6 @@ if __name__ == "__main__":
     #---------------------------------------------------
     #region assembly for each instruction
     
-    initialize_assembly_status(FURNITURE_NAME, instruction_step, logger)
     start_assemble(FURNITURE_NAME, instruction_step, logger)
 
     #endregion

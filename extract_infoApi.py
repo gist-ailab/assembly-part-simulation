@@ -11,10 +11,8 @@ OUTPUT_PATH = join(CURRENT_PATH, "output")
 check_and_create_dir(OUTPUT_PATH)
 FURNITURE_INFO_DIR = join(OUTPUT_PATH, "furniture_info") # save furniture information directory
 check_and_create_dir(FURNITURE_INFO_DIR)
-PART_INFO_DIR = join(OUTPUT_PATH, "part_info") # save furniture instance directory
-check_and_create_dir(PART_INFO_DIR)
-TRANSFER_INFO_DIR = join(CURRENT_PATH, "transfer_data")
-check_and_create_dir(TRANSFER_INFO_DIR)
+INSTANCE_INFO_DIR = join(OUTPUT_PATH, "instance_info") # save furniture instance directory
+check_and_create_dir(INSTANCE_INFO_DIR)
 
 PART_TYPE = ["furniture_part", "connector_part"]
 
@@ -80,26 +78,26 @@ def get_furniture_info(step_list, logger):
 
     return furniture_info
 
-def initialize_part_info(furniture_name, logger):
+def initialize_instance_info(furniture_name, logger):
     logger.info("Initialize {} part instance information".format(furniture_name))
     yaml_name = furniture_name + ".yaml"
     
     furniture_info_path = join(FURNITURE_INFO_DIR, furniture_name + ".yaml")
     furniture_info = load_yaml_to_dic(furniture_info_path)
     
-    part_info = get_part_info(furniture_info)
-    yaml_path = join(PART_INFO_DIR, yaml_name)
+    part_info = get_instance_info(furniture_info)
+    yaml_path = join(INSTANCE_INFO_DIR, yaml_name)
     save_dic_to_yaml(part_info, yaml_path)
 
-def get_part_info(furniture_info):
-    part_info = {}
+def get_instance_info(furniture_info):
+    instance_info = {}
 
     for part_name in furniture_info.keys():
         quantity = furniture_info[part_name]["quantity"]
         for q in range(quantity):
             instance_name = part_name + "_" + str(q)
             instance_info = {
-                "type": part_name,
+                "part": part_name,
             }
             part_info[instance_name] = instance_info 
 

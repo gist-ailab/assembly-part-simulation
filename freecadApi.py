@@ -247,7 +247,7 @@ class Circle(object):
         rotate_obj(self.object, 180.0, Base.Vector(self.position), Base.Vector(self.XAxis))
         self.update_frame()
 
-class Hole(object):
+class Hole():
     def __init__(self, position, direction, circle):
         self.position = position
         self.direction = direction
@@ -299,7 +299,6 @@ class Hole(object):
         self.name = hole_name
         self.shape = Part.makeCylinder(self.radius, self.depth, position, direction, 360)
         self.object = show_shape_in_doc(self.shape, hole_name)
-
 
 def _visualize_frame(obj_name, obj_O, obj_axis):
     """visualize coordinate of object
@@ -423,7 +422,6 @@ def _get_hole_from_circle(circle):
     position = circle.position
     direction = circle.direction
 
-
 def get_assembly_points(step_path, step_name, logger, condition=None):
     """get assembly_points from step file
 
@@ -457,7 +455,6 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
     assembly_holes = []
     for idx, wire in enumerate(circle_wires):
         circle = _wire_to_circle(wire, Edges)
-        circle.get_edge_index_from_shape(shape)
         circle_name = "circle_edge" + "_" + str(idx)
         circle.create_circle(circle_name)
         # check reverse condition
@@ -476,7 +473,6 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
     for idx, hole in enumerate(assembly_holes):
         assembly_point = {
             "id": idx,
-            "edge_indexes": hole.start_circle.edge_indexes,
             "radius": hole.radius,
             "depth": hole.depth * 0.001,
             "pose": {
