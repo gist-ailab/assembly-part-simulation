@@ -1,5 +1,6 @@
 import os
 from fileApi import *
+from freecadApi import assemble_parts
 import logging
 
 
@@ -21,6 +22,7 @@ _furniture_name = "furniture_name"
 _furniture_info = {}
 _instance_info = {}
 _instruction_step = 1 
+_instruction_info = {}
 _furniture_status_dir = "output/assembly_status/furniture_name/instruction_step/"
 _current_instruction_dir = _furniture_status_dir + "instruction_step/"
 _initial_status = {}
@@ -28,10 +30,8 @@ _intermidiate_dir = _current_instruction_dir + "intermidiate"
 _final_dir = _current_instruction_dir + "final"
 _current_status = {}
 
-
-
-
 def start_assemble(furniture_name, instruction_step, logger):
+    global _current_status
     logger.info(f"Start to assemble {furniture_name} instruction {instruction_step}")
     _initialize_assembly_status(furniture_name, instruction_step, logger)
     _load_instruction_info(logger)
@@ -40,6 +40,7 @@ def start_assemble(furniture_name, instruction_step, logger):
         _current_status = _initial_status[start_status_key]
         parts_sequence = _get_parts_sequence(logger)
         part_A = parts_sequence[0]
+        
         for seq_idx, part_B in enumerate(parts_sequence[1:]):
             parent_part, result_document = _assemble_part_A_B(part_A, part_B)
             if parent_part == part_A:
@@ -65,18 +66,13 @@ def start_assemble(furniture_name, instruction_step, logger):
             save_dic_to_yaml(new_status, new_status_path)
             _current_status = new_status
             part_A = parent_part
-
-    assemlbe_parts(parts_sequence)
-
+    
 def _assemble_part_A_B(part_a_name, part_b_name):
     part_a_info, part_a_doc = _get_assemble_info(part_a_name)
     part_b_info, part_b_doc = _get_assemble_info(part_b_name)
-    assemble_parts(part_a_info, part_a_doc, part_b_info, part_b_doc)
-
+    parent_part, result_doc = assemble_parts(part_a_info, part_a_doc, part_b_info, part_b_doc)
 
     return parent_part, result_doc
-#TODO: move to freecadapi
-def assemble_parts(part_a_info, part_a_doc, part_b_info, part_b_doc)
 
 def _get_assemble_info(instance_name):
     """get assemlby points and document of part_instance
@@ -91,13 +87,14 @@ def _get_assemble_info(instance_name):
     return part_info, part_doc
 
 def _initialize_assembly_status(furniture_name, instruction_step, logger):
+    global _furniture_name, _instruction_step, _initial_status
     logger.info(f"Initialize assembly status")
     _furniture_name = furniture_name
     _initialize_extracted_info(logger)
     _instruction_step = instruction_step
     _initialize_assemble_dir(logger)
     try:
-        previous_status_list = _get_previous_assemble_status_list(furniture_name, instruction_step)    
+        previous_status_list = _get_previous_assemble_status_list(logger)    
     except:
         logger.warning("Fail to load previous status")
         return None
@@ -105,27 +102,29 @@ def _initialize_assembly_status(furniture_name, instruction_step, logger):
         status_name = "status_" + str(idx)
         _initial_status[status_name] = pre_status
     yaml_name = "initial_status.yaml"
-    yaml_path = join(current_instruction_dir, yaml_name)
+    yaml_path = join(_current_instruction_dir, yaml_name)
     save_dic_to_yaml(_initial_status, yaml_path)
 
 def _initialize_extracted_info(logger):
+    global _furniture_info, _instance_info
     furniture_info_path = join(FURNITURE_INFO_DIR, _furniture_name + ".yaml")
     _furniture_info = load_yaml_to_dic(furniture_info_path)
     instance_info_path = join(INSTANCE_INFO_DIR, _furniture_name + ".yaml")
     _instance_info = load_yaml_to_dic(instance_info_path)
 
 def _initialize_assemble_dir(logger):
-    furniture_status_dir = join(STATUS_DIR, _furniture_name)
-    if instruction_step == 1:
-        check_and_create_dir(furniture_status_dir)
-    _current_instruction_dir = join(furniture_status_dir, "instruction_" + str(instruction_step))
+    global _furniture_status_dir, _current_instruction_dir, _intermidiate_dir, _final_dir
+    _furniture_status_dir = join(STATUS_DIR, _furniture_name)
+    if _instruction_step == 1:
+        check_and_create_dir(_furniture_status_dir)
+    _current_instruction_dir = join(_furniture_status_dir, "instruction_" + str(_instruction_step))
     try:
         check_and_create_dir(_current_instruction_dir)
     except:
         logger.warning("Current instruction step assemble already exist!")
-    _intermidiate_dir = join(current_instruction_dir, "intermidiate")
+    _intermidiate_dir = join(_current_instruction_dir, "intermidiate")
     check_and_create_dir(_intermidiate_dir)
-    _final_dir = join(current_instruction_dir, "final")    
+    _final_dir = join(_current_instruction_dir, "final")    
     check_and_create_dir(_final_dir)
 
 def _get_previous_assemble_status_list(logger):
@@ -140,11 +139,11 @@ def _get_previous_assemble_status_list(logger):
     """
     status_list = []
     if _instruction_step == 1: # start assemble
-        status = _get_initial_part_status(_furniture_name)
+        status = _get_initial_part_status()
         status_list.append(status)
     else:
         previous_instruction = "instruction_" + str(_instruction_step - 1) 
-        previous_instruction_dir = join(STATUS_DIR, furniture_name, previous_instruction)
+        previous_instruction_dir = join(_furniture_status_dir, previous_instruction)
         previous_status_dir = join(previous_instruction_dir, "final")
         status_file_list = get_file_list(previous_status_dir)
         for status in status_file_list:
@@ -180,7 +179,7 @@ def _get_parts_sequence(logger):
         for idx in range(quantity):
             instance_part = _get_instance(idx, part_name, _current_status)
             if instance_part == None:
-                print("error for find instance")
+                logger.warning("fail to find parent part")
             part_sequence.append(instance_part)
     
     #TODO: sort sequence
@@ -199,7 +198,8 @@ def _get_instance(pass_num, part_name, status):
     return None
 
 def _load_instruction_info(logger):
-    instruction = "instruction_" + str(instruction_step) + ".yaml"
+    global _instruction_info
+    instruction = "instruction_" + str(_instruction_step) + ".yaml"
     yaml_path = join(INSTRUCTION_DIR, _furniture_name, instruction)
     try:
         _instruction_info = load_yaml_to_dic(yaml_path)

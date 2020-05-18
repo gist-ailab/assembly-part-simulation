@@ -1,9 +1,6 @@
 flat_head_screw_iso:
   assembly_points:
   - depth: 0.06
-    edge_indexes:
-    - 21
-    - 60
     id: 0
     pose:
       position:
@@ -23,9 +20,6 @@ flat_head_screw_iso:
 ikea_l_bracket:
   assembly_points:
   - depth: 0.009999999999999998
-    edge_indexes:
-    - 9
-    - 32
     id: 0
     pose:
       position:
@@ -39,9 +33,6 @@ ikea_l_bracket:
       - '-5.00000E-1'
     radius: 2.0000000000000053
   - depth: 0.0015
-    edge_indexes:
-    - 5
-    - 58
     id: 1
     pose:
       position:
@@ -67,9 +58,6 @@ ikea_stefan_bottom:
 ikea_stefan_long:
   assembly_points:
   - depth: 0.022999999999999972
-    edge_indexes:
-    - 1
-    - 32
     id: 0
     pose:
       position:
@@ -83,9 +71,6 @@ ikea_stefan_long:
       - '7.07107E-1'
     radius: 4.0
   - depth: 0.022999999999999972
-    edge_indexes:
-    - 5
-    - 33
     id: 1
     pose:
       position:
@@ -99,9 +84,6 @@ ikea_stefan_long:
       - '7.07107E-1'
     radius: 2.5000000000000004
   - depth: 0.022999999999999972
-    edge_indexes:
-    - 9
-    - 34
     id: 2
     pose:
       position:
@@ -115,9 +97,6 @@ ikea_stefan_long:
       - '7.07107E-1'
     radius: 4.0
   - depth: 0.022999999999999972
-    edge_indexes:
-    - 17
-    - 42
     id: 3
     pose:
       position:
@@ -131,9 +110,6 @@ ikea_stefan_long:
       - '-4.32978E-17'
     radius: 4.0
   - depth: 0.022999999999999972
-    edge_indexes:
-    - 21
-    - 43
     id: 4
     pose:
       position:
@@ -147,9 +123,6 @@ ikea_stefan_long:
       - '-4.32978E-17'
     radius: 2.5000000000000004
   - depth: 0.022999999999999972
-    edge_indexes:
-    - 25
-    - 44
     id: 5
     pose:
       position:
@@ -163,9 +136,6 @@ ikea_stefan_long:
       - '-4.32978E-17'
     radius: 4.0
   - depth: 0.013000000000000001
-    edge_indexes:
-    - 13
-    - 50
     id: 6
     pose:
       position:
@@ -179,9 +149,6 @@ ikea_stefan_long:
       - '0.00000E+5'
     radius: 3.0000000000000027
   - depth: 0.013000000000000001
-    edge_indexes:
-    - 29
-    - 51
     id: 7
     pose:
       position:
@@ -201,9 +168,6 @@ ikea_stefan_long:
 ikea_stefan_middle:
   assembly_points:
   - depth: 0.01
-    edge_indexes:
-    - 21
-    - 60
     id: 0
     pose:
       position:
@@ -217,9 +181,6 @@ ikea_stefan_middle:
       - '-5.00000E-1'
     radius: 4.000000000000001
   - depth: 0.01
-    edge_indexes:
-    - 25
-    - 61
     id: 1
     pose:
       position:
@@ -233,9 +194,6 @@ ikea_stefan_middle:
       - '-5.00000E-1'
     radius: 4.000000000000002
   - depth: 0.01
-    edge_indexes:
-    - 29
-    - 62
     id: 2
     pose:
       position:
@@ -249,9 +207,6 @@ ikea_stefan_middle:
       - '-5.00000E-1'
     radius: 2.5000000000000004
   - depth: 0.01
-    edge_indexes:
-    - 5
-    - 69
     id: 3
     pose:
       position:
@@ -265,9 +220,6 @@ ikea_stefan_middle:
       - '-7.07107E-1'
     radius: 4.000000000000001
   - depth: 0.01
-    edge_indexes:
-    - 9
-    - 70
     id: 4
     pose:
       position:
@@ -281,9 +233,6 @@ ikea_stefan_middle:
       - '-7.07107E-1'
     radius: 4.000000000000002
   - depth: 0.01
-    edge_indexes:
-    - 13
-    - 71
     id: 5
     pose:
       position:
@@ -297,9 +246,6 @@ ikea_stefan_middle:
       - '-7.07107E-1'
     radius: 2.5000000000000004
   - depth: 0.010000000000000044
-    edge_indexes:
-    - 17
-    - 129
     id: 6
     pose:
       position:
@@ -313,9 +259,6 @@ ikea_stefan_middle:
       - '-5.00000E-1'
     radius: 4.000000000000003
   - depth: 0.009999999999999986
-    edge_indexes:
-    - 1
-    - 135
     id: 7
     pose:
       position:
@@ -335,9 +278,6 @@ ikea_stefan_middle:
 ikea_stefan_short:
   assembly_points:
   - depth: 0.022999999999999986
-    edge_indexes:
-    - 1
-    - 32
     id: 0
     pose:
       position:
@@ -351,9 +291,6 @@ ikea_stefan_short:
       - '7.07107E-1'
     radius: 3.4999999999999996
   - depth: 0.022999999999999986
-    edge_indexes:
-    - 5
-    - 33
     id: 1
     pose:
       position:
@@ -367,9 +304,6 @@ ikea_stefan_short:
       - '7.07107E-1'
     radius: 2.5000000000000004
   - depth: 0.022999999999999986
-    edge_indexes:
-    - 9
-    - 34
     id: 2
     pose:
       position:
@@ -383,9 +317,6 @@ ikea_stefan_short:
       - '7.07107E-1'
     radius: 3.4999999999999996
   - depth: 0.022999999999999986
-    edge_indexes:
-    - 17
-    - 42
     id: 3
     pose:
       position:
@@ -399,9 +330,6 @@ ikea_stefan_short:
       - '-4.32978E-17'
     radius: 3.4999999999999996
   - depth: 0.022999999999999986
-    edge_indexes:
-    - 21
-    - 43
     id: 4
     pose:
       position:
@@ -415,9 +343,6 @@ ikea_stefan_short:
       - '-4.32978E-17'
     radius: 2.5000000000000004
   - depth: 0.022999999999999986
-    edge_indexes:
-    - 25
-    - 44
     id: 5
     pose:
       position:
@@ -431,9 +356,6 @@ ikea_stefan_short:
       - '-4.32978E-17'
     radius: 3.4999999999999996
   - depth: 0.013000000000000001
-    edge_indexes:
-    - 13
-    - 50
     id: 6
     pose:
       position:
@@ -447,9 +369,6 @@ ikea_stefan_short:
       - '0.00000E+5'
     radius: 3.0000000000000027
   - depth: 0.013000000000000001
-    edge_indexes:
-    - 29
-    - 51
     id: 7
     pose:
       position:
@@ -469,9 +388,6 @@ ikea_stefan_short:
 ikea_stefan_side_left:
   assembly_points:
   - depth: 0.03
-    edge_indexes:
-    - 21
-    - 87
     id: 0
     pose:
       position:
@@ -485,9 +401,6 @@ ikea_stefan_side_left:
       - '0.00000E+5'
     radius: 2.750000000000001
   - depth: 0.01
-    edge_indexes:
-    - 57
-    - 94
     id: 1
     pose:
       position:
@@ -501,9 +414,6 @@ ikea_stefan_side_left:
       - '1.00000E+0'
     radius: 4.000000000000003
   - depth: 0.01
-    edge_indexes:
-    - 61
-    - 95
     id: 2
     pose:
       position:
@@ -517,9 +427,6 @@ ikea_stefan_side_left:
       - '1.00000E+0'
     radius: 4.0000000000000036
   - depth: 0.030000000000000006
-    edge_indexes:
-    - 1
-    - 120
     id: 3
     pose:
       position:
@@ -533,9 +440,6 @@ ikea_stefan_side_left:
       - '0.00000E+5'
     radius: 2.7499999999999747
   - depth: 0.030000000000000006
-    edge_indexes:
-    - 11
-    - 121
     id: 4
     pose:
       position:
@@ -549,9 +453,6 @@ ikea_stefan_side_left:
       - '0.00000E+5'
     radius: 2.7499999999999747
   - depth: 0.01
-    edge_indexes:
-    - 31
-    - 125
     id: 5
     pose:
       position:
@@ -565,9 +466,6 @@ ikea_stefan_side_left:
       - '1.00000E+0'
     radius: 4.0000000000000036
   - depth: 0.01
-    edge_indexes:
-    - 38
-    - 127
     id: 6
     pose:
       position:
@@ -581,9 +479,6 @@ ikea_stefan_side_left:
       - '1.00000E+0'
     radius: 4.0000000000000036
   - depth: 0.01
-    edge_indexes:
-    - 42
-    - 128
     id: 7
     pose:
       position:
@@ -597,9 +492,6 @@ ikea_stefan_side_left:
       - '1.00000E+0'
     radius: 4.0000000000000036
   - depth: 0.01
-    edge_indexes:
-    - 46
-    - 129
     id: 8
     pose:
       position:
@@ -613,9 +505,6 @@ ikea_stefan_side_left:
       - '1.00000E+0'
     radius: 4.0000000000000036
   - depth: 0.01
-    edge_indexes:
-    - 50
-    - 130
     id: 9
     pose:
       position:
@@ -635,9 +524,6 @@ ikea_stefan_side_left:
 ikea_stefan_side_right:
   assembly_points:
   - depth: 0.03
-    edge_indexes:
-    - 21
-    - 87
     id: 0
     pose:
       position:
@@ -651,9 +537,6 @@ ikea_stefan_side_right:
       - '1.00000E+0'
     radius: 2.750000000000001
   - depth: 0.01
-    edge_indexes:
-    - 57
-    - 94
     id: 1
     pose:
       position:
@@ -667,9 +550,6 @@ ikea_stefan_side_right:
       - '-6.12323E-17'
     radius: 4.000000000000003
   - depth: 0.01
-    edge_indexes:
-    - 61
-    - 95
     id: 2
     pose:
       position:
@@ -683,9 +563,6 @@ ikea_stefan_side_right:
       - '-6.12323E-17'
     radius: 4.0000000000000036
   - depth: 0.02999999999999999
-    edge_indexes:
-    - 1
-    - 120
     id: 3
     pose:
       position:
@@ -699,9 +576,6 @@ ikea_stefan_side_right:
       - '1.00000E+0'
     radius: 2.7499999999999747
   - depth: 0.029999999999999995
-    edge_indexes:
-    - 11
-    - 121
     id: 4
     pose:
       position:
@@ -715,9 +589,6 @@ ikea_stefan_side_right:
       - '1.00000E+0'
     radius: 2.7499999999999747
   - depth: 0.01
-    edge_indexes:
-    - 31
-    - 125
     id: 5
     pose:
       position:
@@ -731,9 +602,6 @@ ikea_stefan_side_right:
       - '-6.12323E-17'
     radius: 4.0000000000000036
   - depth: 0.01
-    edge_indexes:
-    - 38
-    - 127
     id: 6
     pose:
       position:
@@ -747,9 +615,6 @@ ikea_stefan_side_right:
       - '-6.12323E-17'
     radius: 4.0000000000000036
   - depth: 0.01
-    edge_indexes:
-    - 42
-    - 128
     id: 7
     pose:
       position:
@@ -763,9 +628,6 @@ ikea_stefan_side_right:
       - '-6.12323E-17'
     radius: 4.0000000000000036
   - depth: 0.01
-    edge_indexes:
-    - 46
-    - 129
     id: 8
     pose:
       position:
@@ -779,9 +641,6 @@ ikea_stefan_side_right:
       - '-6.12323E-17'
     radius: 4.0000000000000036
   - depth: 0.01
-    edge_indexes:
-    - 50
-    - 130
     id: 9
     pose:
       position:
@@ -801,9 +660,6 @@ ikea_stefan_side_right:
 ikea_wood_pin:
   assembly_points:
   - depth: 0.0
-    edge_indexes:
-    - 4
-    - 12
     id: 0
     pose:
       position:
@@ -817,9 +673,6 @@ ikea_wood_pin:
       - '1.00000E+0'
     radius: 2.499999999999995
   - depth: 0.0
-    edge_indexes:
-    - 0
-    - 13
     id: 1
     pose:
       position:
@@ -839,9 +692,6 @@ ikea_wood_pin:
 pan_head_screw_iso:
   assembly_points:
   - depth: 0.009999999999999995
-    edge_indexes:
-    - 11
-    - 76
     id: 0
     pose:
       position:

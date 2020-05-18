@@ -2,7 +2,7 @@ ikea_l_bracket:
   quantity: 4
   type: connector
 ikea_stefan_long:
-  quantity: 4
+  quantity: 1
   pose:
     position:
     - 0
@@ -15,7 +15,7 @@ ikea_stefan_long:
     - 1
   type: furniture
 ikea_stefan_short:
-  quantity: 4
+  quantity: 1
   pose:
     position:
     - 0

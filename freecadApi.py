@@ -536,7 +536,7 @@ def _solve_constraints(doc):
     solsys = solver.SolverSystem()
     solsys.solveSystem(doc)
 
-def assemble_parts(assemble_doc, parent_doc, child_doc):
+def assemble_parts(part_a_info, part_a_doc, part_b_info, part_b_doc):
     """assemle two parts
 
     Arguments:
@@ -544,8 +544,11 @@ def assemble_parts(assemble_doc, parent_doc, child_doc):
         parent_doc {[string]} -- [instance PATH of parent document]
         child_doc {[string]} -- [instance PATH of child document]
     """
-    importPartFromFile(doc, parent_doc)
-    importPartFromFile(doc, child_doc)
+    # importPartFromFile(doc, parent_doc)
+    # importPartFromFile(doc, child_doc)
+    parent = 0
+    doc_name = "assmebly_time_stamp"
 
+    return parent, doc_name
 
 #endregion

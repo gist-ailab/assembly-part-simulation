@@ -96,12 +96,12 @@ def get_instance_info(furniture_info):
         quantity = furniture_info[part_name]["quantity"]
         for q in range(quantity):
             instance_name = part_name + "_" + str(q)
-            instance_info = {
+            info = {
                 "part": part_name,
             }
-            part_info[instance_name] = instance_info 
+            instance_info[instance_name] = info 
 
-    return part_info
+    return instance_info
 
 def initialize_furniture_config(furniture_name, logger):
     """initialize furniture information
@@ -114,7 +114,7 @@ def initialize_furniture_config(furniture_name, logger):
     # initialize furniture info
     initialize_furniture_info(furniture_name, logger)    
     # initialize part instance
-    initialize_part_info(furniture_name, logger)
+    initialize_instance_info(furniture_name, logger)
     
 
 #endregion
