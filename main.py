@@ -26,7 +26,7 @@ if __name__ == "__main__":
     
     #---------------------------------------------------
     #region initialize
-    initialize_furniture_config(FURNITURE_NAME, logger)
+    # initialize_furniture_config(FURNITURE_NAME, logger)
 
     #endregion
 

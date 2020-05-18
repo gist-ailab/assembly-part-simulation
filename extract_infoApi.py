@@ -67,7 +67,7 @@ def get_furniture_info(step_list, logger):
             cd = reverse_condition[class_id]
         else:
             cd = None
-        assembly_points = get_assembly_points(step_file, part_name, logger, condition=cd)
+        assembly_points = get_assembly_points(step_file, part_name, int(quantity), logger, condition=cd)
         furniture_info[part_name] = {
             "class_id": class_id,
             "type": part_type,

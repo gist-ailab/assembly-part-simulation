@@ -1,6 +1,6 @@
 import os
 from fileApi import *
-from freecadApi import assemble_parts, initialize_assembly_doc
+from freecadApi import assemble_parts
 import logging
 
 
@@ -63,7 +63,7 @@ def start_assemble(furniture_name, instruction_step, logger):
                     child_status = {
                         "unused_points": _current_status[child_part]
                     }
-                    new_status[parent_part]["child"][child_part] = 
+                    new_status[parent_part]["child"][child_part] = child_status
                     new_status[parent_part]["document"] = result_document
                 else:
                     pass
@@ -94,7 +94,7 @@ def _assemble_part_A_B(part_a_name, part_b_name):
 
     return parent_part, result_doc, assembly_point_pairs
 
-def _get_point_pairs(assembly_points_a, assemlby_points_b):
+def _get_point_pairs(assembly_points_a, assembly_points_b):
     """
     return:
         assembly_pairs {list of tuple}
@@ -149,7 +149,7 @@ def _get_assemble_info(instance_name):
             points_info[key] = points_candidate[key]
         assembly_points[assembly_instance] = points_info
     
-    return assembly_info, part_doc
+    return assembly_points, part_doc
 
 def _initialize_assembly_status(furniture_name, instruction_step, logger):
     global _furniture_name, _instruction_step, _initial_status
@@ -204,7 +204,6 @@ def _get_previous_assemble_status_list(logger):
     """
     status_list = []
     if _instruction_step == 1: # start assemble
-        initialize_assembly_doc(_instance_info)
         status = _get_initial_part_status()
         status_list.append(status)
     else:

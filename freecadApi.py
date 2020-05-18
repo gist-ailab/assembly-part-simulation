@@ -41,6 +41,13 @@ def float_to_exponential(float_value_list):
     
     return ex_list
 
+def npfloat_to_float(np_float_list):
+    f_list = []
+    for val in np_float_list:
+        f_list.append(float(val))
+    
+    return f_list
+
 def get_dcm_from_quat(quat):
     r = R.from_quat(quat)
     r = r.as_dcm()
@@ -179,7 +186,7 @@ def load_step_file(path, doc_name, obj_name):
     return True
 
 def open_doc(doc_path):
-    FreeCAD.open_doc(doc_path)
+    FreeCAD.open(doc_path)
     doc = FreeCAD.ActiveDocument
 
     return doc
@@ -200,7 +207,10 @@ class Circle(object):
         self.YAxis = YAxis
         self.direction = ZAxis
         self.quaternion = get_quat_from_dcm(self.XAxis, self.YAxis, self.direction)
-        self.edge_index = []
+        self.edge_index = {
+            "aligned": [],
+            "opposed": []
+        }
         
     def create_circle(self, circle_name):
         position = Base.Vector(self.position)
@@ -248,10 +258,14 @@ class Circle(object):
             axis = [circle.Axis.x, circle.Axis.y, circle.Axis.z]
             radius = circle.Radius
             if self.position == position and self.radius == radius:
-                if self.direction == axis:
-                    self.edge_index.append(ind)
-                    break
-    
+                if check_parallel(np.array(self.direction), np.array(axis)):
+                    if self.direction == axis:
+                        self.edge_index["aligned"].append(ind + 1)
+                        break
+                    else:
+                        self.edge_index["opposed"].append(ind + 1)
+                        break
+                    
     def get_position_m(self):
         position = np.array(self.position) * 0.001
 
@@ -436,7 +450,7 @@ def _get_hole_from_circle(circle):
     position = circle.position
     direction = circle.direction
 
-def get_assembly_points(step_path, step_name, logger, condition=None):
+def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
     """get assembly_points from step file
 
     Arguments:
@@ -485,27 +499,39 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
             hole = Hole(circle.position, circle.direction, circle)
             assembly_holes.append(hole)
     #endregion
+    for idx in range(quantity):
+        save_doc_name = step_name + "_" + str(idx)
+        save_doc_as(save_doc_name)
+    close_doc(doc_name)
+    for idx in range(quantity):
+        doc_name = step_name + "_" + str(idx)
+        doc = create_doc(doc_name)
+        part_doc = join(FREECAD_DOCUMENT_PATH, doc_name + ".FCStd")
+        importPartFromFile(doc, part_doc)
+        save_assem_doc_as(doc_name)
+        obj = get_active_obj()
+        if idx == 0:
+            for hole in assembly_holes:
+                hole.start_circle.get_edge_index_from_shape(obj.Shape)
+        close_doc(doc_name)
+        
     assembly_points = {}
     for idx, hole in enumerate(assembly_holes):
-        hole.start_circle.get_edge_index_from_shape(shape)
         key = "id_" + str(idx)
-        assembly_point[key] = {
+        assembly_points[key] = {
             "radius": hole.radius,
-            "edge_idx": hole.start_circle.edge_index
+            "edge_index": hole.start_circle.edge_index,
             "depth": hole.depth * 0.001,
+            "direction": hole.direction,
             "pose": {
-                "position": float(hole.start_circle.get_position_m()),
-                "quaternion": float(hole.start_circle.quaternion)
+                "position": npfloat_to_float(hole.start_circle.get_position_m()),
+                "quaternion": npfloat_to_float(hole.start_circle.quaternion)
             }
         }
-        hole_name = "assembly_point" + "_" + str(idx)
-        hole.create_hole(hole_name)
-        hole.start_circle.visualize_circle_frame_quat()
-        assembly_points.append(assembly_point)
-    save_doc_name = step_name
-    save_doc_as(save_doc_name)
-    close_doc(doc_name)
-
+        # hole_name = "assembly_point" + "_" + str(idx)
+        # hole.create_hole(hole_name)
+        # hole.start_circle.visualize_circle_frame_quat()
+    
     return assembly_points
 
 #endregion
@@ -513,7 +539,7 @@ def get_assembly_points(step_path, step_name, logger, condition=None):
 #------------------------------------------------------------
 #region assembly Api
 
-def _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge):
+def _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge, direction):
     """add circular edge constraint in document
 
     Arguments:
@@ -544,19 +570,14 @@ def _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edg
     s1 = a2plib.SelectionExObject(doc, parent_obj, "Edge" + str(parent_edge))
     s2 = a2plib.SelectionExObject(doc, child_obj, "Edge" + str(child_edge))
     cc = a2pconst.CircularEdgeConstraint([s1, s2])
+    if direction:
+        cc.direction = "aligned"
+    else:
+        cc.direction = "opposed"
 
     return cc
 
-def initialize_assembly_doc(instance_info):
-    for instance_name in instance_info.keys():
-        part_name = instance_info[instance_name]["part"]
-        doc_name = instance_name
-        doc = create_doc(doc_name)
-        part_doc = join(FREECAD_DOCUMENT_PATH, part_name + ".FCStd")
-        importPartFromFile(doc, part_doc)
-        save_assem_doc_as(doc_name)
-        close_doc(doc_name)
-    
+
 def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pairs):
     """assemle two parts
 
@@ -590,41 +611,57 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
     close_doc(doc_a.Name)
     close_doc(doc_b.Name)
     solsys = solver.SolverSystem()
-    solsys.solveSystem(doc)
+    solsys.solveSystem(doc, showFailMessage=False)
     parts_in_doc = [obj for obj in doc.findObjects() if a2plib.isA2pObject(obj)]
     parts_a = part_a_info.keys()
     parts_b = part_b_info.keys()
     parts_dic = {}
-    for part_instance in parts_a + parts_b:
-        obj_name = "b_" part_instance + "_001"
-        parts_dic[part_instance] = doc.getObject(obj_name)
+    parts = list(parts_a) + list(parts_b)
+    for part_instance in parts:
+        object_name = "b_" + part_instance + "_001_"
+        parts_dic[part_instance] = doc.getObject(object_name)
+    doc.save()
     #endregion
     assemble_point_pairs = []
     constraint_num = 0
+    proper_doc = doc_name
     for pair in assembly_pairs:
+        doc_name = "assmebly_" +  time_stamp
         if parent == 0:
             parent_name, p_ap = pair[0]
             child_name, c_ap = pair[1]
-            parent_edge = part_a_info[parent_name][p_ap]
-            child_edge = part_b_info[child_name][c_ap]
+            p_d, parent_edge = _extract_edge_from_ap(part_a_info[parent_name][p_ap])
+            c_d, child_edge = _extract_edge_from_ap(part_b_info[child_name][c_ap])
         else:
             parent_name, p_ap = pair[1]
             child_name, c_ap = pair[0]
-            parent_edge = part_b_info[parent_name][p_ap]
-            child_edge = part_a_info[child_name][c_ap]
+            #TODO: direction
+            p_d, parent_edge = _extract_edge_from_ap(part_b_info[parent_name][p_ap])
+            c_d, child_edge = _extract_edge_from_ap(part_a_info[child_name][c_ap])
         parent_obj = parts_dic[parent_name]
         child_obj = parts_dic[child_name]
-        _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge)
-        solve = solsys.solveSystem(doc)
+        if parent_obj == None or child_name == None:
+            print("ERROR")
+        _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge, p_d == c_d)
+        solve = solsys.solveSystem(doc, showFailMessage=False)
         if solve:
             assemble_point_pairs.append(pair)
+            save_assem_doc_as(doc_name)
+            proper_doc = doc_name
     
     #TODO: more constraints
-
-    doc.save()
-    close_doc(doc_name)
+    close_doc(doc.Name)
 
     return parent, doc_name, assemble_point_pairs
+
+def _extract_edge_from_ap(assembly_point):
+    edge_info = assembly_point["edge_index"]
+    for direction in edge_info.keys():
+        if len(edge_info[direction]) > 0:
+            return direction, edge_info[direction][0]
+    print("ERROR")
+    return None
+
 
 def _copy_objects_in_docs(doc, objs):
     """copy object from other doc 
