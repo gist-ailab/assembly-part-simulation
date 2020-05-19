@@ -28,7 +28,7 @@ check_and_create_dir(OUTPUT_PATH)
 FREECAD_DOCUMENT_PATH = join(OUTPUT_PATH, "FCDocument")
 check_and_create_dir(FREECAD_DOCUMENT_PATH)
 
-ASSEMBLY_DOCUMENT_DIR = join(OUTPUT_PATH, "assemlby_document")
+ASSEMBLY_DOCUMENT_DIR = join(OUTPUT_PATH, "assembly_document")
 check_and_create_dir(ASSEMBLY_DOCUMENT_DIR)
 
 OBJ_PATH = join(OUTPUT_PATH, "obj")
@@ -200,8 +200,9 @@ def rotate_obj(obj, angle, position, axis):
 #region extract cad info Api
 
 class Circle(object):
-    def __init__(self, radius, position, XAxis, YAxis, ZAxis):
+    def __init__(self, radius, edge, position, XAxis, YAxis, ZAxis):
         self.radius = radius
+        self.edge = edge
         self.position = position
         self.XAxis = XAxis
         self.YAxis = YAxis
@@ -211,6 +212,7 @@ class Circle(object):
             "aligned": [],
             "opposed": []
         }
+        self.is_reverse = False
         
     def create_circle(self, circle_name):
         position = Base.Vector(self.position)
@@ -250,28 +252,41 @@ class Circle(object):
 
     def get_edge_index_from_shape(self, shape):
         edges = shape.Edges
+        find_edge = False
         for ind, edge in enumerate(edges):
             if not _check_circle_edge(edge):
                 continue
-            circle = edge.Curve
-            position = [circle.Center.x, circle.Center.y, circle.Center.z]
-            axis = [circle.Axis.x, circle.Axis.y, circle.Axis.z]
-            radius = circle.Radius
-            if self.position == position and self.radius == radius:
-                if check_parallel(np.array(self.direction), np.array(axis)):
-                    if self.direction == axis:
-                        self.edge_index["aligned"].append(ind + 1)
-                        break
-                    else:
-                        self.edge_index["opposed"].append(ind + 1)
-                        break
-                    
+            if edge.isSame(self.edge):
+                if not self.is_reverse:
+                    self.edge_index["aligned"].append(ind + 1)
+                    find_edge = True
+                else:
+                    self.edge_index["opposed"].append(ind + 1)
+                    find_edge = True
+            #       
+            # circle = edge.Curve
+            # position = [circle.Center.x, circle.Center.y, circle.Center.z]
+            # axis = [circle.Axis.x, circle.Axis.y, circle.Axis.z]
+            # radius = circle.Radius
+            # if self.position == position and self.radius == radius:
+            #     if check_parallel(np.array(self.direction), np.array(axis)):
+            #         if self.direction == axis:
+            #             self.edge_index["aligned"].append(ind + 1)
+            #             find_edge = True
+            #         else:
+            #             self.edge_index["opposed"].append(ind + 1)
+            #             find_edge = True
+            #         if find_edge:
+            #             break
+        if not find_edge:
+            print("ERROR no edge same with circle")
     def get_position_m(self):
         position = np.array(self.position) * 0.001
 
         return list(position)
 
     def reverse(self):
+        self.is_reverse = True
         rotate_obj(self.object, 180.0, Base.Vector(self.position), Base.Vector(self.XAxis))
         self.update_frame()
 
@@ -428,7 +443,7 @@ def _wire_to_circle(circle_wire, Edges):
         if pos_r in unique_circle:
             pass
         else:
-            circle = Circle(radius, position, XAxis, YAxis, ZAxis)
+            circle = Circle(radius, edge, position, XAxis, YAxis, ZAxis)
             unique_circle.append(pos_r)
             Circles.append(circle)
     if len(Circles) > 1:
@@ -499,6 +514,9 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
             hole = Hole(circle.position, circle.direction, circle)
             assembly_holes.append(hole)
     #endregion
+    for hole in assembly_holes:
+        hole.start_circle.get_edge_index_from_shape(shape)
+    
     for idx in range(quantity):
         save_doc_name = step_name + "_" + str(idx)
         save_doc_as(save_doc_name)
@@ -510,15 +528,12 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
         importPartFromFile(doc, part_doc)
         save_assem_doc_as(doc_name)
         obj = get_active_obj()
-        if idx == 0:
-            for hole in assembly_holes:
-                hole.start_circle.get_edge_index_from_shape(obj.Shape)
         close_doc(doc_name)
-        
-    assembly_points = {}
+    
+    assembly_points = []
     for idx, hole in enumerate(assembly_holes):
-        key = "id_" + str(idx)
-        assembly_points[key] = {
+        assembly_point = {
+            "id": idx,
             "radius": hole.radius,
             "edge_index": hole.start_circle.edge_index,
             "depth": hole.depth * 0.001,
@@ -528,10 +543,11 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
                 "quaternion": npfloat_to_float(hole.start_circle.quaternion)
             }
         }
+        assembly_points.append(assembly_point)
         # hole_name = "assembly_point" + "_" + str(idx)
         # hole.create_hole(hole_name)
         # hole.start_circle.visualize_circle_frame_quat()
-    
+
     return assembly_points
 
 #endregion
@@ -586,75 +602,54 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
         parent_doc {[string]} -- [instance PATH of parent document]
         child_doc {[string]} -- [instance PATH of child document]
     """
-    #region calculate parent
-    part_a_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_a_doc)
-    part_b_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_b_doc)
-    doc_a = open_doc(part_a_doc_path)
-    doc_b = open_doc(part_b_doc_path)
-    objs_a = doc_a.findObjects()
-    objs_b = doc_b.findObjects()
-    area_a = _get_objs_area(objs_a)
-    area_b = _get_objs_area(objs_b)
-    if area_a < area_b:
-        parent = 1
-    else:
-        parent = 0
-    #endregion
-    
-    #region copy objects in current document
-    time_stamp = datetime.now().strftime('%m-%d %H:%M:%S')
-    doc_name = "assmebly_" +  time_stamp
-    doc = create_doc(doc_name)
-    save_assem_doc_as(doc_name)
-    
-    _copy_objects_in_docs(doc, objs_a + objs_b)
-    close_doc(doc_a.Name)
-    close_doc(doc_b.Name)
+    doc, parent = _initialize_assembly(part_a_doc, part_b_doc)
     solsys = solver.SolverSystem()
-    solsys.solveSystem(doc, showFailMessage=False)
-    parts_in_doc = [obj for obj in doc.findObjects() if a2plib.isA2pObject(obj)]
-    parts_a = part_a_info.keys()
-    parts_b = part_b_info.keys()
+    # solsys.solveSystem(doc, showFailMessage=False)
+    solsys.solveAccuracySteps(doc)
+    part_names = list(part_a_info.keys()) + list(part_b_info.keys())
     parts_dic = {}
-    parts = list(parts_a) + list(parts_b)
-    for part_instance in parts:
-        object_name = "b_" + part_instance + "_001_"
-        parts_dic[part_instance] = doc.getObject(object_name)
-    doc.save()
-    #endregion
-    assemble_point_pairs = []
-    constraint_num = 0
+    for part_name in part_names:
+        object_name = "b_" + part_name + "_001_"
+        parts_dic[part_name] = doc.getObject(object_name)
+    doc_name = "init_assmebly_" +  str(_get_time_stamp())
+    save_assem_doc_as(doc_name)
+    #region add constraint
+    #TODO: more constraints
+    assembly_point_pairs = []
     proper_doc = doc_name
     for pair in assembly_pairs:
-        doc_name = "assmebly_" +  time_stamp
-        if parent == 0:
-            parent_name, p_ap = pair[0]
-            child_name, c_ap = pair[1]
-            p_d, parent_edge = _extract_edge_from_ap(part_a_info[parent_name][p_ap])
-            c_d, child_edge = _extract_edge_from_ap(part_b_info[child_name][c_ap])
-        else:
-            parent_name, p_ap = pair[1]
-            child_name, c_ap = pair[0]
-            #TODO: direction
-            p_d, parent_edge = _extract_edge_from_ap(part_b_info[parent_name][p_ap])
-            c_d, child_edge = _extract_edge_from_ap(part_a_info[child_name][c_ap])
+        parent_name, parent_asm_p = pair[parent]
+        child_name, child_asm_p = pair[1 - parent]
         parent_obj = parts_dic[parent_name]
         child_obj = parts_dic[child_name]
-        if parent_obj == None or child_name == None:
+        if parent_obj == None or child_obj == None:
             print("ERROR")
-        _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge, p_d == c_d)
-        solve = solsys.solveSystem(doc, showFailMessage=False)
-        if solve:
-            assemble_point_pairs.append(pair)
+        if parent == 0:
+            p_d, p_e = _extract_edge_info(part_a_info, parent_name, parent_asm_p)
+            c_d, c_e = _extract_edge_info(part_b_info, child_name, child_asm_p)
+        else:
+            p_d, p_e = _extract_edge_info(part_b_info, parent_name, parent_asm_p)
+            c_d, c_e = _extract_edge_info(part_a_info, child_name, child_asm_p)
+        direction = p_d == c_d
+        cc = _constraint_circular_edge(doc, parent_obj, child_obj, p_e, c_e, direction)
+        
+        # solve = solsys.solveSystem(doc, showFailMessage=False)
+        solve = solsys.solveAccuracySteps(doc)
+        if not solve:
+            continue
+        else:
+            assembly_point_pairs.append(pair)
+            doc_name = "assmebly_" +  str(_get_time_stamp())
             save_assem_doc_as(doc_name)
             proper_doc = doc_name
-    
-    #TODO: more constraints
+    #endregion
+    export_doc_objects_to_obj(doc, proper_doc)
     close_doc(doc.Name)
 
-    return parent, doc_name, assemble_point_pairs
+    return parent, proper_doc + ".FCStd", assembly_point_pairs
 
-def _extract_edge_from_ap(assembly_point):
+def _extract_edge_info(part_info, part_name, part_asm_p):
+    assembly_point = part_info[part_name][part_asm_p]
     edge_info = assembly_point["edge_index"]
     for direction in edge_info.keys():
         if len(edge_info[direction]) > 0:
@@ -663,6 +658,38 @@ def _extract_edge_from_ap(assembly_point):
     return None
 
 
+def _get_time_stamp():
+    
+    return datetime.timestamp(datetime.now())
+    
+def _initialize_assembly(part_a_doc, part_b_doc):
+    time_stamp = _get_time_stamp()
+    doc_name = "assmebly_" +  str(time_stamp)
+    doc = create_doc(doc_name)
+    save_assem_doc_as(doc_name)
+    
+    part_a_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_a_doc)
+    part_b_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_b_doc)
+    doc_a = open_doc(part_a_doc_path)
+    doc_b = open_doc(part_b_doc_path)
+    objs_a = doc_a.findObjects()
+    objs_b = doc_b.findObjects()
+    area_a = _get_objs_area(objs_a)
+    area_b = _get_objs_area(objs_b)
+    _copy_objects_in_docs(doc, objs_a + objs_b)
+    
+    close_doc(doc_a.Name)
+    close_doc(doc_b.Name)
+
+    parts_in_doc = [obj for obj in doc.findObjects() if a2plib.isA2pObject(obj)]
+    
+    if area_a < area_b:
+        parent = 1
+    else:
+        parent = 0
+
+    return doc, parent
+    
 def _copy_objects_in_docs(doc, objs):
     """copy object from other doc 
     """

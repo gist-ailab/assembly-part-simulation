@@ -25,13 +25,12 @@
         사용된 포인트와 사용 가능 포인트들 관리해야함.
         포인트를 불러올때, 위치 및 좌표
 
-status를 통해 알아야할 정보
-- status의 key 파트들 = 조립 가능한 파트들.
-- 각 파트의 인스턴스의 다큐먼트.
-- 각 파트의 사용가능한 assemlby_points들
+# commit
+- furniture info의 point id 다시 추가
+- 1 constraint working
+- remove same object constraint
 
-# issue
-- 새로운 다큐먼트를 저장할 때 바뀌는 정보들을 파악해서 알고리즘을 구체화 해야함.
-- 중간 부품의 경우 조립 포인트의 위치정보를 사용하기 어려움. 
-- 스테이터스를 파트로 불러오는게 아니라 다큐먼트 그대로 불러와서 엣지 정보를 보존?
 
+
+#TODO:
+- 

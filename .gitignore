@@ -4,6 +4,8 @@
 
 # FreeCAD files
 # /FCDocument
+output/assembly_document
+
 
 .idea
 # debugging
