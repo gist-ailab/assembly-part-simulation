@@ -97,7 +97,7 @@ def get_instance_info(furniture_info):
         for q in range(quantity):
             instance_name = part_name + "_" + str(q)
             info = {
-                "part": part_name,
+                "part_name": part_name,
             }
             instance_info[instance_name] = info 
 

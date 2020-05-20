@@ -1,6 +1,5 @@
 assemblies:
   - assembly_id: 0
-    score: 1
     assembly_part_pairs:
       - part_A
       - part_B

@@ -611,7 +611,7 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
     for part_name in part_names:
         object_name = "b_" + part_name + "_001_"
         parts_dic[part_name] = doc.getObject(object_name)
-    doc_name = "init_assmebly_" +  str(_get_time_stamp())
+    doc_name = "init_assmebly_" +  str(get_time_stamp())
     save_assem_doc_as(doc_name)
     #region add constraint
     #TODO: more constraints
@@ -639,7 +639,7 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
             continue
         else:
             assembly_point_pairs.append(pair)
-            doc_name = "assmebly_" +  str(_get_time_stamp())
+            doc_name = "assmebly_" +  str(get_time_stamp())
             save_assem_doc_as(doc_name)
             proper_doc = doc_name
     #endregion
@@ -657,11 +657,6 @@ def _extract_edge_info(part_info, part_name, part_asm_p):
     print("ERROR")
     return None
 
-
-def _get_time_stamp():
-    
-    return datetime.timestamp(datetime.now())
-    
 def _initialize_assembly(part_a_doc, part_b_doc):
     time_stamp = _get_time_stamp()
     doc_name = "assmebly_" +  str(time_stamp)
