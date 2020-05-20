@@ -28,7 +28,7 @@ check_and_create_dir(OUTPUT_PATH)
 FREECAD_DOCUMENT_PATH = join(OUTPUT_PATH, "FCDocument")
 check_and_create_dir(FREECAD_DOCUMENT_PATH)
 
-ASSEMBLY_DOCUMENT_DIR = join(OUTPUT_PATH, "assembly_document")
+ASSEMBLY_DOCUMENT_DIR = join(FREECAD_DOCUMENT_PATH, "assembly_document")
 check_and_create_dir(ASSEMBLY_DOCUMENT_DIR)
 
 OBJ_PATH = join(OUTPUT_PATH, "obj")

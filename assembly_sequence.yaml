@@ -1,0 +1,19 @@
+assemblies:
+  - assembly_id: 0
+    score: 1
+    assembly_part_pairs:
+      - part_A
+      - part_B
+    unit_assemblies:
+      - assembly_skill: unknown
+        score: 1
+        assembly_parts:
+          - part_A_child_A
+          - part_B_child_B
+        assembly_point_pairs:
+          - [1, 2]
+          - [2, 3]
+    assembly_status: status_name
+    assembly_desired_status: next_status_name
+  - assembly_id: 1
+  

@@ -13,6 +13,9 @@ OUTPUT_PATH = join(CURRENT_PATH, "output")
 check_and_create_dir(OUTPUT_PATH)
 STATUS_DIR = join(OUTPUT_PATH, "assembly_status")
 check_and_create_dir(STATUS_DIR)
+SEQUENCE_DIR = join(OUTPUT_PATH, "assembly_sequence")
+check_and_create_dir(SEQUENCE_DIR)
+
 #----------------------------------------------------
 FURNITURE_INFO_DIR = join(OUTPUT_PATH, "furniture_info") # save furniture information directory
 INSTANCE_INFO_DIR = join(OUTPUT_PATH, "instance_info") # save furniture instance directory
@@ -23,12 +26,14 @@ _furniture_info = {}
 _instance_info = {}
 _instruction_step = 1 
 _instruction_info = {}
-_furniture_status_dir = "output/assembly_status/furniture_name/instruction_step/"
-_current_instruction_dir = _furniture_status_dir + "instruction_step/"
+_furniture_status_dir = "output/assembly_status/furniture_name/"
+_current_status_dir = _furniture_status_dir + str(_instruction_step)
 _initial_status = {}
-_intermidiate_dir = _current_instruction_dir + "intermidiate"
-_final_dir = _current_instruction_dir + "final"
 _current_status = {}
+_furniture_sequence_dir = "output/assembly_sequence/furniture_name/"
+_current_sequence = _furniture_seq_dir + "assembly_sequence"
+
+
 
 def start_assemble(furniture_name, instruction_step, logger):
     global _current_status
@@ -42,14 +47,19 @@ def start_assemble(furniture_name, instruction_step, logger):
         part_A = parts_sequence[0]
         
         for seq_idx, part_B in enumerate(parts_sequence[1:]):
-            #TODO:
-            parent_part, child_parts, result_document, used_info = _assemble_part_A_B(part_A, part_B)
+            logger.info(f"Try {part_A} + {part_B}")
+            parent_part, child_parts, result_document, assembly_point_pairs = _assemble_part_A_B(part_A, part_B)
             if parent_part == part_A:
                 child_part = part_B
             else:
                 child_part = part_A
-            if not len(child_parts) > 0:
-                logger.warning("no assemble result")
+            if len(assembly_point_pairs)) == 0:
+                logger.info(f"{part_A} + {part_B} has no assemble result")
+                parts_sequence += [part_B]
+                continue
+            else:
+                logger.info(f"{part_A} + {part_B} are assembled")
+            used_info = _get_used_point(assembly_point_pairs)
             if len(used_info) > 0:
                 for used_part in used_info.keys():
                     used_idx_list = used_info[used_part]
@@ -84,10 +94,40 @@ def start_assemble(furniture_name, instruction_step, logger):
                 else:
                     pass
             new_status_yaml = "status_" + str(status_idx) + "_seq_" + str(seq_idx) + ".yaml"
-            new_status_path = join(_intermidiate_dir, new_status_yaml)
+            new_status_path = join(_current_status_dir, new_status_yaml)
             save_dic_to_yaml(new_status, new_status_path)
             _current_status = new_status
             part_A = parent_part
+            #endregion
+
+            #region save sequence
+            unique_part_pair = {}
+            for pair in assembly_point_pairs:
+                part_pair = [pair[0][0], pair[1][0]]
+                if not part_pair in unique_part_pair.keys():
+                    unique_part_pair[part_pair] = []
+                point_pair = [pair[0][1], pair[1][1]]
+                unique_part_pair[part_pair].append(point_pair)
+            unit_assemblies = []
+            score = 0
+            for unique_pair in unique_part_pair.keys():
+                score += 1
+                unit_assembly = {
+                    "score": 1,
+                    "assembly_parts": unique_pair,
+                    "assembly_point_pairs": unique_part_pair[unique_pair]
+                }
+                unit_assemblies.append(assembly)
+            assembly = {
+                "assembly_id": 0,
+                "assembly_skill": "unknown",
+                "score": score,
+                "assembly_part_pairs": [part_A, part_B],
+                "unit_assemblies": unit_assemblies,
+                "assembly_status": ,
+                "assembly_desired_status": ,
+            }
+            _save_assemblies_sequence(_current_assembly_sequence, unit_assemblies):
             #endregion
 
 def _assemble_part_A_B(part_a_name, part_b_name):
@@ -110,8 +150,7 @@ def _assemble_part_A_B(part_a_name, part_b_name):
         parent_part = part_b_name
         child_parts = list(part_a_assembly_points.keys())
 
-    used_info = _get_used_point(assembly_point_pairs)
-    return parent_part, child_parts, result_doc, used_info
+    return parent_part, child_parts, result_doc, assembly_point_pairs
 
 def _get_point_pairs(assembly_points_a, assembly_points_b):
     """
@@ -212,41 +251,13 @@ def _initialize_assembly_status(furniture_name, instruction_step, logger):
     _initialize_extracted_info(logger)
     _instruction_step = instruction_step
     _initialize_assemble_dir(logger)
-    try:
-        previous_status_list = _get_previous_assemble_status_list(logger)    
-    except:
-        logger.warning("Fail to load previous status")
-        return None
-    for idx, pre_status in enumerate(previous_status_list):
-        status_name = "status_" + str(idx)
-        _initial_status[status_name] = pre_status
+    previous_status = _get_previous_assemble_status(logger)
+    _initial_status = previous_status
     yaml_name = "initial_status.yaml"
-    yaml_path = join(_current_instruction_dir, yaml_name)
+    yaml_path = join(_current_status_dir, yaml_name)
     save_dic_to_yaml(_initial_status, yaml_path)
 
-def _initialize_extracted_info(logger):
-    global _furniture_info, _instance_info
-    furniture_info_path = join(FURNITURE_INFO_DIR, _furniture_name + ".yaml")
-    _furniture_info = load_yaml_to_dic(furniture_info_path)
-    instance_info_path = join(INSTANCE_INFO_DIR, _furniture_name + ".yaml")
-    _instance_info = load_yaml_to_dic(instance_info_path)
-
-def _initialize_assemble_dir(logger):
-    global _furniture_status_dir, _current_instruction_dir, _intermidiate_dir, _final_dir
-    _furniture_status_dir = join(STATUS_DIR, _furniture_name)
-    if _instruction_step == 1:
-        check_and_create_dir(_furniture_status_dir)
-    _current_instruction_dir = join(_furniture_status_dir, "instruction_" + str(_instruction_step))
-    try:
-        check_and_create_dir(_current_instruction_dir)
-    except:
-        logger.warning("Current instruction step assemble already exist!")
-    _intermidiate_dir = join(_current_instruction_dir, "intermidiate")
-    check_and_create_dir(_intermidiate_dir)
-    _final_dir = join(_current_instruction_dir, "final")    
-    check_and_create_dir(_final_dir)
-
-def _get_previous_assemble_status_list(logger):
+def _get_previous_assemble_status(logger):
     """get previous status for current insturction step
 
     Arguments:
@@ -256,20 +267,16 @@ def _get_previous_assemble_status_list(logger):
     Returns:
         [list of dict] -- [previous statuses]
     """
-    status_list = []
     if _instruction_step == 1: # start assemble
         status = _get_initial_part_status()
-        status_list.append(status)
     else:
-        previous_instruction = "instruction_" + str(_instruction_step - 1) 
-        previous_instruction_dir = join(_furniture_status_dir, previous_instruction)
-        previous_status_dir = join(previous_instruction_dir, "final")
-        status_file_list = get_file_list(previous_status_dir)
-        for status in status_file_list:
-            status_list.append(load_yaml_to_dic(status))
+        previous_instruction = str(_instruction_step - 1) 
+        previous_status_dir = join(_furniture_status_dir, previous_instruction)
+        previous_final_status = join(previous_status_dir, "final.yaml")
+        status = load_yaml_to_dic(previous_final_status)
 
-    return status_list
-    
+    return status
+
 def _get_initial_part_status():
     initial_status = {}
     for part_name in _furniture_info.keys():
@@ -277,16 +284,35 @@ def _get_initial_part_status():
         assembly_point_num = len(_furniture_info[part_name]["assembly_points"])
         for q in range(quantity):
             instance_name = part_name + "_" + str(q)
-            doc_name = instance_name + ".FCStd"
+            doc_name = instance_name + ".FCStd" #TODO:
             instance_info = {
                 "child": {},
                 "unused_points": list(range(assembly_point_num)),
                 "document": doc_name,
-                "assembly_sequence": []
             }
             initial_status[instance_name] = instance_info 
 
     return initial_status
+
+    
+
+def _initialize_extracted_info(logger):
+    global _furniture_info, _instance_info
+    furniture_info_path = join(FURNITURE_INFO_DIR, _furniture_name + ".yaml")
+    _furniture_info = load_yaml_to_dic(furniture_info_path)
+    instance_info_path = join(INSTANCE_INFO_DIR, _furniture_name + ".yaml")
+    _instance_info = load_yaml_to_dic(instance_info_path)
+
+def _initialize_assemble_dir(logger):
+    global _furniture_status_dir, _current_status_dir, _furniture_sequence_dir
+    #TODO: instruction 단위로 나눌 필요가 있을까...
+    _furniture_status_dir = join(STATUS_DIR, _furniture_name)
+    _furniture_sequence_dir = join(SEQUENCE_DIR, _furniture_name)
+    if _instruction_step == 1:
+        check_and_create_dir(_furniture_status_dir)
+        check_and_create_dir(_furniture_sequence_dir)
+    _current_status_dir = join(_furniture_status_dir, str(_instruction_step))
+    check_and_create_dir(_current_status_dir)
 
 def _get_parts_sequence(logger):
     """get part sequence for assembly from current status and instruction
