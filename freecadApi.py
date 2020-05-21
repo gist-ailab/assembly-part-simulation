@@ -521,15 +521,6 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
         save_doc_name = step_name + "_" + str(idx)
         save_doc_as(save_doc_name)
     close_doc(doc_name)
-    for idx in range(quantity):
-        doc_name = step_name + "_" + str(idx)
-        doc = create_doc(doc_name)
-        part_doc = join(FREECAD_DOCUMENT_PATH, doc_name + ".FCStd")
-        importPartFromFile(doc, part_doc)
-        save_assem_doc_as(doc_name)
-        obj = get_active_obj()
-        close_doc(doc_name)
-    
     assembly_points = []
     for idx, hole in enumerate(assembly_holes):
         assembly_point = {
@@ -554,6 +545,18 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
 
 #------------------------------------------------------------
 #region assembly Api
+class Constraint(object):
+    def __init__(self, assembly_point1, assembly_point2):
+        self.assembly_point1 = assembly_point1
+        self.assembly_point2 = assembly_point2
+
+def initialize_assembly_docs(doc_name):
+    doc = create_doc(doc_name)
+    part_doc = join(FREECAD_DOCUMENT_PATH, doc_name + ".FCStd")
+    importPartFromFile(doc, part_doc)
+    save_assem_doc_as(doc_name)
+    obj = get_active_obj()
+    close_doc(doc_name)
 
 def _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edge, direction):
     """add circular edge constraint in document
@@ -607,34 +610,43 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
     # solsys.solveSystem(doc, showFailMessage=False)
     solsys.solveAccuracySteps(doc)
     part_names = list(part_a_info.keys()) + list(part_b_info.keys())
-    parts_dic = {}
-    for part_name in part_names:
-        object_name = "b_" + part_name + "_001_"
-        parts_dic[part_name] = doc.getObject(object_name)
-    doc_name = "init_assmebly_" +  str(get_time_stamp())
-    save_assem_doc_as(doc_name)
+    parts_dic = _get_parts_dic(doc, part_names)
+    constraint_num = 0
+    init_doc_name = "assmebly_" +  str(get_time_stamp())
+    save_assem_doc_as(init_doc_name)
+    # close_doc(init_doc_name)
+    proper_doc = init_doc_name
+    
     #region add constraint
-    #TODO: more constraints
     assembly_point_pairs = []
-    proper_doc = doc_name
     for pair in assembly_pairs:
-        parent_name, parent_asm_p = pair[parent]
-        child_name, child_asm_p = pair[1 - parent]
+        parent_name, parent_point_idx = pair[parent]
+        child_name, child_point_idx = pair[1 - parent]
         parent_obj = parts_dic[parent_name]
         child_obj = parts_dic[child_name]
         if parent_obj == None or child_obj == None:
             print("ERROR")
         if parent == 0:
-            p_d, p_e = _extract_edge_info(part_a_info, parent_name, parent_asm_p)
-            c_d, c_e = _extract_edge_info(part_b_info, child_name, child_asm_p)
+            parent_point_info = _get_assembly_point(part_a_info, parent_name, parent_point_idx)
+            child_point_info = _get_assembly_point(part_b_info, child_name, child_point_idx)
+            parent_dir, parent_edge = _extract_edge_info(parent_point_info)
+            child_dir, child_edge = _extract_edge_info(child_point_info)
         else:
-            p_d, p_e = _extract_edge_info(part_b_info, parent_name, parent_asm_p)
-            c_d, c_e = _extract_edge_info(part_a_info, child_name, child_asm_p)
-        direction = p_d == c_d
-        cc = _constraint_circular_edge(doc, parent_obj, child_obj, p_e, c_e, direction)
-        
+            parent_point_info = _get_assembly_point(part_b_info, parent_name, parent_point_idx)
+            child_point_info = _get_assembly_point(part_a_info, child_name, child_point_idx)
+            parent_dir, parent_edge = _extract_edge_info(parent_point_info)
+            child_dir, child_edge = _extract_edge_info(child_point_info)
+
+        direction = parent_dir == child_dir
+        cc = _constraint_circular_edge(doc=doc,
+                                       parent_obj=parent_obj,
+                                       child_obj=child_obj,
+                                       parent_edge=parent_edge,
+                                       child_edge=child_edge,
+                                       direction=direction)
         # solve = solsys.solveSystem(doc, showFailMessage=False)
         solve = solsys.solveAccuracySteps(doc)
+        # calculate score
         if not solve:
             continue
         else:
@@ -646,10 +658,23 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
     export_doc_objects_to_obj(doc, proper_doc)
     close_doc(doc.Name)
 
-    return parent, proper_doc + ".FCStd", assembly_point_pairs
+    return parent, proper_doc, assembly_point_pairs
 
-def _extract_edge_info(part_info, part_name, part_asm_p):
-    assembly_point = part_info[part_name][part_asm_p]
+def _get_parts_dic(doc, part_names):
+    parts_dic = {}
+    for part_name in part_names:
+        object_name = "b_" + part_name + "_001_"
+        parts_dic[part_name] = doc.getObject(object_name)
+    
+    return parts_dic
+
+
+def _get_assembly_point(part_info, part_name, part_point_idx):
+    assembly_point = part_info[part_name][part_point_idx]
+    
+    return assembly_point
+
+def _extract_edge_info(assembly_point):
     edge_info = assembly_point["edge_index"]
     for direction in edge_info.keys():
         if len(edge_info[direction]) > 0:
@@ -658,13 +683,13 @@ def _extract_edge_info(part_info, part_name, part_asm_p):
     return None
 
 def _initialize_assembly(part_a_doc, part_b_doc):
-    time_stamp = _get_time_stamp()
+    time_stamp = get_time_stamp()
     doc_name = "assmebly_" +  str(time_stamp)
     doc = create_doc(doc_name)
     save_assem_doc_as(doc_name)
     
-    part_a_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_a_doc)
-    part_b_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_b_doc)
+    part_a_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_a_doc + ".FCStd")
+    part_b_doc_path = join(ASSEMBLY_DOCUMENT_DIR, part_b_doc + ".FCStd")
     doc_a = open_doc(part_a_doc_path)
     doc_b = open_doc(part_b_doc_path)
     objs_a = doc_a.findObjects()

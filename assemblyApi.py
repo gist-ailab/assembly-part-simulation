@@ -1,6 +1,6 @@
 import os
 from fileApi import *
-from freecadApi import assemble_parts
+from freecadApi import assemble_parts, initialize_assembly_docs
 import logging
 
 
@@ -32,8 +32,8 @@ class Assembly_Process(object):
         self._initial_status_name = "initial_status.yaml"
         self._last_status_name = "final.yaml"
 
-        self._logger.info(f"Initialize assembly process.\n 
-                            Furniture Name: {furniture_name}\n  
+        self._logger.info(f"Initialize assembly process.\n \
+                            Furniture Name: {furniture_name}\n \
                             Instruction Step: {instruction_step}")
         if self._instruction_step == 1:
             self._initialize_furniture_dir()
@@ -58,7 +58,7 @@ class Assembly_Process(object):
     def _initialize_furniture_dir(self):
         self._furniture_status_dir = join(STATUS_DIR, self._furniture_name)
         check_and_create_dir(self._furniture_status_dir)
-
+    
     def _initialize_extracted_info(self):
         # assembly points information for each part name
         furniture_info_path = join(FURNITURE_INFO_DIR, self._furniture_name + ".yaml")
@@ -68,10 +68,10 @@ class Assembly_Process(object):
         self._instance_info = load_yaml_to_dic(instance_info_path)
 
     def _initialize_assembly_status(self):
-        self._current_status_dir = join(self._furniture_status_dir, str(_instruction_step))
+        self._current_status_dir = join(self._furniture_status_dir, str(self._instruction_step))
         if not check_and_create_dir(self._current_status_dir):
             self._logger.warning(f"assembly for instruction {self._instruction_step} already exist")
-        if _instruction_step == 1:
+        if self._instruction_step == 1:
             self._initial_status = self._get_initial_part_status()
         else:
             self._initial_status = self._get_previous_assembly_status()
@@ -80,11 +80,14 @@ class Assembly_Process(object):
             print("\t" + instance_name)
             for child in self._initial_status[instance_name]["child"].keys():
                 print("\t"*2 + "-" + child)
-    
+        self._current_status = self._initial_status
+        self._save_status(self._initial_status_name)
+
     def _get_initial_part_status(self):
         initial_status = {}
         for instance_name in self._instance_info.keys():
-            part_name = self._instance_info[instance_name]
+            initialize_assembly_docs(instance_name)#TODO:
+            part_name = self._instance_info[instance_name]["part_name"]
             part_info = self._furniture_info[part_name]
             quantity = part_info["quantity"]
             assembly_point_num = len(part_info["assembly_points"])
@@ -97,7 +100,7 @@ class Assembly_Process(object):
         return initial_status
 
     def _get_previous_assembly_status(self):
-        previous_instruction = str(_instruction_step - 1) 
+        previous_instruction = str(self._instruction_step - 1) 
         previous_status_dir = join(_furniture_status_dir, previous_instruction)
         previous_final_status = join(previous_status_dir, self._last_status_name)
         status = load_yaml_to_dic(previous_final_status)
@@ -106,17 +109,25 @@ class Assembly_Process(object):
 
     def _initialize_assembly_sequence(self):
         self._sequence_path = join(SEQUENCE_DIR, self._furniture_name + ".yaml")
+        self._current_sequence_key = "assemblies_" + str(self._instruction_step)
         if self._instruction_step == 1:
-            self._assembly_sequence = []
+            self._assembly_sequence = {
+                self._current_sequence_key: {
+                    "assemblies": [],
+                },
+            }
             self._save_sequence()
         else:
             self._assembly_sequence = self._load_sequence()
-
+            self._assembly_sequence[self._current_sequence_key] = {
+                "assemblies": [],
+            }
+    
     def _add_assembly_to_sequence(self):
-        assembly_point_pairs = self._current_assembly["pairs"]
+        assembly_point_pairs = self._current_assembly.pairs
         unique_part_pair = {}
         for pair in assembly_point_pairs:
-            part_pair = [pair[0][0], pair[1][0]]
+            part_pair = (pair[0][0], pair[1][0])
             if not part_pair in unique_part_pair.keys():
                 unique_part_pair[part_pair] = []
             point_pair = [pair[0][1], pair[1][1]]
@@ -124,24 +135,29 @@ class Assembly_Process(object):
         unit_assemblies = []
         for unique_pair in unique_part_pair.keys():
             unit_assembly = {
-                    "assembly_parts": unique_pair,
+                    "assembly_parts": list(unique_pair),
                     "assembly_point_pairs": unique_part_pair[unique_pair]
                 }
             unit_assemblies.append(unit_assembly)
+        
+
         assembly = {
             "assembly_id": len(self._assembly_sequence) + 1,
-            "assembly_part_pairs": self._current_assembly["parts"],
+            "assembly_part_pairs": self._current_assembly.parts,
             "assembly_skill": "unknown",
             "unit_assemblies": unit_assemblies,
-            "assembly_status": self._current_assembly["status"],
-            "assembly_desired_status": self._current_status,
+            "assembly_status": self._current_assembly.status_path,
+            "assembly_desired_status": self._current_status_path,
         }
+        self._assembly_sequence[self._current_sequence_key]["assemblies"].append(assembly)
 
     def _save_status(self, status_name=None):
         if status_name == None:
             status_name = "status" + str(get_time_stamp()) + ".yaml"
-        yaml_path = join(self._curret_status_dir, status_name)
+        yaml_path = join(self._current_status_dir, status_name)
+        
         save_dic_to_yaml(self._current_status, yaml_path)
+        self._current_status_path = yaml_path.replace(CURRENT_PATH, ".")
 
     def _load_sequence(self):
         return load_yaml_to_dic(self._sequence_path)
@@ -149,18 +165,22 @@ class Assembly_Process(object):
     def _save_sequence(self):
         save_dic_to_yaml(self._assembly_sequence, self._sequence_path)
     
+    def _save_part_sequence(self, part_sequence):
+        self._assembly_sequence[self._current_sequence_key]["part_sequence"] = part_sequence
+        self._save_sequence()
+
     def _initialize_instruction_info(self):
-        instruction = "instruction_" + str(_instruction_step) + ".yaml"
-        yaml_path = join(INSTRUCTION_DIR, _furniture_name, instruction)
+        instruction = "instruction_" + str(self._instruction_step) + ".yaml"
+        yaml_path = join(INSTRUCTION_DIR, self._furniture_name, instruction)
         try:
             self._instruction_info = load_yaml_to_dic(yaml_path)
         except:
-            logger.warning("fail to load instruction")
+            self._logger.warning("fail to load instruction")
     
     #endregion-----------------------------------------------------------------------
 
     #region assembly algorithm
-    def _get_assemble_info(instance_name):
+    def _get_assemble_info(self, instance_name):
         """get assembly points and document of part_instance
         1. get document name from current status
         2. get assembly points info from furniture_info
@@ -192,16 +212,17 @@ class Assembly_Process(object):
             assemblyable_points[child_instance] = child_info["unused_points"]
         # 2.2 extract each assembly points detail info from furniture info
         for instance_name in assemblyable_points.keys():
-            points_info = {}
             part_name = self._instance_info[instance_name]["part_name"] # instance는 instance 정보 중 변하지 않는 정보
             assembly_points = self._furniture_info[part_name]["assembly_points"]
             
+            points_info = {}
             for point_idx in assemblyable_points[instance_name]:
                 key = "id_" + str(point_idx)
                 points_info[key] = assembly_points[point_idx]
+            
             assemblyable_points[instance_name] = points_info
         
-        return assembly_points, part_doc
+        return assemblyable_points, part_doc
     
     def _get_assembly_part_sequence(self):
         assembly_parts = self._instruction_info.keys()
@@ -214,12 +235,11 @@ class Assembly_Process(object):
         success to assemble => return True
         fail to assemble => return False
         """
-        part_A = self._current_assembly["parent"]
-        part_B = self._current_assembly["child"]
+        part_A, part_B = self._current_assembly.parts
         self._logger.info(f"Try {part_A} + {part_B}")
-        part_a_assembly_points, part_a_doc = self._get_assemble_info(part_a_name)
-        part_b_assembly_points, part_b_doc = self._get_assemble_info(part_b_name)
-        point_pairs = _get_point_pairs(part_a_assembly_points, part_b_assembly_points)
+        part_a_assembly_points, part_a_doc = self._get_assemble_info(part_A)
+        part_b_assembly_points, part_b_doc = self._get_assemble_info(part_B)
+        point_pairs = self._get_point_pairs(part_a_assembly_points, part_b_assembly_points)
 
         if len(point_pairs) > 0:
             parent_idx, result_doc, assembly_point_pairs = assemble_parts(part_a_assembly_points, 
@@ -227,30 +247,22 @@ class Assembly_Process(object):
                                                                           part_a_doc, part_b_doc, 
                                                                           point_pairs)
             if len(assembly_point_pairs) > 0:
-                self._current_assembly["result"] = result_doc
-                self._current_assembly["pairs"] = assembly_point_pairs
-                if parent_idx == 0:
-                    pass
-                else:
-                    self._current_assembly["parent"] = part_B
-                    self._current_assembly["child"] = part_A
-                
+                self._current_assembly.update_result(result_doc=result_doc,
+                                                     assembly_pairs=assembly_point_pairs,
+                                                     parent_idx=parent_idx)
                 return True
             else:
                 self._logger.info(f"{part_A} and {part_B} has no assembly points")
-                
                 return False
-        
         else:
             self._logger.info(f"{part_A} and {part_B} are same part")
-            
             return False
         
     def _update_status(self):
-        used_info = self._get_used_point(self._current_assembly["pairs"])
-        parent = self._current_assembly["parent"]
-        child = self._current_assembly["child"]
-        result_document = self._current_assembly["result"]
+        used_info = self._current_assembly.get_used_point()
+        parent = self._current_assembly.parent
+        child = self._current_assembly.child
+        result_document = self._current_assembly.result
         self._remove_used_point(parent, child, used_info)
         new_status = {}
         for previous_parent in self._current_status.keys():
@@ -259,20 +271,22 @@ class Assembly_Process(object):
             else:
                 new_status[previous_parent] = self._current_status[previous_parent]
             if previous_parent == parent:
-                child_status = {
+                new_status[parent]["child"][child] = {
                     "unused_points": self._current_status[child]["unused_points"]
                 }
-                new_status[parent]["child"][child] = child_status
                 child_child = self._current_status[child]["child"]
                 new_status[parent]["child"].update(child_child) 
                 new_status[parent]["document"] = result_document
             else:
                 pass
 
+        self._current_status = new_status
+        del new_status
+
     def _remove_used_point(self, parent, child, used_info):
         new_status = self._current_status
-        parent_childs = new_status[parent]["child"]
-        child_childs = new_status[child]["child"]
+        parent_childs = new_status[parent]["child"].keys()
+        child_childs = new_status[child]["child"].keys()
         for instance_name in used_info.keys():
             used_idx_list = used_info[instance_name]
             if instance_name == parent:
@@ -284,14 +298,13 @@ class Assembly_Process(object):
             else:
                 if instance_name in parent_childs:
                     for idx in used_idx_list:
-                        new_status[parent][instance_name]["unused_points"].remove(used_idx)    
+                        new_status[parent]["child"][instance_name]["unused_points"].remove(used_idx)    
                 else:
                     for idx in used_idx_list:
-                        new_status[child][instance_name]["unused_points"].remove(used_idx)
+                        new_status[child]["child"][instance_name]["unused_points"].remove(used_idx)
         self._current_status = new_status
     
-    @staticmethod
-    def _get_point_pairs(assembly_points_a, assembly_points_b):
+    def _get_point_pairs(self, assembly_points_a, assembly_points_b):
         """
         return:
             assembly_pairs {list of tuple}
@@ -307,38 +320,18 @@ class Assembly_Process(object):
                 assembly_points_b_list.append((p_b, ap_b))
         
         assembly_pairs = []
-        for ap_a in assembly_points_a_list:
-            for ap_b in assembly_points_b_list:
-                if not self._is_same_part(p_a, p_b):
-                    assembly_pairs.append((ap_a, ap_b))
+        for (p_a, ap_a) in assembly_points_a_list:
+            for (p_b, ap_b) in assembly_points_b_list:
+                is_same = self._is_same_part(p_a, p_b)
+                if is_same:
+                    continue
+                else:
+                    pair = ((p_a, ap_a), (p_b, ap_b))
+                    assembly_pairs.append(pair)
             
         return assembly_pairs
     
-    @staticmethod
-    def _get_used_point(assembly_point_pairs):
-        """get used point index from assemble point pairs
-
-        Arguments:
-            assembly_point_pairs
-                [(("part_name", "id_index"), ("part2_name", "point_idx")), (), ...]
-        """
-        used_info = {}
-        for pair in assembly_point_pairs:
-            part_a_name = pair[0][0]
-            part_a_used_id = int(pair[0][1].replace("id_", ""))
-            part_b_name = pair[1][0]
-            part_b_used_id = int(pair[1][1].replace("id_", ""))
-            if part_a_name in used_info.keys():
-                used_info[part_a_name].append(part_a_used_id)
-            else:
-                used_info[part_a_name] = [part_a_used_id]
-            if part_b_name in used_info.keys():
-                used_info[part_b_name].append(part_b_used_id)
-            else:
-                used_info[part_b_name] = [part_b_used_id]
-
-        return used_info
-
+    
     @staticmethod
     def _get_only_status(status):
         only_status = {}
@@ -354,28 +347,75 @@ class Assembly_Process(object):
         return self._instance_info[part_a] == self._instance_info[part_b]
 
     def start_assemble(self):
-        logger.info("Start to assemble")
-        self._current_status = self._initial_status
+        self._logger.info("Start to assemble")
         part_sequence = self._get_assembly_part_sequence()
+        used_part = []
         part_A = part_sequence[0]
-        for part_B in part_sequence[1:]:
-            self._current_assembly = {
-                "parts": [part_A, part_B],
-                "parent": part_A,
-                "child": part_B,
-                "pairs": [],
-                "result": "unknown",
-                "status": self._current_status,
-            }
-            if not self._assemble_part():
-                parts_sequence += [part_B]
+        used_part.append(part_A)
+        total_part_num = len(part_sequence)
+        part_idx = 1
+        while len(used_part) < total_part_num:
+            part_B = part_sequence[part_idx]
+            self._current_assembly = Assembly([part_A, part_B], self._current_status_path)
+            be_assembled = self._assemble_part()
+            if not be_assembled:
+                part_sequence.remove(part_B)
+                part_sequence += [part_B]
                 continue
             else:
                 self._update_status()
-                part_A = self._current_assembly["parent"]
-            
-            #region save sequence
-            _save_assemblies_sequence(_current_assembly_sequence, unit_assemblies):
-            #endregion
+                part_A = self._current_assembly.parent
+                self._save_status()
+                self._add_assembly_to_sequence()        
+                self._save_sequence()
+                used_part.append(part_B)
+                part_idx += 1
 
+        self._save_status(self._last_status_name)
+        self._save_part_sequence(part_sequence)
     #endregion
+
+class Assembly():
+    def __init__(self, parts, status_path):
+        self.parts = parts
+        self.status_path = status_path
+        self.parent = parts[0]
+        self.child = parts[1]
+
+    def update_result(self, result_doc, assembly_pairs, parent_idx):
+        self.result = result_doc
+        self.pairs = assembly_pairs
+        if parent_idx == 0:
+            pass
+        else:
+            self.parent = self.parts[1]
+            self.child = self.parts[0]
+    
+    def get_used_point(self):
+        """get used point index from assemble point pairs
+
+        Arguments:
+            assembly_point_pairs
+                [(("part_name", "id_index"), ("part2_name", "point_idx")), (), ...]
+        """
+        used_info = {}
+        for pair in self.pairs:
+            part_a_name = pair[0][0]
+            part_a_used_id = int(pair[0][1].replace("id_", ""))
+            part_b_name = pair[1][0]
+            part_b_used_id = int(pair[1][1].replace("id_", ""))
+            if part_a_name in used_info.keys():
+                used_info[part_a_name].append(part_a_used_id)
+            else:
+                used_info[part_a_name] = [part_a_used_id]
+            if part_b_name in used_info.keys():
+                used_info[part_b_name].append(part_b_used_id)
+            else:
+                used_info[part_b_name] = [part_b_used_id]
+        self.used_info = used_info
+        
+        del used_info
+
+        return self.used_info
+
+    

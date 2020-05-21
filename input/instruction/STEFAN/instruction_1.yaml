@@ -6,7 +6,7 @@ ikea_l_bracket_2:
   type: connector
 ikea_l_bracket_3:
   type: connector
-ikea_stefan_long:
+ikea_stefan_long_0:
   pose:
     position:
     - 0
@@ -18,7 +18,7 @@ ikea_stefan_long:
     - 0
     - 1
   type: furniture
-ikea_stefan_short:
+ikea_stefan_short_0:
   pose:
     position:
     - 0
