@@ -22,7 +22,7 @@ FURNITURE_INFO_DIR = join(OUTPUT_PATH, "furniture_info") # save furniture inform
 INSTANCE_INFO_DIR = join(OUTPUT_PATH, "instance_info") # save furniture instance directory
 
 #-----------------------------------------------------
-class Assembly_Process(object):
+class Assembly_Manager(object):
     def __init__(self, furniture_name, instruction_step, logger):
         
         self._furniture_name = furniture_name
@@ -252,7 +252,7 @@ class Assembly_Process(object):
                                                      parent_idx=parent_idx)
                 return True
             else:
-                self._logger.info(f"{part_A} and {part_B} has no assembly points")
+                
                 return False
         else:
             self._logger.info(f"{part_A} and {part_B} are same part")
@@ -349,32 +349,32 @@ class Assembly_Process(object):
     def start_assemble(self):
         self._logger.info("Start to assemble")
         part_sequence = self._get_assembly_part_sequence()
+        un_used_part = part_sequence
         used_part = []
-        part_A = part_sequence[0]
-        used_part.append(part_A)
-        total_part_num = len(part_sequence)
-        part_idx = 1
-        while len(used_part) < total_part_num:
-            part_B = part_sequence[part_idx]
-            self._current_assembly = Assembly([part_A, part_B], self._current_status_path)
-            be_assembled = self._assemble_part()
-            if not be_assembled:
-                part_sequence.remove(part_B)
-                part_sequence += [part_B]
-                continue
-            else:
-                self._update_status()
-                part_A = self._current_assembly.parent
-                self._save_status()
-                self._add_assembly_to_sequence()        
-                self._save_sequence()
-                used_part.append(part_B)
-                part_idx += 1
-
+        while len(un_used_part) > 0:
+            part_A = un_used_part[0]
+            used_part.append(part_A)
+            for part_B in un_used_part[1:]:
+                self._current_assembly = Assembly([part_A, part_B], self._current_status_path)
+                be_assembled = self._assemble_part()
+                if not be_assembled:
+                    self._logger.info(f"{part_A} and {part_B} has no assembly points")
+                    continue
+                else:
+                    self._logger.info(f"{part_A} and {part_B} assembled")
+                    used_part.append(part_B)
+                    self._update_status()
+                    part_A = self._current_assembly.parent
+                    self._save_status()
+                    self._add_assembly_to_sequence()        
+                    self._save_sequence()
+            for part in un_used_part:
+                if part in used_part:
+                    un_used_part.remove(part)
+        self._logger.info("complete assemble")        
         self._save_status(self._last_status_name)
         self._save_part_sequence(part_sequence)
     #endregion
-
 class Assembly():
     def __init__(self, parts, status_path):
         self.parts = parts

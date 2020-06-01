@@ -86,9 +86,6 @@ def edge_to_face(edges):
     
 def show_shape_in_doc(shape, label):
     doc = get_active_doc()
-    if doc == None:
-        print("Please create active document")
-        return False
     Part.show(shape)
     obj = doc.ActiveObject
     obj.Label = label
@@ -292,11 +289,13 @@ class Circle(object):
 
 class Hole():
     def __init__(self, position, direction, circle):
+        self.doc = get_active_doc()
         self.position = position
         self.direction = direction
         self.circle_group = [circle]
         self.start_circle = circle
-        self.radius = circle.radius
+        self.radius_min = circle.radius
+        self.radius_max = circle.radius
         self.min_value = np.inner(np.array(circle.position), np.array(self.direction))
         self.max_value = self.min_value
         self.depth = 0
@@ -328,8 +327,10 @@ class Hole():
             self.min_value = dir_pos
         if dir_pos > self.max_value:
             self.max_value = dir_pos
-        if circle.radius < self.radius:
-            self.radius = circle.radius
+        if circle.radius < self.radius_min:
+            self.radius_min = circle.radius
+        if circle.radius > self.radius_max:
+            self.radius_max = circle.radius
         self.update_depth()
 
     def update_depth(self):
@@ -338,10 +339,27 @@ class Hole():
     def create_hole(self, hole_name):
         position = Base.Vector(self.start_circle.position)
         direction = Base.Vector(self.direction)
-        radius = self.radius
+        radius = self.radius_min
         self.name = hole_name
-        self.shape = Part.makeCylinder(self.radius, self.depth, position, direction, 360)
+        self.shape = Part.makeCylinder(radius, self.depth, position, direction, 360)
         self.object = show_shape_in_doc(self.shape, hole_name)
+
+    def get_hole_type(self, parent_obj):
+        area = _get_common_area(self.doc, self.object, parent_obj)
+        if area > 0:
+            self.type = "insertion"
+            self.radius = self.radius_max
+        else:
+            self.type = "hole"
+            self.radius = self.radius_min
+        self.object.Label += self.type
+        
+
+    
+    def remove_hole(self):
+        doc = get_active_doc()
+        doc.removeObject(self.object.Name)
+
 
 def _visualize_frame(obj_name, obj_O, obj_axis):
     """visualize coordinate of object
@@ -516,7 +534,12 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
     #endregion
     for hole in assembly_holes:
         hole.start_circle.get_edge_index_from_shape(shape)
-    
+        hole_name = "assembly_point" + "_" + str(idx)
+        hole.create_hole(hole_name)
+        doc.recompute()
+        hole.get_hole_type(obj)
+        hole.remove_hole()
+        
     for idx in range(quantity):
         save_doc_name = step_name + "_" + str(idx)
         save_doc_as(save_doc_name)
@@ -525,6 +548,7 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
     for idx, hole in enumerate(assembly_holes):
         assembly_point = {
             "id": idx,
+            "type": hole.type,
             "radius": hole.radius,
             "edge_index": hole.start_circle.edge_index,
             "depth": hole.depth * 0.001,
@@ -535,8 +559,6 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
             }
         }
         assembly_points.append(assembly_point)
-        # hole_name = "assembly_point" + "_" + str(idx)
-        # hole.create_hole(hole_name)
         # hole.start_circle.visualize_circle_frame_quat()
 
     return assembly_points
@@ -594,7 +616,7 @@ def _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edg
     else:
         cc.direction = "opposed"
 
-    return cc
+    return cc.constraintObject
 
 
 def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pairs):
@@ -613,7 +635,7 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
     parts_dic = _get_parts_dic(doc, part_names)
     constraint_num = 0
     init_doc_name = "assmebly_" +  str(get_time_stamp())
-    save_assem_doc_as(init_doc_name)
+    # save_assem_doc_as(init_doc_name)
     # close_doc(init_doc_name)
     proper_doc = init_doc_name
     
@@ -636,7 +658,11 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
             child_point_info = _get_assembly_point(part_a_info, child_name, child_point_idx)
             parent_dir, parent_edge = _extract_edge_info(parent_point_info)
             child_dir, child_edge = _extract_edge_info(child_point_info)
+        # check possible assembly
+        if not _check_assembly_points(parent_point_info, child_point_info):
+            continue
 
+        
         direction = parent_dir == child_dir
         cc = _constraint_circular_edge(doc=doc,
                                        parent_obj=parent_obj,
@@ -650,6 +676,9 @@ def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pa
         if not solve:
             continue
         else:
+            if _check_collision(doc, parent_obj, child_obj):
+                doc.removeObject(cc.Name)
+                continue
             assembly_point_pairs.append(pair)
             doc_name = "assmebly_" +  str(get_time_stamp())
             save_assem_doc_as(doc_name)
@@ -667,7 +696,6 @@ def _get_parts_dic(doc, part_names):
         parts_dic[part_name] = doc.getObject(object_name)
     
     return parts_dic
-
 
 def _get_assembly_point(part_info, part_name, part_point_idx):
     assembly_point = part_info[part_name][part_point_idx]
@@ -725,5 +753,66 @@ def _get_objs_area(objs):
             pass
 
     return area
+
+def _get_common_area(doc, obj1, obj2):
+    common_name = "Common"
+    common = doc.addObject("Part::MultiCommon",common_name)
+    common.Shapes = [obj1, obj2]
+    doc.recompute()
+
+    common_area = common.Shape.Area
+
+    doc.removeObject("Common")
+    set_obj_visibility(obj1.Name)
+    set_obj_visibility(obj2.Name)
+    doc.recompute()
+
+    return common_area
+
+# --------------------------------------------------rule--------------------------------------------------
+def _check_collision(doc, obj1, obj2):
+    is_collision = False
+    
+    common_area = _get_common_area(doc, obj1, obj2)
+    if common_area > 0:
+        is_collision = True
+    else:
+        count = _get_proximity_faces_num(obj1.Shape, obj2.Shape)
+        print("face: {}".format(count))
+        # if count > 10:
+        #     is_collision = True
+
+    return is_collision
+
+def _get_proximity_faces_num(shape1, shape2):
+    count = 0
+    for face_list in shape1.proximity(shape2):
+        for f in face_list:
+            count += 1
+    
+    return count
+
+def _check_assembly_points(parent_point_info, child_point_info):
+    parent_type = parent_point_info["type"]
+    child_type = child_point_info["type"]        
+    
+    print(parent_type, child_type)
+    
+    if parent_type == child_type:
+        return False
+    else:
+        pass
+    
+    parent_radius = parent_point_info["radius"] 
+    child_radius = child_point_info["radius"]
+    dif = abs(parent_radius - child_radius) 
+    print(dif)
+
+    if dif > 0.5:
+        return False
+    else:
+        pass
+    
+    return True
 
 #endregion

@@ -57,7 +57,7 @@
 - 이 파트를 나타내는 다큐먼트
 
 # commit
-- save assemlby sequence
+- assembly_process -> assembly_maner
 
 
 

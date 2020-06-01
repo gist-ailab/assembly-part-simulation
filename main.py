@@ -3,7 +3,7 @@ from os.path import join, isfile, isdir
 from os import listdir
 from fileApi import get_dir_list, get_file_list, save_dic_to_yaml
 from extract_infoApi import initialize_furniture_config
-from assemblyApi import Assembly_Process
+from assemblyApi import Assembly_Manager
 
 import logging
 
@@ -32,7 +32,7 @@ if __name__ == "__main__":
 
     #---------------------------------------------------
     #region assembly for each instruction
-    assem = Assembly_Process(FURNITURE_NAME, instruction_step, logger)
+    assem = Assembly_Manager(FURNITURE_NAME, instruction_step, logger)
     assem.start_assemble()
 
     #endregion
