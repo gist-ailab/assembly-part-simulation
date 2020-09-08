@@ -1,45 +1,35 @@
-import os
-from os.path import join, isfile, isdir
-from os import listdir
-from fileApi import get_dir_list, get_file_list, save_dic_to_yaml
-from extract_infoApi import initialize_furniture_config
-from assemblyApi import Assembly_Manager
-
 import logging
+import time
 
-#-------------------------------------------------
-FURNITURE_NAME = "STEFAN"
-instruction_step = 1
+from assembly_manger import AssemblyManager
 
-if __name__ == "__main__":
-    #---------------------------------------
-    #region logger
-    
-    logger = logging.getLogger(FURNITURE_NAME)
+def get_logger(furniture_name):
+    logger = logging.getLogger(furniture_name)
     formatter = logging.Formatter('[%(asctime)s][%(levelname)s|%(filename)s:%(lineno)s] >> %(message)s')
     streamHandler = logging.StreamHandler()
     streamHandler.setFormatter(formatter)
     logger.addHandler(streamHandler)
     logger.setLevel(level=logging.INFO)
     
-    #endregion
+    return logger
+
+if __name__ == "__main__":
+    """
+        1. initialize part information from CAD files(*.STEP)
+        2. Get Instruction Info and start assembly
+        3. Create Assemlby Sequence
+    """
+    furniture_name = "STEFAN"
+    logger = get_logger(furniture_name)
     
-    #---------------------------------------------------
-    #region initialize
-    # initialize_furniture_config(FURNITURE_NAME, logger)
+    asm_manager = AssemblyManager(logger, furniture_name)
+    # assembly simulation
+    while True:
+        while not asm_manager.check_instruction_info():
+            time.sleep(2)
 
-    #endregion
+        asm_manager.simulate_assemble()
+        asm_manager.step()
 
-    #---------------------------------------------------
-    #region assembly for each instruction
-    assem = Assembly_Manager(FURNITURE_NAME, instruction_step, logger)
-    assem.start_assemble()
+    # create assembly sequence
 
-    #endregion
-
-    #---------------------------------------
-    #region extract assembly sequence
-
-
-    #endregion
-    

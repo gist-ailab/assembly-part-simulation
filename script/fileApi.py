@@ -32,5 +32,13 @@ def check_and_create_dir(dir_path):
     else:
         return False
 
+def check_file(file_path):
+    return os.path.isfile(file_path)
+
 def get_time_stamp():
     return datetime.timestamp(datetime.now())
+
+def relative_path_to_abs_path(rel_path):
+    os.path.abspath(rel_path)
+    return os.path.abspath(rel_path)
+    

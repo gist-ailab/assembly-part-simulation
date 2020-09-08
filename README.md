@@ -1,5 +1,6 @@
 # Assembly Simulation
 assembly using freecad
+
 # Assembly Process
 ## 1. Extract Assembly Point from CAD Files(*.STEP)
 ## 2. Use A2Plus Workbench to assemble 2 Part
@@ -56,3 +57,14 @@ assembly using freecad
 # assembly status
 - each assembly status is Full assemble for parts in instruction step
 - initial_status.yaml has all statuses before assemble current instruction step
+
+
+# setting
+- [setuplink](http://ubuntuhandbook.org/index.php/2019/04/install-freecad-0-18-ubuntu-18-04-16-04/)
+- when using external python script, add freecad lib to sys.path 
+- pip3 install --user numpy scipy matplotlib ipython jupyter pandas sympy nose
+## issue for setting
+- abort(core dumped)
+    - sudo python3 $python file
+- module 'yaml' has no attribute 'FullLoader'
+    - pip3 install PyYAML

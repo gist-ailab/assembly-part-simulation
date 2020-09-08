@@ -1,4 +1,4 @@
-from fileApi import *
+from script.fileApi import *
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 from decimal import Decimal
@@ -6,7 +6,7 @@ from datetime import datetime
 import time
 #------------------------------------------------
 #region freecad library
-import import_fcstd # add path for import FreeCAD
+from script import import_fcstd # add path for import FreeCAD
 import FreeCAD
 import FreeCADGui
 FreeCADGui.showMainWindow() # FreeCADGui should be show before using
@@ -14,6 +14,7 @@ import Part
 from FreeCAD import Base
 import importOBJ
 import Draft
+
 import a2plib
 from a2p_importpart import importPartFromFile
 import a2p_constraints as a2pconst
@@ -27,6 +28,9 @@ check_and_create_dir(OUTPUT_PATH)
 
 FREECAD_DOCUMENT_PATH = join(OUTPUT_PATH, "FCDocument")
 check_and_create_dir(FREECAD_DOCUMENT_PATH)
+
+INSTANCE_DOCUMENT_DIR = join(FREECAD_DOCUMENT_PATH, "instance_document")
+check_and_create_dir(INSTANCE_DOCUMENT_DIR)
 
 ASSEMBLY_DOCUMENT_DIR = join(FREECAD_DOCUMENT_PATH, "assembly_document")
 check_and_create_dir(ASSEMBLY_DOCUMENT_DIR)
@@ -74,6 +78,7 @@ def check_parallel(vec1, vec2):
         return True
     else:
         return False
+
 #--------------------------------------------
 #region freecad basic Api
 
@@ -128,6 +133,12 @@ def save_assem_doc_as(save_doc_name):
     doc = get_active_doc()
     doc.saveAs(save_doc_path)
 
+def save_instance_doc_as(save_doc_name):
+    save_doc_name += ".FCStd"
+    save_doc_path = join(INSTANCE_DOCUMENT_DIR, save_doc_name)
+    doc = get_active_doc()
+    doc.saveAs(save_doc_path)
+
 def close_doc(close_doc_name):
     FreeCAD.closeDocument(close_doc_name)
 
@@ -176,6 +187,8 @@ def load_step_file(path, doc_name, obj_name):
     if doc == None:
         print("Please create active document")
         return False
+    path = relative_path_to_abs_path(path)
+    print(doc_name)
     Part.insert(path, doc_name)
     obj = get_active_obj()
     obj.Label = obj_name
@@ -214,6 +227,8 @@ class Circle(object):
     def create_circle(self, circle_name):
         position = Base.Vector(self.position)
         direction = Base.Vector(self.direction)
+        circle_name += "_"
+        circle_name += str(self.radius)
         self.name = circle_name
         self.shape = Part.makeCircle(self.radius, position, direction, 0, 360)
         self.object = show_shape_in_doc(self.shape, circle_name)
@@ -360,7 +375,6 @@ class Hole():
         doc = get_active_doc()
         doc.removeObject(self.object.Name)
 
-
 def _visualize_frame(obj_name, obj_O, obj_axis):
     """visualize coordinate of object
     
@@ -501,13 +515,15 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
             "is_used": False
         }
     """
-    doc_name = "extract_part_info"
+    doc_name = step_name
     doc = create_doc(doc_name)
+    doc_name = doc.Name #Issue document name sometimes have 1 in the end of name
     file_path = step_path
     obj_name = step_name
-    while not load_step_file(file_path, doc_name, obj_name):
-        pass
+    load_step_file(file_path, doc_name, obj_name)
 
+    FreeCADGui.updateGui( )
+    FreeCADGui.SendMsgToActiveView("ViewFit")
     obj = doc.ActiveObject
     shape = obj.Shape
     Edges = shape.Edges
@@ -532,17 +548,19 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
             hole = Hole(circle.position, circle.direction, circle)
             assembly_holes.append(hole)
     #endregion
-    for hole in assembly_holes:
+    for idx, hole in enumerate(assembly_holes):
         hole.start_circle.get_edge_index_from_shape(shape)
         hole_name = "assembly_point" + "_" + str(idx)
         hole.create_hole(hole_name)
         doc.recompute()
         hole.get_hole_type(obj)
-        hole.remove_hole()
+        # hole.remove_hole()
         
     for idx in range(quantity):
         save_doc_name = step_name + "_" + str(idx)
-        save_doc_as(save_doc_name)
+        save_instance_doc_as(save_doc_name)
+
+    # save_doc_as(doc_name)
     close_doc(doc_name)
     assembly_points = []
     for idx, hole in enumerate(assembly_holes):
@@ -574,7 +592,7 @@ class Constraint(object):
 
 def initialize_assembly_docs(doc_name):
     doc = create_doc(doc_name)
-    part_doc = join(FREECAD_DOCUMENT_PATH, doc_name + ".FCStd")
+    part_doc = join(INSTANCE_DOCUMENT_DIR, doc_name + ".FCStd")
     importPartFromFile(doc, part_doc)
     save_assem_doc_as(doc_name)
     obj = get_active_obj()

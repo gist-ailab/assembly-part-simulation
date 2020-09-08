@@ -374,6 +374,19 @@ class Assembly_Manager(object):
         self._logger.info("complete assemble")        
         self._save_status(self._last_status_name)
         self._save_part_sequence(part_sequence)
+    
+    """
+    def random_assemble(self):
+        self._logger.info("Start to random assemble")
+        while all_part_assembled:
+            # pick 2 part from current state
+            part1, part2
+            # assemble 2 part for all possible case
+            while no_case_remain:
+                assemble part 1 and part 2
+                save status
+    """
+
     #endregion
 class Assembly():
     def __init__(self, parts, status_path):
@@ -418,4 +431,4 @@ class Assembly():
 
         return self.used_info
 
-    
+
