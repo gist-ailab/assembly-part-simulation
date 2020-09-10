@@ -497,7 +497,7 @@ def _get_hole_from_circle(circle):
     position = circle.position
     direction = circle.direction
 
-def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
+def get_assembly_points(step_path, step_name, logger, doc_path, obj_path, condition=None):
     """get assembly_points from step file
 
     Arguments:
@@ -525,6 +525,7 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
     FreeCADGui.updateGui( )
     FreeCADGui.SendMsgToActiveView("ViewFit")
     obj = doc.ActiveObject
+    importOBJ.export(obj, obj_path)
     shape = obj.Shape
     Edges = shape.Edges
     logger.debug(f"Extract Object Name: {obj.Name}")
@@ -548,6 +549,7 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
             hole = Hole(circle.position, circle.direction, circle)
             assembly_holes.append(hole)
     #endregion
+    
     for idx, hole in enumerate(assembly_holes):
         hole.start_circle.get_edge_index_from_shape(shape)
         hole_name = "assembly_point" + "_" + str(idx)
@@ -555,13 +557,7 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
         doc.recompute()
         hole.get_hole_type(obj)
         # hole.remove_hole()
-        
-    for idx in range(quantity):
-        save_doc_name = step_name + "_" + str(idx)
-        save_instance_doc_as(save_doc_name)
-
-    # save_doc_as(doc_name)
-    close_doc(doc_name)
+    
     assembly_points = []
     for idx, hole in enumerate(assembly_holes):
         assembly_point = {
@@ -579,12 +575,34 @@ def get_assembly_points(step_path, step_name, quantity, logger, condition=None):
         assembly_points.append(assembly_point)
         # hole.start_circle.visualize_circle_frame_quat()
 
+    doc.saveAs(doc_path)
+    close_doc(doc.Name)
+
+
     return assembly_points
 
 #endregion
 
 #------------------------------------------------------------
 #region assembly Api
+class AssemblyModule(object):
+    """assembly module for "furniture_name"
+    
+    part info
+        - part_name
+
+    Args:
+        object ([type]): [description]
+    """
+    def __init__(self, furniture_name, furniture_part_info):
+        self.furniture_name = furniture_name
+        self.part_info = furniture_part_info
+
+    def assemble_A_and_B(A_name, B_name):
+        A_info = self.part_info[A_name]
+        B_info = self.part_info[B_name]
+    
+
 class Constraint(object):
     def __init__(self, assembly_point1, assembly_point2):
         self.assembly_point1 = assembly_point1
@@ -635,7 +653,6 @@ def _constraint_circular_edge(doc, parent_obj, child_obj, parent_edge, child_edg
         cc.direction = "opposed"
 
     return cc.constraintObject
-
 
 def assemble_parts(part_a_info, part_b_info, part_a_doc, part_b_doc, assembly_pairs):
     """assemle two parts
@@ -832,5 +849,7 @@ def _check_assembly_points(parent_point_info, child_point_info):
         pass
     
     return True
+
+
 
 #endregion

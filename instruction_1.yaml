@@ -1,0 +1,39 @@
+file_name: "stefan_0.png"
+assembly_region: [102, 405, 800, 302] # 조립 영역 bbox, [x_min, y_min, width, height]
+group:
+  - model_name: "chair part5(L).obj" 
+    group_id: 1 # 새로운 group이 추가될 때만 id 업데이트 (group 개수 추적을 위함)
+    part_id: [0] # 해당 group내 포함되어 있는 part 부품 
+    mask: [[10,11,12,13,...]] # assembly_region의 좌상향 point를 원점으로 기준
+    pose: # 형식 정의 필요
+
+  - model_name: "chair part1.obj"
+    group_id: 2
+    part_id: [3] # 해당 group내 포함되어 있는 part 부품 
+    mask: [[13,15,12,13,...]] # assembly_region의 좌상향 point를 원점으로 기준
+    pose: # 형식 정의 필요 
+
+connector:
+  requiring: [[1,3], [2,1]] # [[connector_id, quantity], [...]]
+  - model_name: "chair pin(14ea).obj"
+    connector_id: 1 # connector id 사전에 지정
+    bbox: [80, 100, 10, 10]
+    pose: # 협의 필요, 필요한가?
+  - model_name: "chair pin(14ea).obj"
+    connector_id: 1 # connector id 사전에 지정
+    bbox: [85, 95, 10, 10]
+    pose: # 협의 필요
+  - model_name: "countersunk flat head cross recess screw_iso(6ea).obj"
+    conenctor_id: 2 
+    bbox: [90, 120, 10, 10]
+    pose: # 협의 필요
+
+hole:
+  - hole_id: 1
+    mask: [ ~ ]
+  - hole_id: 2
+    mask: [ ~ ]
+
+connection:
+  - connection_id: 0
+  
