@@ -1,60 +1,42 @@
-flat_head_screw_iso(6ea):
-  composed_part: []
-  doc_file: ./assembly/STEFAN/freecad_documents/flat_head_screw_iso(6ea).FCStd
-  group_id: 0
-  obj_file: ./assembly/STEFAN/group_obj/flat_head_screw_iso(6ea).obj
-  quantity: 0
-ikea_l_bracket(4ea):
-  composed_part: []
-  doc_file: ./assembly/STEFAN/freecad_documents/ikea_l_bracket(4ea).FCStd
-  group_id: 1
-  obj_file: ./assembly/STEFAN/group_obj/ikea_l_bracket(4ea).obj
-  quantity: 0
 ikea_stefan_bottom:
-  composed_part: []
+  composed_part: 
+    - "ikea_stefan_bottom"
   doc_file: ./assembly/STEFAN/freecad_documents/ikea_stefan_bottom.FCStd
-  group_id: 2
+  group_id: 0
   obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_bottom.obj
   quantity: 0
 ikea_stefan_long:
-  composed_part: []
+  composed_part: 
+    - "ikea_stefan_long"
   doc_file: ./assembly/STEFAN/freecad_documents/ikea_stefan_long.FCStd
-  group_id: 3
+  group_id: 1
   obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_long.obj
   quantity: 0
 ikea_stefan_middle:
-  composed_part: []
+  composed_part: 
+    - "ikea_stefan_middle"
   doc_file: ./assembly/STEFAN/freecad_documents/ikea_stefan_middle.FCStd
-  group_id: 4
+  group_id: 2
   obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_middle.obj
   quantity: 0
 ikea_stefan_short:
-  composed_part: []
+  composed_part: 
+    - "ikea_stefan_short"
   doc_file: ./assembly/STEFAN/freecad_documents/ikea_stefan_short.FCStd
-  group_id: 5
+  group_id: 3
   obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_short.obj
   quantity: 0
 ikea_stefan_side_left:
-  composed_part: []
+  composed_part: 
+    - "ikea_stefan_side_left"
   doc_file: ./assembly/STEFAN/freecad_documents/ikea_stefan_side_left.FCStd
-  group_id: 6
+  group_id: 4
   obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_side_left.obj
   quantity: 0
 ikea_stefan_side_right:
-  composed_part: []
+  composed_part: 
+    - "ikea_stefan_side_right"
   doc_file: ./assembly/STEFAN/freecad_documents/ikea_stefan_side_right.FCStd
-  group_id: 7
+  group_id: 5
   obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_side_right.obj
-  quantity: 0
-ikea_wood_pin(14ea):
-  composed_part: []
-  doc_file: ./assembly/STEFAN/freecad_documents/ikea_wood_pin(14ea).FCStd
-  group_id: 8
-  obj_file: ./assembly/STEFAN/group_obj/ikea_wood_pin(14ea).obj
-  quantity: 0
-pan_head_screw_iso(4ea):
-  composed_part: []
-  doc_file: ./assembly/STEFAN/freecad_documents/pan_head_screw_iso(4ea).FCStd
-  group_id: 9
-  obj_file: ./assembly/STEFAN/group_obj/pan_head_screw_iso(4ea).obj
   quantity: 0
