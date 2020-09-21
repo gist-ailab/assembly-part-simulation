@@ -153,7 +153,6 @@ class AssemblyManager(object):
     
     def simulate_assemble(self):
         pass
-
     def step(self):
         self.current_step += 1
 
