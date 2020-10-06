@@ -48,21 +48,26 @@ class AssemblyManager(object):
         self.instruction_path = join(instruction_root, self.furniture_name)
         self.FC_module = freecad_module
         self.current_step = 0 # current instruction step
+        self.is_end = False
 
+        #region initialize folder
+        # 조립 폴더 생성
         self.assembly_path = join("./assembly", self.furniture_name)
         check_and_create_dir(self.assembly_path)
-        
+        # FreeCAD Document 폴더 생성
         self.fc_document_path = join(self.assembly_path, "freecad_documents")
         check_and_create_dir(self.fc_document_path)  
-
+        # Group(*.obj) 폴더 생성
         self.group_obj_path = join(self.assembly_path, "group_obj")
         check_and_create_dir(self.group_obj_path)
-
+        # Group info 폴더 생성
         self.group_info_path = join(self.assembly_path, "group_info")
         check_and_create_dir(self.group_info_path)
+        #endregion
 
         self.part_info_path = join(self.cad_path, "part_info.yaml")
         self.part_info = self.get_part_info()
+        self.part_names = self.get_part_names()
 
         self.initialize_group_info()        
         self.current_step += 1
@@ -120,12 +125,21 @@ class AssemblyManager(object):
 
         return part_info
     
+    def get_part_names(self):
+        """part name을 쉽게 사용하기 위해 part들의 이름을 따로 리스트로 저장
+        """
+        part_names = []
+        for part_name in self.part_info.keys():
+            part_names.append(part_name)
+        return part_names 
+
     def initialize_group_info(self):
         group_info = {}
         for group_id, part_name in enumerate(self.part_info.keys()):
             obj_path = self.part_info[part_name]["obj_file"]
             doc_path = self.part_info[part_name]["document"]
-            group_info[part_name] = {
+            group_name = part_name
+            group_info[group_name] = {
                 "group_id": group_id,
                 "quantity": 0,
                 "obj_file": obj_path,
@@ -143,6 +157,7 @@ class AssemblyManager(object):
 
     def check_instruction_info(self):
         self.logger.info("wating for instruction {}...".format(self.current_step))
+        
         current_instrution = "instruction_" + str(self.current_step) + ".yaml"
         current_instrution_path = join(self.instruction_path, current_instrution)
         if os.path.isfile(current_instrution_path):
@@ -152,8 +167,10 @@ class AssemblyManager(object):
             return False    
     
     def simulate_assemble(self):
+        
         pass
     def step(self):
         self.current_step += 1
+
 
         

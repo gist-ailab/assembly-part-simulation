@@ -585,23 +585,6 @@ def get_assembly_points(step_path, step_name, logger, doc_path, obj_path, condit
 
 #------------------------------------------------------------
 #region assembly Api
-class AssemblyModule(object):
-    """assembly module for "furniture_name"
-    
-    part info
-        - part_name
-
-    Args:
-        object ([type]): [description]
-    """
-    def __init__(self, furniture_name, furniture_part_info):
-        self.furniture_name = furniture_name
-        self.part_info = furniture_part_info
-
-    def assemble_A_and_B(A_name, B_name):
-        A_info = self.part_info[A_name]
-        B_info = self.part_info[B_name]
-    
 class Constraint(object):
     def __init__(self, assembly_point1, assembly_point2):
         self.assembly_point1 = assembly_point1

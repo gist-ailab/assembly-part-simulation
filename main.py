@@ -24,8 +24,8 @@ if __name__ == "__main__":
     
     asm_manager = AssemblyManager(logger, furniture_name)
     # assembly simulation
-    while True:
-        while not asm_manager.check_instruction_info():
+    while not asm_manager.is_end:
+        while not asm_manager.check_instruction_info(): 
             time.sleep(2)
 
         asm_manager.simulate_assemble()
