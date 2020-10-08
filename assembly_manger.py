@@ -9,16 +9,15 @@ from enum import Enum
 
 reverse_condition = [
     [0, 1, 2], # flat_head_screw_iso
+    [1, 2], # ikea_l_bracket
     [], # ikea_wood_pin
     [0,1,2], # pan_head_screw_iso
-    [1, 2], # ikea_l_bracket
     [], # ikea_stefan_bottom
     [3,4,5,7,8,9,10,11], # ikea_stefan_long
     [0,1,2,6,7,8,9,11], # ikea_stefan_middle
     [3,4,5,7,8,9,10,11], # ikea_stefan_short
     [3,7,12], # ikea_stefan_side_left
     [0,1,2,4,5,6,8,9,10,11,13,14,15, 16, 17, 18, 19], # ikea_stefan_side_right
-    
 ]
 
 class AssemblyManager(object):
@@ -52,6 +51,7 @@ class AssemblyManager(object):
 
         #region initialize folder
         # 조립 폴더 생성
+        check_and_create_dir("./assembly")
         self.assembly_path = join("./assembly", self.furniture_name)
         check_and_create_dir(self.assembly_path)
         # FreeCAD Document 폴더 생성
@@ -65,9 +65,9 @@ class AssemblyManager(object):
         check_and_create_dir(self.group_info_path)
         #endregion
 
+        self.furniture_parts, self.connector_parts = [], [] # save part_name
         self.part_info_path = join(self.cad_path, "part_info.yaml")
         self.part_info = self.get_part_info()
-        self.part_names = self.get_part_names()
 
         self.initialize_group_info()        
         self.current_step += 1
@@ -89,6 +89,7 @@ class AssemblyManager(object):
         cad_dir_list = get_dir_list(self.cad_path)
         
         part_id = 0
+        cad_dir_list.sort()
         for cad_dir in cad_dir_list:
             if PartType.furniture.value in cad_dir:
                 part_type = PartType.furniture
@@ -98,55 +99,46 @@ class AssemblyManager(object):
                 print("unknown part type")
                 exit()
             cad_list = get_file_list(cad_dir)
+            cad_list.sort()
             for cad_file in cad_list:
                 part_name = os.path.splitext(cad_file)[0].replace(cad_dir + "/", "")
-                # if "ea)" in part_name:
-                #     part_name, quantity = part_name.split("(")
-                doc_name = part_name + ".FCStd"
-                doc_path = join(self.fc_document_path, doc_name)
-                obj_name = part_name + ".obj"
-                obj_path = join(self.group_obj_path, obj_name)
-                assembly_points = self.FC_module.get_assembly_points(cad_file,
-                                                                     part_name,
-                                                                     self.logger,
-                                                                     doc_path,
-                                                                     obj_path,
-                                                                     condition=reverse_condition)
+                doc_path = join(self.fc_document_path, part_name+".FCStd")
+                assembly_points = self.FC_module.extract_assembly_points(step_path=cad_file,
+                                                                         step_name=part_name,
+                                                                         doc_path=doc_path,
+                                                                         part_type=part_type,
+                                                                         logger=self.logger,
+                                                                         condition=reverse_condition[part_id])
                 part_info[part_name] = {
                     "part_id": part_id,
                     "type": part_type.value,
-                    "step_file": cad_file,
                     "document": doc_path,
-                    "obj_file": obj_path,
+                    "step_file": cad_file,
                     "assembly_points": assembly_points
                 }
                 part_id += 1
+                if part_type == PartType.furniture:
+                    self.furniture_parts.append(part_name)
+                else:
+                    self.connector_parts.append(part_name)
+
         save_dic_to_yaml(part_info, self.part_info_path)
 
         return part_info
     
-    def get_part_names(self):
-        """part name을 쉽게 사용하기 위해 part들의 이름을 따로 리스트로 저장
-        """
-        part_names = []
-        for part_name in self.part_info.keys():
-            part_names.append(part_name)
-        return part_names 
-
     def initialize_group_info(self):
         group_info = {}
-        for group_id, part_name in enumerate(self.part_info.keys()):
-            obj_path = self.part_info[part_name]["obj_file"]
+        for group_id, part_name in enumerate(self.furniture_parts):
             doc_path = self.part_info[part_name]["document"]
+            obj_path = join(self.group_obj_path, part_name + ".obj")
+            self.FC_module.extract_group_obj(doc_path, obj_path)
             group_name = part_name
             group_info[group_name] = {
                 "group_id": group_id,
                 "quantity": 0,
                 "obj_file": obj_path,
-                "doc_file": doc_path,
                 "composed_part": [],
             }
-        
         self.group_info = group_info
         current_group_name = "group_info_" + str(self.current_step) + ".yaml"
         current_group_path = join(self.group_info_path, current_group_name)

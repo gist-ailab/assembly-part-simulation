@@ -1,5 +1,6 @@
 file_name: "stefan_0.png"
 assembly_region: [102, 405, 800, 302] # 조립 영역 bbox, [x_min, y_min, width, height]
+
 group:
   - group_name: "ikea_stefan_side_left" # group_info를 불러오는 key로 사용
     mask: [[10,11,12,13,...]] # assembly_region의 좌상향 point를 원점으로 기준

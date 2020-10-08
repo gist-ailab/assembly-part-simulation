@@ -2,17 +2,17 @@ flat_head_screw_iso(6ea):
   assembly_points:
   - depth: 0.06
     direction:
-    - -1.0
-    - 0.0
-    - 0.0
+    - 1.0
+    - -0.0
+    - -0.0
     edge_index:
       aligned:
-      - 13
+      - 22
       opposed: []
     id: 0
     pose:
       position:
-      - 0.06
+      - 0.0
       - 0.0
       - 0.0
       quaternion:
@@ -23,8 +23,7 @@ flat_head_screw_iso(6ea):
     radius: 5.65
     type: insertion
   document: ./assembly/STEFAN/freecad_documents/flat_head_screw_iso(6ea).FCStd
-  obj_file: ./assembly/STEFAN/group_obj/flat_head_screw_iso(6ea).obj
-  part_id: 6
+  part_id: 0
   step_file: ./cad_file/STEFAN/connector_part/flat_head_screw_iso(6ea).STEP
   type: connector_part
 ikea_l_bracket(4ea):
@@ -53,19 +52,19 @@ ikea_l_bracket(4ea):
     type: insertion
   - depth: 0.0015
     direction:
-    - 0.0
-    - 0.0
-    - 1.0
+    - -0.0
+    - -0.0
+    - -1.0
     edge_index:
       aligned:
-      - 38
+      - 59
       opposed: []
     id: 1
     pose:
       position:
       - 0.0
       - 0.0
-      - 0.0
+      - 0.0015
       quaternion:
       - 0.0
       - 0.0
@@ -74,20 +73,18 @@ ikea_l_bracket(4ea):
     radius: 3.5
     type: hole
   document: ./assembly/STEFAN/freecad_documents/ikea_l_bracket(4ea).FCStd
-  obj_file: ./assembly/STEFAN/group_obj/ikea_l_bracket(4ea).obj
-  part_id: 9
+  part_id: 1
   step_file: ./cad_file/STEFAN/connector_part/ikea_l_bracket(4ea).STEP
   type: connector_part
 ikea_stefan_bottom:
   assembly_points: []
   document: ./assembly/STEFAN/freecad_documents/ikea_stefan_bottom.FCStd
-  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_bottom.obj
-  part_id: 0
+  part_id: 4
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_bottom.STEP
   type: furniture_part
 ikea_stefan_long:
   assembly_points:
-  - depth: 0.34
+  - depth: 0.022999999999999972
     direction:
     - -1.0
     - 0.0
@@ -108,8 +105,8 @@ ikea_stefan_long:
       - 0.0
       - 0.7071067811865475
     radius: 4.0
-    type: insertion
-  - depth: 0.34
+    type: hole
+  - depth: 0.022999999999999972
     direction:
     - -1.0
     - 0.0
@@ -130,8 +127,8 @@ ikea_stefan_long:
       - 0.0
       - 0.7071067811865475
     radius: 2.5000000000000004
-    type: insertion
-  - depth: 0.34
+    type: hole
+  - depth: 0.022999999999999972
     direction:
     - -1.0
     - 0.0
@@ -152,7 +149,73 @@ ikea_stefan_long:
       - 0.0
       - 0.7071067811865475
     radius: 4.0
-    type: insertion
+    type: hole
+  - depth: 0.022999999999999972
+    direction:
+    - 1.0
+    - -0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 43
+      opposed: []
+    id: 3
+    pose:
+      position:
+      - -0.17
+      - 0.016
+      - 0.010000000000000002
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - 0.7071067811865475
+    radius: 4.0
+    type: hole
+  - depth: 0.022999999999999972
+    direction:
+    - 1.0
+    - -0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 44
+      opposed: []
+    id: 4
+    pose:
+      position:
+      - -0.17
+      - 0.0
+      - 0.01
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - 0.7071067811865475
+    radius: 2.5000000000000004
+    type: hole
+  - depth: 0.022999999999999972
+    direction:
+    - 1.0
+    - -0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 45
+      opposed: []
+    id: 5
+    pose:
+      position:
+      - -0.17
+      - -0.016
+      - 0.010000000000000005
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - 0.7071067811865475
+    radius: 4.0
+    type: hole
   - depth: 0.013000000000000001
     direction:
     - 0.0
@@ -162,7 +225,7 @@ ikea_stefan_long:
       aligned:
       - 14
       opposed: []
-    id: 3
+    id: 6
     pose:
       position:
       - 0.112
@@ -177,19 +240,19 @@ ikea_stefan_long:
     type: hole
   - depth: 0.013000000000000001
     direction:
-    - 0.0
-    - 0.0
-    - 1.0
+    - -0.0
+    - -0.0
+    - -1.0
     edge_index:
       aligned:
-      - 53
+      - 52
       opposed: []
-    id: 4
+    id: 7
     pose:
       position:
       - -0.112
       - -0.0145
-      - 0.007000000000000001
+      - 0.02
       quaternion:
       - 0.0
       - 0.0
@@ -198,13 +261,78 @@ ikea_stefan_long:
     radius: 3.0000000000000027
     type: hole
   document: ./assembly/STEFAN/freecad_documents/ikea_stefan_long.FCStd
-  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_long.obj
-  part_id: 1
+  part_id: 5
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_long.STEP
   type: furniture_part
 ikea_stefan_middle:
   assembly_points:
-  - depth: 0.27
+  - depth: 0.01
+    direction:
+    - -1.0
+    - 0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 61
+      opposed: []
+    id: 0
+    pose:
+      position:
+      - 0.135
+      - -0.016
+      - 0.009999999999999993
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - -0.7071067811865475
+    radius: 4.000000000000001
+    type: hole
+  - depth: 0.01
+    direction:
+    - -1.0
+    - 0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 62
+      opposed: []
+    id: 1
+    pose:
+      position:
+      - 0.135
+      - 0.016
+      - 0.009999999999999997
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - -0.7071067811865475
+    radius: 4.000000000000002
+    type: hole
+  - depth: 0.01
+    direction:
+    - -1.0
+    - 0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 63
+      opposed: []
+    id: 2
+    pose:
+      position:
+      - 0.135
+      - 0.0
+      - 0.009999999999999997
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - -0.7071067811865475
+    radius: 2.5000000000000004
+    type: hole
+  - depth: 0.01
     direction:
     - 1.0
     - -0.0
@@ -213,7 +341,7 @@ ikea_stefan_middle:
       aligned:
       - 6
       opposed: []
-    id: 0
+    id: 3
     pose:
       position:
       - -0.135
@@ -225,8 +353,8 @@ ikea_stefan_middle:
       - 0.0
       - -0.7071067811865475
     radius: 4.000000000000001
-    type: insertion
-  - depth: 0.27
+    type: hole
+  - depth: 0.01
     direction:
     - 1.0
     - -0.0
@@ -235,7 +363,7 @@ ikea_stefan_middle:
       aligned:
       - 10
       opposed: []
-    id: 1
+    id: 4
     pose:
       position:
       - -0.135
@@ -247,8 +375,8 @@ ikea_stefan_middle:
       - 0.0
       - -0.7071067811865475
     radius: 4.000000000000002
-    type: insertion
-  - depth: 0.27
+    type: hole
+  - depth: 0.01
     direction:
     - 1.0
     - -0.0
@@ -257,7 +385,7 @@ ikea_stefan_middle:
       aligned:
       - 14
       opposed: []
-    id: 2
+    id: 5
     pose:
       position:
       - -0.135
@@ -269,8 +397,30 @@ ikea_stefan_middle:
       - 0.0
       - -0.7071067811865475
     radius: 2.5000000000000004
-    type: insertion
-  - depth: 0.26999999999999996
+    type: hole
+  - depth: 0.009999999999999986
+    direction:
+    - -1.0
+    - 0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 130
+      opposed: []
+    id: 6
+    pose:
+      position:
+      - 0.13499999999999998
+      - -0.29500000000000004
+      - 0.0050000000000000044
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - -0.7071067811865475
+    radius: 4.000000000000003
+    type: hole
+  - depth: 0.009999999999999986
     direction:
     - 1.0
     - -0.0
@@ -279,7 +429,7 @@ ikea_stefan_middle:
       aligned:
       - 2
       opposed: []
-    id: 3
+    id: 7
     pose:
       position:
       - -0.13499999999999998
@@ -291,15 +441,14 @@ ikea_stefan_middle:
       - 0.0
       - -0.7071067811865475
     radius: 4.000000000000003
-    type: insertion
+    type: hole
   document: ./assembly/STEFAN/freecad_documents/ikea_stefan_middle.FCStd
-  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_middle.obj
-  part_id: 3
+  part_id: 6
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_middle.STEP
   type: furniture_part
 ikea_stefan_short:
   assembly_points:
-  - depth: 0.27
+  - depth: 0.022999999999999986
     direction:
     - -1.0
     - 0.0
@@ -320,8 +469,8 @@ ikea_stefan_short:
       - 0.0
       - 0.7071067811865475
     radius: 3.4999999999999996
-    type: insertion
-  - depth: 0.27
+    type: hole
+  - depth: 0.022999999999999986
     direction:
     - -1.0
     - 0.0
@@ -342,8 +491,8 @@ ikea_stefan_short:
       - 0.0
       - 0.7071067811865475
     radius: 2.5000000000000004
-    type: insertion
-  - depth: 0.27
+    type: hole
+  - depth: 0.022999999999999986
     direction:
     - -1.0
     - 0.0
@@ -364,7 +513,73 @@ ikea_stefan_short:
       - 0.0
       - 0.7071067811865475
     radius: 3.4999999999999996
-    type: insertion
+    type: hole
+  - depth: 0.022999999999999986
+    direction:
+    - 1.0
+    - -0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 43
+      opposed: []
+    id: 3
+    pose:
+      position:
+      - -0.135
+      - 0.016
+      - 0.010000000000000002
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - 0.7071067811865475
+    radius: 3.4999999999999996
+    type: hole
+  - depth: 0.022999999999999986
+    direction:
+    - 1.0
+    - -0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 44
+      opposed: []
+    id: 4
+    pose:
+      position:
+      - -0.135
+      - 0.0
+      - 0.01
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - 0.7071067811865475
+    radius: 2.5000000000000004
+    type: hole
+  - depth: 0.022999999999999986
+    direction:
+    - 1.0
+    - -0.0
+    - -0.0
+    edge_index:
+      aligned:
+      - 45
+      opposed: []
+    id: 5
+    pose:
+      position:
+      - -0.135
+      - -0.016
+      - 0.010000000000000005
+      quaternion:
+      - 0.0
+      - 0.7071067811865475
+      - 0.0
+      - 0.7071067811865475
+    radius: 3.4999999999999996
+    type: hole
   - depth: 0.013000000000000001
     direction:
     - 0.0
@@ -374,7 +589,7 @@ ikea_stefan_short:
       aligned:
       - 14
       opposed: []
-    id: 3
+    id: 6
     pose:
       position:
       - 0.08
@@ -389,19 +604,19 @@ ikea_stefan_short:
     type: hole
   - depth: 0.013000000000000001
     direction:
-    - 0.0
-    - 0.0
-    - 1.0
+    - -0.0
+    - -0.0
+    - -1.0
     edge_index:
       aligned:
-      - 53
+      - 52
       opposed: []
-    id: 4
+    id: 7
     pose:
       position:
       - -0.08
       - -0.0145
-      - 0.007000000000000001
+      - 0.02
       quaternion:
       - 0.0
       - 0.0
@@ -410,13 +625,12 @@ ikea_stefan_short:
     radius: 3.0000000000000027
     type: hole
   document: ./assembly/STEFAN/freecad_documents/ikea_stefan_short.FCStd
-  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_short.obj
-  part_id: 2
+  part_id: 7
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_short.STEP
   type: furniture_part
 ikea_stefan_side_left:
   assembly_points:
-  - depth: 0.0
+  - depth: 0.03
     direction:
     - 0.0
     - 0.0
@@ -436,7 +650,7 @@ ikea_stefan_side_left:
       - 1.0
       - 0.0
       - 0.0
-    radius: 6.3
+    radius: 2.750000000000001
     type: hole
   - depth: 0.01
     direction:
@@ -482,29 +696,7 @@ ikea_stefan_side_left:
       - 1.0
     radius: 4.0000000000000036
     type: hole
-  - depth: 0.0
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 66
-      opposed: []
-    id: 3
-    pose:
-      position:
-      - 0.0013289558847551077
-      - 0.4106821604126125
-      - -0.014999999999999996
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 2.750000000000001
-    type: hole
-  - depth: 0.0
+  - depth: 0.029999999999999995
     direction:
     - 0.0
     - 0.0
@@ -513,7 +705,7 @@ ikea_stefan_side_left:
       aligned:
       - 2
       opposed: []
-    id: 4
+    id: 3
     pose:
       position:
       - 0.3682050859317999
@@ -524,9 +716,9 @@ ikea_stefan_side_left:
       - 1.0
       - 0.0
       - 0.0
-    radius: 6.299999999999972
+    radius: 2.7499999999999747
     type: hole
-  - depth: 0.0
+  - depth: 0.029999999999999995
     direction:
     - 0.0
     - 0.0
@@ -535,7 +727,7 @@ ikea_stefan_side_left:
       aligned:
       - 12
       opposed: []
-    id: 5
+    id: 4
     pose:
       position:
       - 0.4293486580377539
@@ -546,7 +738,7 @@ ikea_stefan_side_left:
       - 1.0
       - 0.0
       - 0.0
-    radius: 6.299999999999972
+    radius: 2.7499999999999747
     type: hole
   - depth: 0.01
     direction:
@@ -557,7 +749,7 @@ ikea_stefan_side_left:
       aligned:
       - 32
       opposed: []
-    id: 6
+    id: 5
     pose:
       position:
       - 0.431575427653115
@@ -570,28 +762,6 @@ ikea_stefan_side_left:
       - 1.0
     radius: 4.0000000000000036
     type: hole
-  - depth: 0.0
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 36
-      opposed: []
-    id: 7
-    pose:
-      position:
-      - 0.4293486580377539
-      - 0.8602157232423375
-      - -0.05
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 2.7499999999999747
-    type: hole
   - depth: 0.01
     direction:
     - 0.0
@@ -601,7 +771,7 @@ ikea_stefan_side_left:
       aligned:
       - 39
       opposed: []
-    id: 8
+    id: 6
     pose:
       position:
       - 0.42712188842239285
@@ -623,7 +793,7 @@ ikea_stefan_side_left:
       aligned:
       - 43
       opposed: []
-    id: 9
+    id: 7
     pose:
       position:
       - 0.3932439335982414
@@ -645,7 +815,7 @@ ikea_stefan_side_left:
       aligned:
       - 47
       opposed: []
-    id: 10
+    id: 8
     pose:
       position:
       - 0.36736771063191276
@@ -667,7 +837,7 @@ ikea_stefan_side_left:
       aligned:
       - 51
       opposed: []
-    id: 11
+    id: 9
     pose:
       position:
       - 0.3690424612316871
@@ -680,40 +850,17 @@ ikea_stefan_side_left:
       - 1.0
     radius: 4.0000000000000036
     type: hole
-  - depth: 0.0
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 55
-      opposed: []
-    id: 12
-    pose:
-      position:
-      - 0.3682050859317999
-      - 0.3914549971648892
-      - -0.05
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 2.7499999999999747
-    type: hole
   document: ./assembly/STEFAN/freecad_documents/ikea_stefan_side_left.FCStd
-  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_side_left.obj
-  part_id: 5
+  part_id: 8
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_side_left.STEP
   type: furniture_part
 ikea_stefan_side_right:
   assembly_points:
-  - depth: 0.0
+  - depth: 0.03
     direction:
-    - 0.0
-    - 0.0
-    - -1.0
+    - -0.0
+    - -0.0
+    - 1.0
     edge_index:
       aligned:
       - 88
@@ -729,23 +876,23 @@ ikea_stefan_side_right:
       - 1.0
       - 0.0
       - 0.0
-    radius: 6.3
+    radius: 2.750000000000001
     type: hole
   - depth: 0.01
     direction:
-    - 0.0
-    - 0.0
-    - 1.0
+    - -0.0
+    - -0.0
+    - -1.0
     edge_index:
       aligned:
-      - 144
+      - 95
       opposed: []
     id: 1
     pose:
       position:
       - 0.0004915805848679389
       - 0.3947040878565393
-      - 0.004999999999999996
+      - 0.014999999999999996
       quaternion:
       - 0.0
       - 0.0
@@ -755,58 +902,36 @@ ikea_stefan_side_right:
     type: hole
   - depth: 0.01
     direction:
-    - 0.0
-    - 0.0
-    - 1.0
+    - -0.0
+    - -0.0
+    - -1.0
     edge_index:
       aligned:
-      - 143
+      - 96
       opposed: []
     id: 2
     pose:
       position:
       - 0.0021663311846422707
       - 0.4266602329686857
-      - 0.004999999999999996
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 4.0000000000000036
-    type: hole
-  - depth: 0.0
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 97
-      opposed: []
-    id: 3
-    pose:
-      position:
-      - 0.0013289558847551077
-      - 0.4106821604126125
       - 0.014999999999999996
       quaternion:
       - 0.0
       - 0.0
       - 0.0
       - 1.0
-    radius: 2.750000000000001
+    radius: 4.0000000000000036
     type: hole
-  - depth: 0.0
+  - depth: 0.029999999999999995
     direction:
-    - 0.0
-    - 0.0
-    - -1.0
+    - -0.0
+    - -0.0
+    - 1.0
     edge_index:
       aligned:
       - 121
       opposed: []
-    id: 4
+    id: 3
     pose:
       position:
       - 0.3682050859317999
@@ -817,18 +942,18 @@ ikea_stefan_side_right:
       - 1.0
       - 0.0
       - 0.0
-    radius: 6.299999999999972
+    radius: 2.7499999999999747
     type: hole
-  - depth: 0.0
+  - depth: 0.029999999999999995
     direction:
-    - 0.0
-    - 0.0
-    - -1.0
+    - -0.0
+    - -0.0
+    - 1.0
     edge_index:
       aligned:
       - 122
       opposed: []
-    id: 5
+    id: 4
     pose:
       position:
       - 0.4293486580377539
@@ -839,23 +964,23 @@ ikea_stefan_side_right:
       - 1.0
       - 0.0
       - 0.0
-    radius: 6.299999999999972
+    radius: 2.7499999999999747
     type: hole
   - depth: 0.01
     direction:
-    - 0.0
-    - 0.0
-    - 1.0
+    - -0.0
+    - -0.0
+    - -1.0
     edge_index:
       aligned:
-      - 151
+      - 126
       opposed: []
-    id: 6
+    id: 5
     pose:
       position:
       - 0.431575427653115
       - 0.8760600123422027
-      - 0.04
+      - 0.05
       quaternion:
       - 0.0
       - 0.0
@@ -863,146 +988,101 @@ ikea_stefan_side_right:
       - 1.0
     radius: 4.0000000000000036
     type: hole
-  - depth: 0.0
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 127
-      opposed: []
-    id: 7
-    pose:
-      position:
-      - 0.4293486580377539
-      - 0.8602157232423375
-      - 0.05
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 2.7499999999999747
-    type: hole
   - depth: 0.01
     direction:
-    - 0.0
-    - 0.0
-    - 1.0
+    - -0.0
+    - -0.0
+    - -1.0
     edge_index:
       aligned:
-      - 149
+      - 128
       opposed: []
-    id: 8
+    id: 6
     pose:
       position:
       - 0.42712188842239285
       - 0.8443714341424724
-      - 0.04
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 4.0000000000000036
-    type: hole
-  - depth: 0.01
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 148
-      opposed: []
-    id: 9
-    pose:
-      position:
-      - 0.3932439335982414
-      - 0.5673907774587741
-      - 0.04
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 4.0000000000000036
-    type: hole
-  - depth: 0.01
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 147
-      opposed: []
-    id: 10
-    pose:
-      position:
-      - 0.36736771063191276
-      - 0.375476924608816
-      - 0.04
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 4.0000000000000036
-    type: hole
-  - depth: 0.01
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 146
-      opposed: []
-    id: 11
-    pose:
-      position:
-      - 0.3690424612316871
-      - 0.40743306972096244
-      - 0.04
-      quaternion:
-      - 0.0
-      - 0.0
-      - 0.0
-      - 1.0
-    radius: 4.0000000000000036
-    type: hole
-  - depth: 0.0
-    direction:
-    - 0.0
-    - 0.0
-    - 1.0
-    edge_index:
-      aligned:
-      - 132
-      opposed: []
-    id: 12
-    pose:
-      position:
-      - 0.3682050859317999
-      - 0.3914549971648892
       - 0.05
       quaternion:
       - 0.0
       - 0.0
       - 0.0
       - 1.0
-    radius: 2.7499999999999747
+    radius: 4.0000000000000036
+    type: hole
+  - depth: 0.01
+    direction:
+    - -0.0
+    - -0.0
+    - -1.0
+    edge_index:
+      aligned:
+      - 129
+      opposed: []
+    id: 7
+    pose:
+      position:
+      - 0.3932439335982414
+      - 0.5673907774587741
+      - 0.05
+      quaternion:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+    radius: 4.0000000000000036
+    type: hole
+  - depth: 0.01
+    direction:
+    - -0.0
+    - -0.0
+    - -1.0
+    edge_index:
+      aligned:
+      - 130
+      opposed: []
+    id: 8
+    pose:
+      position:
+      - 0.36736771063191276
+      - 0.375476924608816
+      - 0.05
+      quaternion:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+    radius: 4.0000000000000036
+    type: hole
+  - depth: 0.01
+    direction:
+    - -0.0
+    - -0.0
+    - -1.0
+    edge_index:
+      aligned:
+      - 131
+      opposed: []
+    id: 9
+    pose:
+      position:
+      - 0.3690424612316871
+      - 0.40743306972096244
+      - 0.05
+      quaternion:
+      - 0.0
+      - 0.0
+      - 0.0
+      - 1.0
+    radius: 4.0000000000000036
     type: hole
   document: ./assembly/STEFAN/freecad_documents/ikea_stefan_side_right.FCStd
-  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_side_right.obj
-  part_id: 4
+  part_id: 9
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_side_right.STEP
   type: furniture_part
 ikea_wood_pin(14ea):
   assembly_points:
-  - depth: 0.0
+  - depth: 0.015
     direction:
     - 0.0
     - 0.0
@@ -1016,15 +1096,15 @@ ikea_wood_pin(14ea):
       position:
       - 0.0
       - 0.0
-      - 0.03
+      - 0.015
       quaternion:
       - 0.0
       - 0.0
       - 0.0
       - 1.0
     radius: 2.499999999999995
-    type: hole
-  - depth: 0.0
+    type: insertion
+  - depth: 0.015
     direction:
     - 0.0
     - 0.0
@@ -1038,34 +1118,33 @@ ikea_wood_pin(14ea):
       position:
       - 0.0
       - 0.0
-      - 0.0
+      - 0.015
       quaternion:
       - 1.0
       - 0.0
       - 0.0
       - 0.0
     radius: 2.499999999999989
-    type: hole
+    type: insertion
   document: ./assembly/STEFAN/freecad_documents/ikea_wood_pin(14ea).FCStd
-  obj_file: ./assembly/STEFAN/group_obj/ikea_wood_pin(14ea).obj
-  part_id: 8
+  part_id: 2
   step_file: ./cad_file/STEFAN/connector_part/ikea_wood_pin(14ea).STEP
   type: connector_part
 pan_head_screw_iso(4ea):
   assembly_points:
   - depth: 0.009999999999999995
     direction:
-    - -1.0
-    - 0.0
-    - 0.0
+    - 1.0
+    - -0.0
+    - -0.0
     edge_index:
       aligned:
-      - 21
+      - 77
       opposed: []
     id: 0
     pose:
       position:
-      - 0.014599999999999995
+      - 0.0046
       - 0.0
       - 0.0
       quaternion:
@@ -1076,7 +1155,6 @@ pan_head_screw_iso(4ea):
     radius: 6.0
     type: insertion
   document: ./assembly/STEFAN/freecad_documents/pan_head_screw_iso(4ea).FCStd
-  obj_file: ./assembly/STEFAN/group_obj/pan_head_screw_iso(4ea).obj
-  part_id: 7
+  part_id: 3
   step_file: ./cad_file/STEFAN/connector_part/pan_head_screw_iso(4ea).STEP
   type: connector_part

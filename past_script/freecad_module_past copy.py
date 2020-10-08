@@ -275,23 +275,9 @@ class Circle(object):
                 else:
                     self.edge_index["opposed"].append(ind + 1)
                     find_edge = True
-            #       
-            # circle = edge.Curve
-            # position = [circle.Center.x, circle.Center.y, circle.Center.z]
-            # axis = [circle.Axis.x, circle.Axis.y, circle.Axis.z]
-            # radius = circle.Radius
-            # if self.position == position and self.radius == radius:
-            #     if check_parallel(np.array(self.direction), np.array(axis)):
-            #         if self.direction == axis:
-            #             self.edge_index["aligned"].append(ind + 1)
-            #             find_edge = True
-            #         else:
-            #             self.edge_index["opposed"].append(ind + 1)
-            #             find_edge = True
-            #         if find_edge:
-            #             break
         if not find_edge:
             print("ERROR no edge same with circle")
+    
     def get_position_m(self):
         position = np.array(self.position) * 0.001
 
