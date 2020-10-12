@@ -12,6 +12,16 @@ class HoleType(Enum):
     insertion = "insertion"
     penetration = "penetration"
 
+class AssemblyType(Enum):
+    group_group = 0
+    group_connector_group = 1
+    group_connector = 2
+
+class GroupAssembly():
+    def __init__(self, assembly_type, assembly_parts):
+        self.assembly_type = assembly_type
+        self.assembly_parts = assembly_parts    
+
 class Pose(object):
     def __init__(self, position, quaternion):
         self.position = position # [x, y, z]

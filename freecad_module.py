@@ -13,6 +13,7 @@ import a2plib
 from a2p_importpart import importPartFromFile
 import a2p_constraints as a2pconst
 import a2p_solversystem as solver
+solsys = solver.SolverSystem()
 
 from scipy.spatial.transform import Rotation as R
 import numpy as np
@@ -301,6 +302,24 @@ def set_obj_pose(obj, position, quaternion):
     obj.Placement.Base = FreeCAD.Vector(position)
     obj.Placement.Rotation = FreeCAD.Vector(quaternion)
 
+def constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, direction, offset=0):
+    parent_obj.fixedPosition = True
+    child_obj.fixedPosition = False
+    s1 = a2plib.SelectionExObject(doc, parent_obj, "Edge" + str(parent_edge))
+    s2 = a2plib.SelectionExObject(doc, child_obj, "Edge" + str(child_edge))
+    cc = a2pconst.CircularEdgeConstraint([s1, s2])
+    if direction:
+        cc.direction = "aligned"
+    else:
+        cc.direction = "opposed"
+    cc.offset = offset
+
+    return cc.constraintObject
+
+def solve_system(doc):
+    return solsys.solveSystem(doc, showFailMessage=False)
+    # solsys.solveAccuracySteps(doc)
+
 #endregion
 
 def extract_assembly_points(step_path, step_name, doc_path, logger, part_type, condition=[]):
@@ -385,7 +404,18 @@ def extract_group_obj(doc_path, obj_path):
             group_objs.append(obj)
     importOBJ.export(group_objs, obj_path)
 
-def assemble_A_and_B()
+def assemble_A_and_B():
+    """
+    TODO
+    - Initialize assembly documents(only parts)
+    - 
+    - Part A info Part B info
+    """
+    
+
+    constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, direction, offset)
+
+    pass
 
 def open_doc(filepath):
     return FreeCAD.openDocument(filepath)
@@ -393,6 +423,12 @@ def open_doc(filepath):
 def save_doc_as(doc, filepath):
     doc.saveAs(filepath)
 
-def close_doc(doc, path=None):
+def close_doc(doc):
     FreeCAD.closeDocument(doc.Name)
 
+def create_assembly_doc(doc_name, part_doc):
+    doc = FreeCAD.newDocument(doc_name)
+    obj = importPartFromFile(doc, part_doc)
+    
+    return doc
+    

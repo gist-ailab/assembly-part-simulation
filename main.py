@@ -28,7 +28,7 @@ if __name__ == "__main__":
         while not asm_manager.check_instruction_info(): 
             time.sleep(2)
 
-        asm_manager.simulate_assemble()
+        asm_manager.simulate_instruction_step()
         asm_manager.step()
 
     # create assembly sequence

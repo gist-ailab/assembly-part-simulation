@@ -1,4 +1,4 @@
-from script.const import PartType
+from script.const import PartType, AssemblyType
 from script.fileApi import *
 import freecad_module
 from enum import Enum
@@ -54,22 +54,29 @@ class AssemblyManager(object):
         check_and_create_dir("./assembly")
         self.assembly_path = join("./assembly", self.furniture_name)
         check_and_create_dir(self.assembly_path)
-        # FreeCAD Document 폴더 생성
-        self.fc_document_path = join(self.assembly_path, "freecad_documents")
-        check_and_create_dir(self.fc_document_path)  
+        # Part Document 폴더 생성
+        self.part_document_path = join(self.assembly_path, "part_documents")
+        check_and_create_dir(self.part_document_path)  
         # Group(*.obj) 폴더 생성
         self.group_obj_path = join(self.assembly_path, "group_obj")
         check_and_create_dir(self.group_obj_path)
         # Group info 폴더 생성
         self.group_info_path = join(self.assembly_path, "group_info")
         check_and_create_dir(self.group_info_path)
+        # assembly Document 폴더 생성
+        self.assembly_document_path = join(self.assembly_path, "assembly_documents")
+        check_and_create_dir(self.assembly_document_path)  
         #endregion
 
         self.furniture_parts, self.connector_parts = [], [] # save part_name
-        self.part_info_path = join(self.cad_path, "part_info.yaml")
+        self.part_info_path = join(self.assembly_path, "part_info.yaml")
         self.part_info = self.get_part_info()
+        self.initialize_each_parts() # check part type
 
-        self.initialize_group_info()        
+        self.initialize_group_info()
+        self.initialize_connector_info()
+        self.instance_info = {}
+        self.status = {}
         self.current_step += 1
 
     def get_part_info(self):
@@ -102,7 +109,7 @@ class AssemblyManager(object):
             cad_list.sort()
             for cad_file in cad_list:
                 part_name = os.path.splitext(cad_file)[0].replace(cad_dir + "/", "")
-                doc_path = join(self.fc_document_path, part_name+".FCStd")
+                doc_path = join(self.part_document_path, part_name+".FCStd")
                 assembly_points = self.FC_module.extract_assembly_points(step_path=cad_file,
                                                                          step_name=part_name,
                                                                          doc_path=doc_path,
@@ -117,15 +124,21 @@ class AssemblyManager(object):
                     "assembly_points": assembly_points
                 }
                 part_id += 1
-                if part_type == PartType.furniture:
-                    self.furniture_parts.append(part_name)
-                else:
-                    self.connector_parts.append(part_name)
 
         save_dic_to_yaml(part_info, self.part_info_path)
 
         return part_info
     
+    def initialize_each_parts(self):
+        for part_name in self.part_info.keys():
+            if self.part_info[part_name]["type"] == PartType.furniture.value:
+                self.furniture_parts.append(part_name)
+            elif self.part_info[part_name]["type"] == PartType.connector.value:
+                self.connector_parts.append(part_name)
+            else:
+                self.logger.error("type is not matching!")
+                exit()
+
     def initialize_group_info(self):
         group_info = {}
         for group_id, part_name in enumerate(self.furniture_parts):
@@ -144,7 +157,21 @@ class AssemblyManager(object):
         current_group_path = join(self.group_info_path, current_group_name)
         save_dic_to_yaml(self.group_info, current_group_path)
 
+    def initialize_connector_info(self):
+        connector_info = {}
+        for connector_id, part_name in enumerate(self.connector_parts):
+            doc_path = self.part_info[part_name]["document"]
+            connector_name = part_name
+            connector_info[connector_name] = {
+                "connector_id": connector_id,
+                "quantity": 0,
+            }
+        self.connector_info = connector_info
+        connector_info_path = join(self.assembly_path, "connector_info.yaml")
+        save_dic_to_yaml(self.connector_info, connector_info_path)
+
     def initialize_status(self):
+        #TODO: for assembly sequence
         pass
 
     def check_instruction_info(self):
@@ -154,15 +181,123 @@ class AssemblyManager(object):
         current_instrution_path = join(self.instruction_path, current_instrution)
         if os.path.isfile(current_instrution_path):
             self.logger.info("Get instruction {} information!".format(self.current_step))
+            self.instruction_info = load_yaml_to_dic(current_instrution_path)
             return True
         else:
             return False    
     
-    def simulate_assemble(self):
-        
+    def is_exist_instance(self, args=None):
+        #TODO(js):
+        is_exist = False
+
+        return is_exist
+    
+    def create_new_instance(self, part_name):
+        # 1. Define instance name
+        count = 0
+        instance_name = part_name + "_" + str(count)
+        while instance_name in self.instance_info.keys():
+            count += 1
+            instance_name = part_name + "_" + str(count)
+        # 2. Create assembly document
+        part_info = self.part_info[part_name]
+        part_doc = part_info["document"]
+        self.instance_info[instance_name] = {
+            "assembly_document": part_doc,
+            "part_name": part_name,
+            "used_points": [],
+        }
+        self.status[instance_name] = {}
+
+    def group_to_instance(self):
+        #TODO(js): group info -> instance info
+        used_group_info = self.instruction_info["Group"] # list of used group info
+        for group_info in used_group_info:
+            group_pose = group_info["pose"]
+            group_id = group_info["group_id"]    
+            if self.is_exist_instance():
+                pass
+            else:
+                self.create_new_instance(group_name)
+
+    def group_to_instance_test(self):
+        # for instruction_1
+        """
+        # furniture part (from group_info)
+        id: 1 "ikea_stefan_long"
+        id: 3 "ikea_stefan_short"
+        id: 4 "ikea_stefan_side_left"
+        id: 2 "ikea_stefan_middle"
+        # connector part (from connector info)
+        id: 2 "ikea_wood_pin(14ea)"
+        """
+        used_group = [self.furniture_parts[1], self.furniture_parts[3], self.furniture_parts[4], self.furniture_parts[2]]
+        used_connector = [(self.connector_parts[2], 14)]
+        for part_name in used_group:
+            self.create_new_instance(part_name)
+        for part_name, num in used_connector:
+            for i in range(num):
+                self.create_new_instance(part_name)
+
+    def get_instruction_assembly_sequence(self):
+        #TODO(js)
         pass
+
+    def get_instruction_assembly_test(self):
+
+        assemblies = [
+            {
+                "assembly_type": AssemblyType.group_connector_group,
+                "assembly_parts": ["ikea_stefan_side_left_0", ("ikea_wood_pin(14ea)", 2), "ikea_stefan_short_0"]
+            },
+            {
+                "assembly_type": AssemblyType.group_connector_group,
+                "assembly_parts": ["ikea_stefan_side_left_0", ("ikea_wood_pin(14ea)", 2), "ikea_stefan_long_0"]
+            },
+            {
+                "assembly_type": AssemblyType.group_connector_group,
+                "assembly_parts": ["ikea_stefan_side_left_0", ("ikea_wood_pin(14ea)", 3), "ikea_stefan_middle_0"]
+            },
+            #TODO: group_connector type assembly
+        ]
+        return assemblies
+
+    def simulate_instruction_step(self):
+        """
+        #TODO(js):
+        1. group info -> instance info
+        2. get group assembly(connection) sequence from instruction
+        3. assemble with region pair
+        """
+        self.group_to_instance_test()
+        for key in self.instance_info.keys():
+            print(key, self.instance_info[key])
+        assemblies = self.get_instruction_assembly_test()
+        for assembly in assemblies:
+            assemble_type = assembly["assembly_type"]
+            if assemble_type == AssemblyType.group_connector_group:
+                self.simulate_group_assembly(assembly)
+            elif assemble_type == AssemblyType.group_connector:
+                self.simulate_connector_assembly(assembly)
+        pass
+
+    def simulate_group_assembly(self, assembly):
+        assemble_parts = assembly["assembly_parts"]
+        group1 = assemble_parts[0] # instance name
+        group2 = assemble_parts[2] # instance name
+        
+        connector_name, connector_num = assemble_parts[1] # part name 
+        connecotr_instances = [] # -> instance name
+        count = 0
+        instance_name = connector_name + "_" + str(count)
+        for i in range(connector_num):
+            while instance_name in self.status.keys():
+                count += 1
+                instance_name = part_name + "_" + str(count)
+                instance_name = connector_name + "_" + str(i)
+
+    def simulate_connector_assembly(self, assembly):
+        print(assembly)
+
     def step(self):
         self.current_step += 1
-
-
-        
