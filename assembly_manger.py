@@ -108,7 +108,8 @@ class AssemblyManager(object):
             cad_list = get_file_list(cad_dir)
             cad_list.sort()
             for cad_file in cad_list:
-                part_name = os.path.splitext(cad_file)[0].replace(cad_dir + "/", "")
+                _, part_name = os.path.split(cad_file)
+                part_name = os.path.splitext(part_name)[0]
                 doc_path = join(self.part_document_path, part_name+".FCStd")
                 assembly_points = self.FC_module.extract_assembly_points(step_path=cad_file,
                                                                          step_name=part_name,
@@ -228,6 +229,7 @@ class AssemblyManager(object):
         id: 3 "ikea_stefan_short"
         id: 4 "ikea_stefan_side_left"
         id: 2 "ikea_stefan_middle"
+        
         # connector part (from connector info)
         id: 2 "ikea_wood_pin(14ea)"
         """

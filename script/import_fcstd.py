@@ -11,6 +11,7 @@ class ENVPATH(Enum):
 #TODO: check before running script
 
 FREECADPATH = ENVPATH.raeyo_ubuntu.value
+FREECADPATH = ENVPATH.joo.value
 
 for path in FREECADPATH:
     if path in sys.path:
