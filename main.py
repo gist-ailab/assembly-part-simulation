@@ -20,6 +20,7 @@ if __name__ == "__main__":
         3. Create Assemlby Sequence
     """
     furniture_name = "STEFAN"
+    # furniture_name = "meshes_IITP"
     logger = get_logger(furniture_name)
     
     asm_manager = AssemblyManager(logger, furniture_name)
@@ -32,4 +33,24 @@ if __name__ == "__main__":
         asm_manager.step()
 
     # create assembly sequence
+
+
+    """meshes_IITP unique radius
+        0 2.0000000000000053
+        1 2.499999999999995
+        2 2.5000000000000004
+        3 2.7499999999999747
+        4 2.750000000000001
+        5 3.000000000000001
+        6 3.0000000000000027
+        7 3.4999999999999996
+        8 3.5
+        9 4.0
+        10 4.000000000000001
+        11 4.000000000000002
+        12 4.000000000000003
+        13 4.0000000000000036
+        14 5.65
+        15 6.0
+    """
 

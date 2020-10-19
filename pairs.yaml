@@ -1,0 +1,1104 @@
+pair_0:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_long
+  - 1
+pair_1:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_long
+  - 4
+pair_10:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 3
+pair_100:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_middle
+  - 6
+pair_101:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_middle
+  - 7
+pair_102:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_short
+  - 0
+pair_103:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_short
+  - 2
+pair_104:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_short
+  - 3
+pair_105:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_short
+  - 5
+pair_106:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_short
+  - 0
+pair_107:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_short
+  - 2
+pair_108:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_short
+  - 3
+pair_109:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_short
+  - 5
+pair_11:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 4
+pair_110:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 1
+pair_111:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 2
+pair_112:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 5
+pair_113:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 6
+pair_114:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 7
+pair_115:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 8
+pair_116:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 9
+pair_117:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_left
+  - 1
+pair_118:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_left
+  - 2
+pair_119:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_left
+  - 5
+pair_12:
+  offset: 0
+  part1:
+  - ikea_l_bracket(4ea)
+  - 0
+  part2:
+  - ikea_l_bracket(4ea)
+  - 1
+pair_120:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_left
+  - 6
+pair_121:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_left
+  - 7
+pair_122:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_left
+  - 8
+pair_123:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_left
+  - 9
+pair_124:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 1
+pair_125:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 2
+pair_126:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 5
+pair_127:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 6
+pair_128:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 7
+pair_129:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 8
+pair_13:
+  offset: 0
+  part1:
+  - ikea_l_bracket(4ea)
+  - 1
+  part2:
+  - ikea_l_bracket(4ea)
+  - 0
+pair_130:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 9
+pair_131:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_right
+  - 1
+pair_132:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_right
+  - 2
+pair_133:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_right
+  - 5
+pair_134:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_right
+  - 6
+pair_135:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_right
+  - 7
+pair_136:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_right
+  - 8
+pair_137:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_side_right
+  - 9
+pair_14:
+  offset: 0
+  part1:
+  - ikea_stefan_long
+  - 1
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_15:
+  offset: 0
+  part1:
+  - ikea_stefan_long
+  - 4
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_16:
+  offset: 15
+  part1:
+  - ikea_stefan_long
+  - 0
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_17:
+  offset: 15
+  part1:
+  - ikea_stefan_long
+  - 0
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_18:
+  offset: 15
+  part1:
+  - ikea_stefan_long
+  - 2
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_19:
+  offset: 15
+  part1:
+  - ikea_stefan_long
+  - 2
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_2:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_middle
+  - 2
+pair_20:
+  offset: 15
+  part1:
+  - ikea_stefan_long
+  - 3
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_21:
+  offset: 15
+  part1:
+  - ikea_stefan_long
+  - 3
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_22:
+  offset: 15
+  part1:
+  - ikea_stefan_long
+  - 5
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_23:
+  offset: 15
+  part1:
+  - ikea_stefan_long
+  - 5
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_24:
+  offset: 0
+  part1:
+  - ikea_stefan_middle
+  - 2
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_25:
+  offset: 0
+  part1:
+  - ikea_stefan_middle
+  - 5
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_26:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 0
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_27:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 0
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_28:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 1
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_29:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 1
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_3:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_middle
+  - 5
+pair_30:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 3
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_31:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 3
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_32:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 4
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_33:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 4
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_34:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 6
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_35:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 6
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_36:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 7
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_37:
+  offset: 15
+  part1:
+  - ikea_stefan_middle
+  - 7
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_38:
+  offset: 0
+  part1:
+  - ikea_stefan_short
+  - 1
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_39:
+  offset: 0
+  part1:
+  - ikea_stefan_short
+  - 4
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_4:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_short
+  - 1
+pair_40:
+  offset: 15
+  part1:
+  - ikea_stefan_short
+  - 0
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_41:
+  offset: 15
+  part1:
+  - ikea_stefan_short
+  - 0
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_42:
+  offset: 15
+  part1:
+  - ikea_stefan_short
+  - 2
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_43:
+  offset: 15
+  part1:
+  - ikea_stefan_short
+  - 2
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_44:
+  offset: 15
+  part1:
+  - ikea_stefan_short
+  - 3
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_45:
+  offset: 15
+  part1:
+  - ikea_stefan_short
+  - 3
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_46:
+  offset: 15
+  part1:
+  - ikea_stefan_short
+  - 5
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_47:
+  offset: 15
+  part1:
+  - ikea_stefan_short
+  - 5
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_48:
+  offset: 0
+  part1:
+  - ikea_stefan_side_left
+  - 0
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_49:
+  offset: 0
+  part1:
+  - ikea_stefan_side_left
+  - 3
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_5:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_short
+  - 4
+pair_50:
+  offset: 0
+  part1:
+  - ikea_stefan_side_left
+  - 4
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_51:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 1
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_52:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 1
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_53:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 2
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_54:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 2
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_55:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 5
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_56:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 5
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_57:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 6
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_58:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 6
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_59:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 7
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_6:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 0
+pair_60:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 7
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_61:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 8
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_62:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 8
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_63:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 9
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_64:
+  offset: 15
+  part1:
+  - ikea_stefan_side_left
+  - 9
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_65:
+  offset: 0
+  part1:
+  - ikea_stefan_side_right
+  - 0
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_66:
+  offset: 0
+  part1:
+  - ikea_stefan_side_right
+  - 3
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_67:
+  offset: 0
+  part1:
+  - ikea_stefan_side_right
+  - 4
+  part2:
+  - flat_head_screw_iso(6ea)
+  - 0
+pair_68:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 1
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_69:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 1
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_7:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 3
+pair_70:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 2
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_71:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 2
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_72:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 5
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_73:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 5
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_74:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 6
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_75:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 6
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_76:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 7
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_77:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 7
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_78:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 8
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_79:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 8
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_8:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_side_left
+  - 4
+pair_80:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 9
+  part2:
+  - ikea_wood_pin(14ea)
+  - 0
+pair_81:
+  offset: 15
+  part1:
+  - ikea_stefan_side_right
+  - 9
+  part2:
+  - ikea_wood_pin(14ea)
+  - 1
+pair_82:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_long
+  - 0
+pair_83:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_long
+  - 2
+pair_84:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_long
+  - 3
+pair_85:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_long
+  - 5
+pair_86:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_long
+  - 0
+pair_87:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_long
+  - 2
+pair_88:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_long
+  - 3
+pair_89:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_long
+  - 5
+pair_9:
+  offset: 0
+  part1:
+  - flat_head_screw_iso(6ea)
+  - 0
+  part2:
+  - ikea_stefan_side_right
+  - 0
+pair_90:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_middle
+  - 0
+pair_91:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_middle
+  - 1
+pair_92:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_middle
+  - 3
+pair_93:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_middle
+  - 4
+pair_94:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_middle
+  - 6
+pair_95:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 0
+  part2:
+  - ikea_stefan_middle
+  - 7
+pair_96:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_middle
+  - 0
+pair_97:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_middle
+  - 1
+pair_98:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_middle
+  - 3
+pair_99:
+  offset: 15
+  part1:
+  - ikea_wood_pin(14ea)
+  - 1
+  part2:
+  - ikea_stefan_middle
+  - 4

@@ -1,4 +1,4 @@
-from script.const import PartType, AssemblyType
+from script.const import PartType, AssemblyType, AssemblyPair
 from script.fileApi import *
 import freecad_module
 from enum import Enum
@@ -19,6 +19,37 @@ reverse_condition = [
     [3,7,12], # ikea_stefan_side_left
     [0,1,2,4,5,6,8,9,10,11,13,14,15, 16, 17, 18, 19], # ikea_stefan_side_right
 ]
+
+"""STEFAN unique radius
+    0 2.499999999999989 => pin
+    1 2.499999999999995 => pin
+    2 2.5000000000000004 => long, short for flat head penet
+    3 2.7499999999999747 => side hole for flat head penet
+    4 2.750000000000001 => side hole for flat head penet
+    5 3.000000000000001 => braket penetration
+    6 3.0000000000000027 => long, short hole for braket
+    7 3.4999999999999996 => short hole for pin
+    8 3.5 => braket insert
+    9 4.0 => long hole for pin 
+    10 4.000000000000001 => middle hole for pin
+    11 4.000000000000002 => middle hole for pin
+    12 4.000000000000003 => middle hole for pin
+    13 4.0000000000000036 => side hole for pin
+    14 5.65 => flat head
+    15 6.0 => pan head
+    
+    pin group [0, 1, 7, 9, 10, 11, 12, 13]
+    braket group [5, 8]
+    flat_penet group [2, 3, 4, 14]
+    pan [15]
+
+"""
+radius_group = {
+    "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
+    "braket group": [5, 8],
+    "flat_penet group": [2, 3, 4, 14],
+    "pan": [15]
+}
 
 class AssemblyManager(object):
     """
@@ -71,11 +102,16 @@ class AssemblyManager(object):
         self.furniture_parts, self.connector_parts = [], [] # save part_name
         self.part_info_path = join(self.assembly_path, "part_info.yaml")
         self.part_info = self.get_part_info()
+        self.FC_module.PART_INFO = self.part_info
         self.initialize_each_parts() # check part type
+
+        self.assembly_pairs = self.get_assembly_pairs()
+        self.FC_module.assemble_pair_test(self.assembly_pairs["pair"])
 
         self.initialize_group_info()
         self.initialize_connector_info()
         self.instance_info = {}
+        self.instance_info_path = join(self.assembly_path, "intance_info.yaml")
         self.status = {}
         self.current_step += 1
 
@@ -139,6 +175,53 @@ class AssemblyManager(object):
             else:
                 self.logger.error("type is not matching!")
                 exit()
+
+    def get_assembly_pairs(self):
+        """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
+        """
+        def get_group(radius):
+            idx = unique_radius.index(radius)
+            for group in radius_group.keys():
+                if idx in radius_group[group]:
+                    return group
+        assembly_pairs = {}
+        if check_file("./pairs.yaml"):
+            return load_yaml_to_dic("./pairs.yaml")
+        
+        unique_radius = []
+        for part in self.part_info.keys():
+            points = self.part_info[part]["assembly_points"]
+            for point in points:
+                radius = point["radius"]
+                if radius in unique_radius:
+                    pass
+                else:
+                    unique_radius.append(radius)
+        unique_radius.sort()
+        count = 0
+        for part1 in self.part_info.keys():
+            for part2 in self.part_info.keys():
+                info1 = self.part_info[part1]
+                info2 = self.part_info[part2]
+                points1 = info1["assembly_points"]
+                points2 = info2["assembly_points"]
+                for point1 in points1:
+                    for point2 in points2:
+                        if point1["type"] == point2["type"]:
+                            continue
+                        if get_group(point1["radius"]) == get_group(point2["radius"]):
+                            offset = 0
+                            if get_group(point1["radius"]) == "pin group":
+                                offset = 15 # 0.015
+                            new_pair = {
+                                "part1": [part1, point1["id"]],
+                                "part2": [part2, point2["id"]],
+                                "offset": offset
+                            }
+                            assembly_pairs["pair_" + str(count)] = new_pair
+                            count += 1
+        save_dic_to_yaml(assembly_pairs, "./pairs.yaml")
+        return assembly_pairs
 
     def initialize_group_info(self):
         group_info = {}
@@ -274,6 +357,7 @@ class AssemblyManager(object):
         self.group_to_instance_test()
         for key in self.instance_info.keys():
             print(key, self.instance_info[key])
+        save_dic_to_yaml(self.instance_info, self.instance_info_path)
         assemblies = self.get_instruction_assembly_test()
         for assembly in assemblies:
             assemble_type = assembly["assembly_type"]
@@ -281,6 +365,8 @@ class AssemblyManager(object):
                 self.simulate_group_assembly(assembly)
             elif assemble_type == AssemblyType.group_connector:
                 self.simulate_connector_assembly(assembly)
+        self.FC_module.assemble_A_and_B(self.instance_info["ikea_stefan_long_0"],
+                                        self.instance_info["ikea_stefan_side_left_0"])
         pass
 
     def simulate_group_assembly(self, assembly):
@@ -295,8 +381,11 @@ class AssemblyManager(object):
         for i in range(connector_num):
             while instance_name in self.status.keys():
                 count += 1
-                instance_name = part_name + "_" + str(count)
-                instance_name = connector_name + "_" + str(i)
+                instance_name = connector_name + "_" + str(count)
+            connecotr_instances.append(instance_name)
+        pass
+        # 1. assemble connector to group 1 - region x
+        # 2. assemble group 1(assembled with connector) - region x with group 2
 
     def simulate_connector_assembly(self, assembly):
         print(assembly)

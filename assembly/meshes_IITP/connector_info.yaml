@@ -1,0 +1,12 @@
+chair_braket(4ea):
+  connector_id: 0
+  quantity: 0
+chair_pin(14ea):
+  connector_id: 1
+  quantity: 0
+countersunk_flat_head_cross_recess_screw_iso(6ea):
+  connector_id: 2
+  quantity: 0
+pan_head_cross_recess_screw_iso(4ea):
+  connector_id: 3
+  quantity: 0

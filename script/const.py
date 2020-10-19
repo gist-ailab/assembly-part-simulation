@@ -22,18 +22,22 @@ class GroupAssembly():
         self.assembly_type = assembly_type
         self.assembly_parts = assembly_parts    
 
-class Pose(object):
-    def __init__(self, position, quaternion):
-        self.position = position # [x, y, z]
-        self.quaternion = quaternion # [qx, qy, qz, w]
-
 class AssemblyPoint(object):
-    def __init__(self, idx, hole_type, radius, edge_index, depth, direction, pose: Pose):
+    def __init__(self, idx, hole_type, radius, edge_index, depth, direction, position, quaternion):
         self.id = idx
         self.hole_type = hole_type
         self.radius = radius
         self.edge_index = edge_index
         self.depth = depth
         self.direction = direction
-        self.pose = pose
+        self.position = position
+        self.quaternion = quaternion
 
+class AssemblyPair(object):
+    def __init__(self, part1, part2, point1, point2, offset=0):
+        self.part_name1 = part1
+        self.part_name2 = part2
+        self.assembly_point1 = point1
+        self.assembly_point2 = point2
+        self.direction = True
+        self.offset = offset

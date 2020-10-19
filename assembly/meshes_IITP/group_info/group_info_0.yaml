@@ -1,0 +1,30 @@
+chair_part1:
+  composed_part: []
+  group_id: 0
+  obj_file: ./assembly/meshes_IITP/group_obj/chair_part1.obj
+  quantity: 0
+chair_part2:
+  composed_part: []
+  group_id: 1
+  obj_file: ./assembly/meshes_IITP/group_obj/chair_part2.obj
+  quantity: 0
+chair_part3:
+  composed_part: []
+  group_id: 2
+  obj_file: ./assembly/meshes_IITP/group_obj/chair_part3.obj
+  quantity: 0
+chair_part4:
+  composed_part: []
+  group_id: 3
+  obj_file: ./assembly/meshes_IITP/group_obj/chair_part4.obj
+  quantity: 0
+chair_part5:
+  composed_part: []
+  group_id: 4
+  obj_file: ./assembly/meshes_IITP/group_obj/chair_part5.obj
+  quantity: 0
+chair_part5_copy:
+  composed_part: []
+  group_id: 5
+  obj_file: ./assembly/meshes_IITP/group_obj/chair_part5_copy.obj
+  quantity: 0
