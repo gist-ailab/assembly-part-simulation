@@ -41,3 +41,13 @@ class AssemblyPair(object):
         self.assembly_point2 = point2
         self.direction = True
         self.offset = offset
+
+class SockType(Enum):
+    # signal
+    start_instruction_step = "start_instruction_step"
+    end_instruction_step = "end_instruction_step"
+    end_assembly = "end_assembly"
+    # data
+    group_info = "group_info_path"
+    
+

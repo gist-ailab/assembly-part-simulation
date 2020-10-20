@@ -380,7 +380,6 @@ def constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, d
 def solve_system(doc):
     return solver.solveConstraints(doc)
 
-
 def get_distance_between_edges(edge1, edge2):
     
     return edge1.Curve.Location.distanceToPoint(edge2.Curve.Location)

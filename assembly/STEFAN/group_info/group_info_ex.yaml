@@ -1,0 +1,36 @@
+ikea_stefan_bottom:
+  composed_part: []
+  group_id: 0
+  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_bottom/base.obj
+  obj_root: ./assembly/STEFAN/group_obj/ikea_stefan_bottom
+  quantity: 0
+ikea_stefan_long:
+  composed_part: []
+  group_id: 1
+  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_long/base.obj
+  obj_root: ./assembly/STEFAN/group_obj/ikea_stefan_long
+  quantity: 0
+ikea_stefan_middle:
+  composed_part: []
+  group_id: 2
+  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_middle/base.obj
+  obj_root: ./assembly/STEFAN/group_obj/ikea_stefan_middle
+  quantity: 0
+ikea_stefan_short:
+  composed_part: []
+  group_id: 3
+  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_short/base.obj
+  obj_root: ./assembly/STEFAN/group_obj/ikea_stefan_short
+  quantity: 0
+ikea_stefan_side_left:
+  composed_part: []
+  group_id: 4
+  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_side_left/base.obj
+  obj_root: ./assembly/STEFAN/group_obj/ikea_stefan_side_left
+  quantity: 0
+ikea_stefan_side_right:
+  composed_part: []
+  group_id: 5
+  obj_file: ./assembly/STEFAN/group_obj/ikea_stefan_side_right/base.obj
+  obj_root: ./assembly/STEFAN/group_obj/ikea_stefan_side_right
+  quantity: 0
