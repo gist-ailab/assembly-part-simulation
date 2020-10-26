@@ -22,7 +22,6 @@ def save_dic_to_yaml(dic, yaml_path):
 def load_yaml_to_dic(yaml_path):
     with open(yaml_path, 'r') as y_file:
         dic = yaml.load(y_file, Loader=yaml.FullLoader)
-
     return dic
 
 def check_and_create_dir(dir_path):

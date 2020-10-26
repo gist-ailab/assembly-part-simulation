@@ -42,7 +42,6 @@ reverse_condition = [
     braket group [5, 8]
     flat_penet group [2, 3, 4, 14]
     pan [15]
-
 """
 radius_group = {
     "pin group": [0, 1, 7, 9, 10, 11, 12, 13],

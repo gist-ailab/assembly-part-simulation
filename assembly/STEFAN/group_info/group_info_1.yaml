@@ -1,0 +1,53 @@
+0:
+  composed_part: []
+  group_id: 0
+  obj_file: assembly/STEFAN/group_obj/group_0/base.obj
+  obj_root: assembly/STEFAN/group_obj/group_0
+  part_name: ikea_stefan_bottom
+  instance: []
+1:
+  composed_part: []
+  group_id: 1
+  obj_file: assembly/STEFAN/group_obj/group_1/base.obj
+  obj_root: assembly/STEFAN/group_obj/group_1
+  quantity: 0
+  part_name: ikea_stefan_long
+  instance:
+    - id: 0
+      connector:
+        ikea_l_bracket(4ea): 2
+2:
+  composed_part: []
+  group_id: 2
+  obj_file: assembly/STEFAN/group_obj/group_2/base.obj
+  obj_root: assembly/STEFAN/group_obj/group_2
+  quantity: 0
+  part_name: ikea_stefan_middle
+  instance: []
+3:
+  composed_part: []
+  group_id: 3
+  obj_file: assembly/STEFAN/group_obj/group_3/base.obj
+  obj_root: assembly/STEFAN/group_obj/group_3
+  quantity: 0
+  part_name: ikea_stefan_short
+  instance:
+    - id: 1
+      connector:
+      ikea_l_bracket(4ea): 2
+4:
+  composed_part: []
+  group_id: 4
+  obj_file: assembly/STEFAN/group_obj/group_4/base.obj
+  obj_root: assembly/STEFAN/group_obj/group_4
+  quantity: 0
+  part_name: ikea_stefan_side_left
+  instance: []
+5:
+  composed_part: []
+  group_id: 5
+  obj_file: assembly/STEFAN/group_obj/group_5/base.obj
+  obj_root: assembly/STEFAN/group_obj/group_5
+  quantity: 0
+  part_name: ikea_stefan_side_right
+  instance: []
