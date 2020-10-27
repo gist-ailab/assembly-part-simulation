@@ -104,9 +104,9 @@ Connection:
           instance_id : 1           
           order : 1                
           connect_point :
-            X: -1
-            Y: -8
-            Z: 1
+            X: -2
+            Y: -4
+            Z: 2
         - type : connector        
           id : 1                    
           instance_id :            
@@ -120,4 +120,27 @@ Connection:
             X: 5
             Y: -3
             Z: -2
-            
+    - connection_id : 5
+      num_component : 3
+      components :
+        - type : group           
+          id : 3                   
+          instance_id : 1           
+          order : 1                
+          connect_point :
+            X: -2
+            Y: -4
+            Z: 2
+        - type : connector        
+          id : 1                    
+          instance_id :            
+          order : 2                
+          connect_point : 
+        - type : group           
+          id : 4                 
+          instance_id : 2           
+          order : 3               
+          connect_point :
+            X: 5
+            Y: -3
+            Z: -2

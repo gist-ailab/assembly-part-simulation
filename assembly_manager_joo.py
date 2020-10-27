@@ -54,6 +54,11 @@ class AssemblyManager(object):
         if os.path.isfile(current_instrution_path) and os.path.isfile(current_checkfile_path):
             self.logger.info("Get instruction of [step {}] information !".format(self.current_step))
             self.instruction_info = load_yaml_to_dic(current_instrution_path)
+
+            instance_info = join(self.group_instance_info_path, "group_instnace_info_{}.yaml".format(self.current_step-1))
+            self.instance_info = load_yaml_to_dic(instance_info)
+            if self.instance_info is None:
+                self.instance_info = {}
             return True
         else:
             return False
@@ -62,79 +67,79 @@ class AssemblyManager(object):
 
     def extract_assembly_info(self):
         """ extract assembly information including assembly regions
-                1. select group instances
+                1. 현재 step의 instruction에 인식된 group의 instances를 인식 (이전 status 정보 참조)
                 2. for each group instances, select all target assembly regions
                 3. 
         Input:
             instruction_info 
+            조립에 사용되는 group들과 connection lines
             [type]: dict
         Returns:
             assembly_region of each group
+            조립에 사용하는 group instance,
+            어떤 assembly region이 몇번 결합에 참여하는지
             [type]: dict
             pair: [assembly_region1, assembly_region1]
             assembly_region: 
         """
-        instance_info_instance = {}
-        for group in self.instruction_info['Group']:
-            instance_id = group["instance_id"]
-            group_id = group["group_id"]
-            instance_info_instance[instance_id] = {'group_id': group_id, "instance_id": instance_id}
-
-
-        # select group instances
+    
+        # 1. select group instances
         # 이전 status에서 instruction의 instance id를 group의 instance id와 매칭
-        instance_info_group = join(self.group_instance_info_path, "group_instnace_info_{}.yaml".format(self.current_step-1))
-        instance_info_group = load_yaml_to_dic(instance_info_group)
-        if instance_info_group is None: instance_info_group = {}
+        # 새로 나온 group이면 instance id 0부터 추가
+        # 기존에 있던 group일 경우, connector 정보를 바탕으로 매칭
 
-        inst_image2group = {}
-        group_info = load_yaml_to_dic(self.instruction_info['group_info'])
+        instance_Instruction_to_Group = {}
         groups = self.instruction_info['Group']
         for group in groups:
-            instance_id_instruction = group['instance_id']
-            group_id = group['group_id']
-            if group_id not in instance_info_group:
-                instance_id_group = 0
-                instance_info_group[group_id] = {}
-                instance_info_group[group_id][instance_id_group] = {"instance_id" : instance_id_group,
-                                                                    "obj_file": None,
-                                                                    "connector": None}
-            else:
-                #TODO: search algorithm for group instances
-                instance_id_group = instance_info[group_id]
-            inst_image2group[instance_id_instruction] = instance_id_group
-            instance_info_instance[instance_id_instruction]["group_instance_id"] = instance_id_group
+            InstanceInstruction = group["instance_id"]
 
+            group_id = group["group_id"]
+            connectorInstruction = group["connector"]
+            InstanceGroup = self.find_group_instance_id(group_id, connectorInstruction)
 
+            instance_Instruction_to_Group[InstanceInstruction] = {"group": group_id,
+                                                                  "instnace_id": InstanceGroup}
+        
 
-        """ select assembly regions
-            connection lines로 표현된 assembly info를 assembly region 단위로 변환
-        """
-        assembly_region_info = {}
+        # 2. find assembly regions
+        # connection lines로 표현된 assembly info를 assembly region 단위로 변환
+        assembly_region_info = {}        
+        self.assembly_region_ids = {}
         connections = self.instruction_info['Connection']['connections']
         for connection in connections:
             components = connection["components"]
-            ordered_components = self.set_order_connection_components(components)
-
-            print(ordered_components)
-            continue
-            
             for component in components:
-                if component["type"] != 'group': continue
-                print(component["type"], component['id'])
+                if component['type'] != 'group': continue
                 group_id = component['id']
-                region_id = self.PR_module.request_assembly_region(group_info=group_info[group_id], 
-                                                                   target=component["connect_point"])
-                connecntor_id = 1
-
-                # count usage of assembly region
-                if region_id not in assembly_region_info:
-                    assembly_region_info[region_id] = {}
-                if connecntor_id not in assembly_region_info[region_id]:
-                    assembly_region_info[region_id][connecntor_id] = 0             
-                assembly_region_info[region_id][connecntor_id] += 1                
+                connection_point = component['connect_point']
+                assembly_region_id = self.find_assembly_region_id(group_id, connection_point)
+                if assembly_region_id not in assembly_region_info:
+                    assembly_region_info[assembly_region_id] = 0
+                assembly_region_info[assembly_region_id] += 1
         print(assembly_region_info)
         quit()
+
+    def find_group_instance_id(self, group_id, connector_info):
+        if group_id not in self.instance_info:
+            self.instance_info[group_id] = {
+                                            "instance_id": 0,
+                                            "connector": connector_info
+                                            }
+            instance_id = 0
+        else:
+            #TODO: joosoon, connector 정보를 바탕으로 group instance 매칭하기
+            pass
+        return instance_id
+
+    def find_assembly_region_id(self, group_id, connection_point):
+        #TODO: Rayeo, 블랜더에서 assembly region 찾기
+        x, y, z = connection_point["X"], connection_point["Y"], connection_point["Z"]
+        key = "{}_{}_{}_{}".format(group_id, x, y, z)
+        if key not in self.assembly_region_ids: 
+            self.assembly_region_ids[key] = len(self.assembly_region_ids)
+        return self.assembly_region_ids[key]
+
+
 
     def set_order_connection_components(self, components):
         print(components)
@@ -157,7 +162,7 @@ class AssemblyManager(object):
                 curr_type = orders_info[curr_order]
                 target_type = orders_info[curr_order+1]
                 next_type = orders_info[curr_order+2]
-                if target_type 
+                # if target_type 
 
             print(types)
             print(inst_ids)

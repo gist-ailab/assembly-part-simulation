@@ -6,12 +6,10 @@ import time
 from assembly_manager_joo import AssemblyManager
 
 
-
 def get_args_parser():
     parser = argparse.ArgumentParser('Set IKEA Assembly Part Simulation', add_help=False)
     parser.add_argument('--furniture_name', default='STEFAN', type=str)
     return parser
-
 
 def get_logger(furniture_name):
     logger = logging.getLogger(furniture_name)

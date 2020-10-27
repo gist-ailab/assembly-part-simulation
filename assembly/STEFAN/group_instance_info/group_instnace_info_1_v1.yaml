@@ -1,10 +1,12 @@
 1:
-  group_id: 0
-  obj_file: assembly/STEFAN/group_obj/group_1/base.obj
-  connector:
-    ikea_l_bracket(4ea): 2
+  0:
+    instance_id: 0
+    obj_file: assembly/STEFAN/group_obj/group_1/base.obj
+    connector:
+      ikea_l_bracket(4ea): 2
 3:
-  group_id: 0
-  obj_file: assembly/STEFAN/group_obj/group_1/base.obj
-  connector:
-    ikea_l_bracket(4ea): 2
+  0:
+    instance_id: 0
+    obj_file: assembly/STEFAN/group_obj/group_1/base.obj
+    connector:
+      ikea_l_bracket(4ea): 2
