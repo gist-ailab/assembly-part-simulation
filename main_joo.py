@@ -52,10 +52,14 @@ if __name__ == "__main__":
         # search assembly sequence
         asm_manager.search_assemble_sequences()
 
-        # assemble parts and update group status
+        # assemble parts and calculate cost by distance taken during assembly
         asm_manager.simulate_instruction_step()
-        asm_manager.update_group_status()
+        
+        # 설명서에서 나오지 않은 추가적인 결합 체크
+        asm_manager.check_hidden_assembly()
 
+        # update group status
+        asm_manager.update_group_status()
         asm_manager.step()
 
     # create assembly sequence

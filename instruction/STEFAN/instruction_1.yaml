@@ -38,7 +38,7 @@ Connection:
         - type : group          
           id : 1                    
           instance_id : 0           
-          order : 2                
+          order : 1                
           connect_point :
             X: -1
             Y: 10
@@ -46,7 +46,7 @@ Connection:
         - type : connector       
           id : 1                 
           instance_id :           
-          order : 1                
+          order : 0                
           connect_point : 
     - connection_id : 1
       num_component : 2
@@ -54,7 +54,7 @@ Connection:
         - type : group            
           id : 1                    
           instance_id : 0           
-          order : 2                
+          order : 0                
           connect_point :
             X: -1
             Y: -10
@@ -70,7 +70,7 @@ Connection:
         - type : group            
           id : 3                    
           instance_id : 1           
-          order : 2                
+          order : 1                
           connect_point :
             X: -1
             Y: 8
@@ -78,7 +78,7 @@ Connection:
         - type : connector       
           id : 1                    
           instance_id :            
-          order : 1                
+          order : 0                
           connect_point : 
     - connection_id : 3
       num_component : 2
@@ -86,7 +86,7 @@ Connection:
         - type : group           
           id : 3                   
           instance_id : 1           
-          order : 2                
+          order : 0                
           connect_point :
             X: -1
             Y: -8
@@ -102,7 +102,7 @@ Connection:
         - type : group           
           id : 3                   
           instance_id : 1           
-          order : 1                
+          order : 0                
           connect_point :
             X: -2
             Y: -4
@@ -110,12 +110,12 @@ Connection:
         - type : connector        
           id : 1                    
           instance_id :            
-          order : 2                
+          order : 1                
           connect_point : 
         - type : group           
           id : 4                 
           instance_id : 2           
-          order : 3               
+          order : 2               
           connect_point :
             X: 5
             Y: -3
@@ -126,7 +126,7 @@ Connection:
         - type : group           
           id : 3                   
           instance_id : 1           
-          order : 1                
+          order : 2                
           connect_point :
             X: -2
             Y: -4
@@ -134,13 +134,45 @@ Connection:
         - type : connector        
           id : 1                    
           instance_id :            
-          order : 2                
+          order : 1                
           connect_point : 
         - type : group           
           id : 4                 
           instance_id : 2           
-          order : 3               
+          order : 0               
           connect_point :
             X: 5
             Y: -3
             Z: -2
+    - connection_id : 6
+      num_component : 2
+      components :
+        - type : group           
+          id : 3                   
+          instance_id : 1           
+          order : 0                
+          connect_point :
+            X: -12
+            Y: -14
+            Z: 21
+        - type : connector        
+          id : 1                    
+          instance_id :            
+          order : 1               
+          connect_point : 
+    - connection_id : 7
+      num_component : 2
+      components :
+        - type : group           
+          id : 3                   
+          instance_id : 1           
+          order : 1                
+          connect_point :
+            X: -12
+            Y: -14
+            Z: 21
+        - type : connector        
+          id : 1                    
+          instance_id :            
+          order : 0                
+          connect_point : 

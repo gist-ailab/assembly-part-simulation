@@ -12,10 +12,7 @@
   obj_root: assembly/STEFAN/group_obj/group_1
   quantity: 0
   part_name: ikea_stefan_long
-  instance:
-    - id: 0
-      connector:
-        ikea_l_bracket(4ea): 2
+  instance: []
 2:
   composed_part: []
   group_id: 2
@@ -31,10 +28,7 @@
   obj_root: assembly/STEFAN/group_obj/group_3
   quantity: 0
   part_name: ikea_stefan_short
-  instance:
-    - id: 1
-      connector:
-      ikea_l_bracket(4ea): 2
+  instance: []
 4:
   composed_part: []
   group_id: 4
