@@ -20,7 +20,7 @@ def get_logger(furniture_name):
     logger.setLevel(level=logging.INFO)
     return logger
 
-
+# test for raeyo branch
 
 if __name__ == "__main__":
     """
