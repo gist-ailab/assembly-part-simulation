@@ -21,7 +21,6 @@ def get_logger(furniture_name):
     return logger
 
 # test for joosoon branch
-# test for raeyo branch
 
 if __name__ == "__main__":
     """
