@@ -199,6 +199,7 @@ class AssemblyManager(object):
                 assembly_region_info_sort[new_key] += assembly_region_info[key]
         return assembly_region_info_sort
 
+
     def search_assemble_sequences(self):
         """ 가능한 Assembly sequence를 탐색
             1. Group-Connector를 우선 조립 후, 남은 Group-Connector-Group를 조립
@@ -212,7 +213,7 @@ class AssemblyManager(object):
             [type]: dict
         """
 
-        # group-connector와 group-group 분리
+        # group-connector결합과 group-group결합을 분리
         assemble_connector = []
         assemble_group = []
         for assemble in self.assembly_region_info:
