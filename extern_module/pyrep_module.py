@@ -6,6 +6,12 @@ from pyrep import PyRep
 from script.fileApi import *
 from script.const import SockType
 
+
+
+def request_assembly_region(group_info, target):
+    pass
+
+
 class InstructionScene(object):
     def __init__(self, group_info_path):
         self.group_info = load_yaml_to_dic(group_info_path)

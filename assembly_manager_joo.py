@@ -12,14 +12,14 @@ class AssemblyManager(object):
     def __init__(self, logger, furniture_name, instruction_root="./instruction", assembly_root='./assembly'):
         self.logger = logger
         self.furniture_name = furniture_name
+        self.assembly_root = assembly_root
 
         # external module for assembly (FreeCAD, Pyrep)
         #TODO: 래영이한테 컨펌
         self.FC_module = freecad_module
         self.PR_module = pyrep_module
         self.assembly_region_ids = {}   # assembly region을 임시로 지정하기 위함 dict
-
-
+        
         self.group_info_path = join(assembly_root, self.furniture_name, 'group_info')
         self.group_instance_info_path = join(assembly_root, self.furniture_name, 'group_instance_info')
         self.instruction_path = join(instruction_root, self.furniture_name)
@@ -36,13 +36,16 @@ class AssemblyManager(object):
             
 
     def initialize_CAD_info(self):
-        #TODO: Raeyo, CAD 정보 필요한거 
-        pass
-
+        part_info_path = join(self.assembly_root, self.furniture_name, "part_info.yaml")
+        if check_file(part_info_path):
+            self.part_info = load_yaml_to_dic(part_info_path)
+        else:
+            #TODO: use freecad module to extract info
+            self.part_info = load_yaml_to_dic(part_info_path)
 
     def check_instruction_info(self):
         """ check instruction information of current step
-            return True whe both .yaml and .txt files are exist
+            return True when both .yaml and .txt files are exist
         """
 
         self.logger.info("... wating for instruction of [step {}]".format(self.current_step))
@@ -245,14 +248,14 @@ class AssemblyManager(object):
 
 
     def request_assemble_search(self, assembly_region_id, connector_id, num_assemble):
-    """ 주어진 assembly region에서 connenctor로 결합 가능한 assembly pair 찾기
-        Input: 
-            assembly_region_id: assembly region과 1대1 매핑
-            connector_id: connector_info.yaml 의 connenctor_id
-            num_assemble: 결합 횟수
-        Return:
-            포맷 정해야 함
-    """
+        """ 주어진 assembly region에서 connenctor로 결합 가능한 assembly pair 찾기
+            Input: 
+                assembly_region_id: assembly region과 1대1 매핑
+                connector_id: connector_info.yaml 의 connenctor_id
+                num_assemble: 결합 횟수
+            Return:
+                포맷 정해야 함
+        """
         #TODO Raeyo, Joosoon: Assembly search input-output format 정하기
         pass
 
