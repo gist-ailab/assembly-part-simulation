@@ -1,5 +1,4 @@
 # Instruction_info.yaml
-
 ```yaml
 sequence: 1 # instruction step
 file_name: stefan-chair__AA-21977-9_pub_1.png # instruction file
@@ -42,6 +41,7 @@ Connection: # connection info
           connect_point: 
     - ...
 ```
+
 # Part_info.yaml
 ```yaml
 ikea_stefan_long: # part name
@@ -72,6 +72,7 @@ ikea_stefan_long: # part name
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_long.STEP # step file path
   type: furniture_part # part type(connector / furniture)
 ```
+
 # Group_instance_info.yaml
 ```yaml
 0: # group id(matched with group_info)
@@ -84,4 +85,29 @@ ikea_stefan_long: # part name
   obj_file: assembly/STEFAN/group_obj/group_1/base.obj
   connector:
     ikea_l_bracket(4ea): 2
+```
+
+# Group_info.yaml
+```yaml
+0: # group_id(name)
+  composed_part: [] # compose group ids
+  group_id: 0 # group_id(필요한 건지) #TODO
+  obj_file: assembly/STEFAN/group_obj/group_0/base.obj # group obj file path
+  obj_root: assembly/STEFAN/group_obj/group_0 # group obj root folder
+  part_name: ikea_stefan_bottom # if group obj is primitive part then has part name
+  instance: [] # matched with group instance
+```
+
+# Group_obj
+```shell
+assembly/STEFAN//group_obj
+├── group_0 # group + str(group_id)
+│   └── base.obj # group .obj file
+...
+├── group_n
+│   ├── base.obj # group .obj file(composed by primitive group 0, 1, 2)
+│   ├── group_0.obj # composed part
+│   ├── group_1.obj # composed part
+│   └── group_2.obj # composed part
+...
 ```

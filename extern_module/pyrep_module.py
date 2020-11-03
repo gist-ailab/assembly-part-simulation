@@ -30,27 +30,8 @@ class InstructionScene(object):
 
         return group_objects
 
-class GroupObject(object):
-    def __init__(self, obj_root, pr):
-        self.obj_root = obj_root
-
-        self.base_part = join(self.obj_root, "base.obj")
-        self.region_parts = self.get_region_parts()
-
+def import_group_object_to_scene(obj_root, scene):
     
-    def get_base_object(self):
-        pass
-    def get_region_parts(self):
-        pass
-    def get_assembly_points(self):
-        pass
-
-def set_group_pose(self, group_id, pose):
-    pass
-
-def get_region_pose(self):
-    pass
-
 
 
 if __name__ == "__main__":

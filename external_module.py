@@ -1,3 +1,16 @@
+import socket
+from enum import Enum
+
+
+class PyRepSocketType(Enum):
+    set_pose = {
+        "host": '127.0.0.1',
+        "port": "9999",
+        ""
+    }
+
+
+
 import random as rd
 
 class FreeCAD(object):
