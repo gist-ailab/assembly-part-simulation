@@ -25,6 +25,66 @@ PART_INFO = None
 temp_doc_path = "./temp.FCStd"
 unique_radius = []
 
+# hole direction condition(matched with step name)
+hole_condition = {
+    "flat_head_screw_iso": [0, 1, 2],
+    "ikea_l_bracket": [1, 2],
+    "ikea_wood_pin": [],
+    "pan_head_screw_iso": [0,1,2],
+    "ikea_stefan_bottom": [],
+    "ikea_stefan_long": [3,4,5,7,8,9,10,11],
+    "ikea_stefan_middle": [0,1,2,6,7,8,9,11],
+    "ikea_stefan_short": [3,4,5,7,8,9,10,11],
+    "ikea_stefan_side_left": [3,7,12],
+    "ikea_stefan_side_right": [0,1,2,4,5,6,8,9,10,11,13,14,15, 16, 17, 18, 19],
+}
+
+# pair condition
+radius_group = {
+    "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
+    "braket group": [5, 6, 8],
+    "flat_penet group": [2, 3, 4, 14],
+    "pan": [15]
+}
+# region condition
+region_condition = {
+    "ikea_stefan_bottom": {
+        
+    },
+    "ikea_stefan_long": {
+        0: [0,1,2],
+        1: [3,4,5],
+        2: [6],
+        3: [7]
+    },
+    "ikea_stefan_middle": {
+        0: [0, 1, 2],
+        1: [3, 4, 5],
+        2: [6],
+        3: [7]
+    },
+    "ikea_stefan_short": {
+        0: [0,1,2],
+        1: [3,4,5],
+        2: [6],
+        3: [7]
+    },
+    "ikea_stefan_side_left": {
+        0: [0,1,2],
+        1: [4,5,6],
+        2: [3,8,9],
+        3: [7]
+    },
+    "ikea_stefan_side_right": {
+        0: [0,1,2],
+        1: [4,5,6],
+        2: [3,8,9],
+        3: [7]
+    },
+}
+
+
+
 #region custom class
 class Circle(object):
     def __init__(self, radius, edge, position, XAxis, YAxis, ZAxis):
@@ -391,7 +451,7 @@ def set_obj_color(doc, obj, color):
 
 #endregion
 
-def extract_assembly_points(step_path, step_name, doc_path, logger, part_type, condition=[]):
+def extract_assembly_points(step_path, step_name, doc_path, logger, part_type):
     global unique_radius
     """extract assembly_points from step file
 
@@ -431,8 +491,9 @@ def extract_assembly_points(step_path, step_name, doc_path, logger, part_type, c
         mid_circle2.position = position
         circles += [mid_circle1, mid_circle2]
 
+    reverse_condition = hole_condition[step_name]
     for idx, circle in enumerate(circles):
-        if idx in condition:
+        if idx in reverse_condition:
             circle.reverse()
         circle.create_circle()
 
@@ -453,10 +514,9 @@ def extract_assembly_points(step_path, step_name, doc_path, logger, part_type, c
             unique_radius.sort()
 
     # extract assembly point from circle holes
-    assembly_points = []
+    assembly_points = {}
     for idx, hole in enumerate(circle_holes):
         assembly_point = {
-            "id": idx,
             "type": hole.type,
             "radius": hole.radius,
             "edge_index": hole.start_circle.edge_index,
@@ -465,10 +525,10 @@ def extract_assembly_points(step_path, step_name, doc_path, logger, part_type, c
             "pose": {
                 "position": npfloat_to_float(hole.start_circle.get_position_m()),
                 "quaternion": npfloat_to_float(hole.start_circle.quaternion)
-            }
+            },
+            "region": region_condition[step_name],
         }
-        assembly_points.append(assembly_point)
-
+        assembly_points[idx] = assembly_point
     doc.saveAs(doc_path)
     FreeCAD.closeDocument(doc.Name)
     return assembly_points
@@ -621,3 +681,6 @@ def create_assembly_doc(doc_name, part_doc):
     
     return doc
     
+
+if __name__ == "__main__":
+    pass

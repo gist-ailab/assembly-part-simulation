@@ -1,16 +1,7 @@
 import socket
 from enum import Enum
 
-
-class PyRepSocketType(Enum):
-    set_pose = {
-        "host": '127.0.0.1',
-        "port": "9999",
-        ""
-    }
-
-
-
+from script.const import SocketType
 import random as rd
 
 class FreeCAD(object):
@@ -18,17 +9,23 @@ class FreeCAD(object):
         pass
     
 
-class Pyrep(object):
+class PyrepClient(object):
     def __init__(self):
-        pass
-    
+        try:
+            socket_type = SocketType.pyrep.value
+            self.client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.client_socket.connect((socket_type["host"], socket_type["port"]))
+        except:
+            print("pyrep client error")
+
     def request_assembly_region(self, group_info, target):
         print(group_info)
         print(target)
         return rd.randint(0, 2)
+    
+    def close(self):
+        self.client_socket.close()
 
 
-
-
-freecad_module = FreeCAD()
-pyrep_module = Pyrep()
+if __name__ == "__main__":
+    pyrep_client = PyrepClient()

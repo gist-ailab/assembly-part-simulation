@@ -1,5 +1,5 @@
 import os
-from os.path import join, isfile, isdir
+from os.path import join, isfile, isdir, splitext
 from os import listdir
 import yaml
 from datetime import datetime
@@ -14,6 +14,10 @@ def get_dir_list(path):
     dir_list = [join(path, f) for f in listdir(path) if isdir(join(path, f))]
 
     return dir_list
+
+def get_file_name(path):
+    file_path, ext = splitext(path)
+    return file_path.split("/")[-1], ext
 
 def save_dic_to_yaml(dic, yaml_path):
     with open(yaml_path, 'w') as y_file:

@@ -42,12 +42,16 @@ class AssemblyPair(object):
         self.direction = True
         self.offset = offset
 
-class SockType(Enum):
-    # signal
-    start_instruction_step = "start_instruction_step"
-    end_instruction_step = "end_instruction_step"
-    end_assembly = "end_assembly"
-    # data
-    group_info = "group_info_path"
-    
+class SocketType(Enum):
+    pyrep = {
+        "host": '127.0.0.1',
+        "port": 8282,
+        "request_type": [
+            "initialize_scene",
+            "get_region",
+        ]
+    }
+    freecad = {
+        "port": 9292
+    }
 
