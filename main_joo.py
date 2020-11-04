@@ -23,11 +23,10 @@ def get_logger(furniture_name):
 # test for joosoon branch
 
 if __name__ == "__main__":
-    """
-        1. initialize part information from CAD files(*.STEP)
+    """ 1. initialize part information from CAD files(*.STEP)
         2. Get Instruction Info and start assembly
         3. Create Assemlby Sequence
-    """
+    """ 
 
     parser = argparse.ArgumentParser('Assembly Part Simulator', parents=[get_args_parser()])
     args = parser.parse_args()

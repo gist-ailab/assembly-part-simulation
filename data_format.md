@@ -1,5 +1,4 @@
 # Instruction_info.yaml
-
 ```yaml
 sequence: 1 # instruction step
 file_name: stefan-chair__AA-21977-9_pub_1.png # instruction file

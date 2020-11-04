@@ -101,7 +101,7 @@ class AssemblyManager(object):
 
             group_id = group["group_id"]
             connectorInstruction = group["connector"]
-            InstanceGroup = self.find_group_instance_id(group_id, connectorInstruction)
+            InstanceGroup = self._find_group_instance_id(group_id, connectorInstruction)
 
             self.instance_Instruction_to_Group[InstanceInstruction] = {"group": group_id,
                                                                        "instnace_id": InstanceGroup}
@@ -114,13 +114,13 @@ class AssemblyManager(object):
         connections = self.instruction_info['Connection']['connections']
         for connection in connections:
             components = connection["components"]
-            components = self.set_order_connenction(components)
+            components = self._set_order_connenction(components)
             key = 'Assembly'
             for component in components:
                 if component['type'] == 'group':
                     group_id = component['id']
                     connection_point = component['connect_point']
-                    assembly_region_id = self.find_assembly_region_id(group_id, connection_point)
+                    assembly_region_id = self._find_assembly_region_id(group_id, connection_point)
                     key += '_g{}'.format(assembly_region_id)
                 else:
                     key += '_c{}'.format(component['id'])
@@ -131,10 +131,10 @@ class AssemblyManager(object):
         # rename assembly region keys
         # 같은 g-c-g / g-g-c의 count 합치기
         # g-c / c-g는 g-c 순서로 sorting
-        self.assembly_region_info = self.set_order_assembly_region(assembly_region_info)
+        self.assembly_region_info = self._set_order_assembly_region(assembly_region_info)
 
 
-    def find_group_instance_id(self, group_id, connector_info):
+    def _find_group_instance_id(self, group_id, connector_info):
         if group_id not in self.instance_info:
             self.instance_info[group_id] = {
                                             "instance_id": 0,
@@ -146,7 +146,7 @@ class AssemblyManager(object):
             pass
         return instance_id
 
-    def find_assembly_region_id(self, group_id, connection_point):
+    def _find_assembly_region_id(self, group_id, connection_point):
         #TODO: Rayeo, Pyrep 에서 assembly region 찾기
         x, y, z = connection_point["X"], connection_point["Y"], connection_point["Z"]
         key = "{}_{}_{}_{}".format(group_id, x, y, z)
@@ -154,7 +154,7 @@ class AssemblyManager(object):
             self.assembly_region_ids[key] = len(self.assembly_region_ids)
         return self.assembly_region_ids[key]
 
-    def set_order_connenction(self, components):
+    def _set_order_connenction(self, components):
         component_buff = {}
         for component in components:
             order = component['order']
@@ -164,7 +164,7 @@ class AssemblyManager(object):
             order_component.append(component_buff[i])
         return order_component
 
-    def set_order_assembly_region(self, assembly_region_info):
+    def _set_order_assembly_region(self, assembly_region_info):
         rename_list = {}
         # 같은 g-c-g / g-g-c / c-g-g 의 count 합치기
         # g-g-c / c-g-g 는 c-g-g 순서로 sorting
