@@ -74,6 +74,9 @@ ikea_stefan_long: # part name
 ```
 
 # Group_instance_info.yaml
+## TODO
+- group 조립과정 :: assembly point들간의 결합으로 표기
+- part instace별 assembly point status
 ```yaml
 0: # group id(matched with group_info)
   group_id: 1 #TODO: group id 가 하나 더 있네요. 
