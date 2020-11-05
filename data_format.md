@@ -88,16 +88,14 @@ ikea_stefan_long: # part name
 ```
 
 # Group_instance_info.yaml
-## TODO
-- group 조립과정 :: assembly point들간의 결합으로 표기
-- part instace별 assembly point status
 ```yaml
 0: # group id(matched with group_info)
   instance_id: 0 
   obj_file: assembly/STEFAN/group_obj/group_1/base.obj
   connector:
     ikea_l_bracket(4ea): 2 # 결합이 가능한 connector들(설명서 이미지 상 인식이 가능한 connector)
-  assembly: #어떤 furniture part의 assembly point들끼리 결합했는지
+  assembly: #group 조립과정 :: assembly point들간의 결합으로 표기
+            #어떤 furniture part의 assembly point들끼리 결합했는지
 4:
   group_id: 0
   obj_file: assembly/STEFAN/group_obj/group_7/base.obj
