@@ -1,5 +1,5 @@
 from script.fileApi import *
-from external_module import freecad_module, pyrep_module
+from external_module import FreeCADClient, PyRepClient
 
 class AssemblyManager(object):
     """ 
@@ -16,8 +16,8 @@ class AssemblyManager(object):
 
         # external module for assembly (FreeCAD, Pyrep)
         #TODO: 래영이한테 컨펌
-        self.FC_module = freecad_module
-        self.PR_module = pyrep_module
+        self.FC_module = FreeCADClient
+        self.PR_module = PyRepClient
         self.assembly_region_ids = {}   # assembly region을 임시로 지정하기 위함 dict
         
         self.group_info_path = join(assembly_root, self.furniture_name, 'group_info')
@@ -32,17 +32,9 @@ class AssemblyManager(object):
 
         # PDDL
 
-
-            
-
     def initialize_CAD_info(self):
-        part_info_path = join(self.assembly_root, self.furniture_name, "part_info.yaml")
-        if check_file(part_info_path):
-            self.part_info = load_yaml_to_dic(part_info_path)
-        else:
-            #TODO: use freecad module to extract info
-            self.part_info = load_yaml_to_dic(part_info_path)
-
+        self.part_info = self.FC_module.initialize_CAD_info()
+        
     def check_instruction_info(self):
         """ check instruction information of current step
             return True when both .yaml and .txt files are exist

@@ -1,4 +1,4 @@
-from enum import Enum
+from enum import Enum, auto
 import os
 
 
@@ -42,16 +42,22 @@ class AssemblyPair(object):
         self.direction = True
         self.offset = offset
 
+class PyRepRequestType(Enum):
+    initialize_scene = auto
+    get_region = auto
+
+class FreeCADRequestType(Enum):
+    initialize_cad_info = auto
 class SocketType(Enum):
     pyrep = {
         "host": '127.0.0.1',
         "port": 8282,
-        "request_type": [
-            "initialize_scene",
-            "get_region",
-        ]
+        "request_type": PyRepRequestType,
     }
     freecad = {
-        "port": 9292
+        "host": '127.0.0.1',
+        "port": 9292,
+        "reqeust_type": FreeCADRequestType,
     }
+
 

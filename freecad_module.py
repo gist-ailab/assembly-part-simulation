@@ -1,7 +1,4 @@
-from script import fileApi
 from script import import_fcstd
-from os.path import join
-
 import FreeCAD
 import FreeCADGui
 FreeCADGui.showMainWindow()
@@ -15,11 +12,16 @@ from a2p_importpart import importPartFromFile
 import a2p_constraints as a2pconst
 import a2p_solversystem as solver
 
-
-
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import copy
+from os.path import join
+import socket
+
+from script.const import SocketType
+from script import fileApi
+
+
 
 PART_INFO = None
 temp_doc_path = "./temp.FCStd"
@@ -82,8 +84,6 @@ region_condition = {
         3: [7]
     },
 }
-
-
 
 #region custom class
 class Circle(object):
@@ -681,6 +681,34 @@ def create_assembly_doc(doc_name, part_doc):
     
     return doc
     
+class FreeCADModule():
+    def __init__(self):
+        self.client = self.initialize_client()
+    
+    #region socket
+    def initialize_client(self):
+        sock = socket.socket()
+        host = SocketType.freecad.value["host"]
+        port = SocketType.freecad.value["port"]
+        sock.connect((host, port))
+        print("==> Connected to FreeCAD server on {}:{}".format(host, port))
+        return sock
+    
+    
+
+    
 
 if __name__ == "__main__":
-    pass
+    freecad_module = FreeCADModule()
+    while True:
+        pass
+    # # 1. extract cad info 
+    # part_info_path = join(self.assembly_root, self.furniture_name, "part_info.yaml")
+    #     if check_file(part_info_path):
+    #         self.part_info = load_yaml_to_dic(part_info_path)
+    #     else:
+    #         #TODO: use freecad module to extract info
+    #         self.part_info = load_yaml_to_dic(part_info_path)
+
+    # 2. extract obj from document
+    # 3. 

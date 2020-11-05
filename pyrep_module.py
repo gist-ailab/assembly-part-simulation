@@ -52,6 +52,7 @@ class PyRepModule(object):
         self.pr.launch(headless=headless)
         self.pr.start()
 
+        self.client = self.initialize_client()
 
         # self._initialize_server()
         # try:
@@ -61,6 +62,14 @@ class PyRepModule(object):
         # except:
         #     print("pyrep server error")
     
+    def initialize_client(self):
+        sock = socket.socket()
+        host = SocketType.pyrep.value["host"]
+        port = SocketType.pyrep.value["port"]
+        sock.connect((host, port))
+        print("==> Connected to PyRep server on {}:{}".format(host, port))
+        return sock
+
     def import_primitive_part(self, part_name, part_info):
         part_base = Dummy.create()
         part_base.set_name(part_name + "_base")
@@ -84,7 +93,7 @@ class PyRepModule(object):
             assembly_point.set_parent(part_base)
 
     def close(self):
-        self.server_socket.close()
+        self.client.close()
         self.pr.stop()
         self.pr.shutdown()
     
@@ -94,61 +103,7 @@ class PyRepModule(object):
     def save_scene(self, path):
         self.pr.export_scene(path)
 
-    #region socket
-    def _initialize_server(self):
-        socket_type = SocketType.pyrep.value
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server_socket.bind((socket_type["host"], socket_type["port"]))
-        self.server_socket.listen()
-
-    def get_callback(self, request_type: str):
-        if request_type == "get_region":
-            pass
-
-    @staticmethod
-    def binding(client_socket, addr):
-        print("Connected by", addr)
-        try:
-            # 접속 상태에서는 클라이언트로 부터 받을 데이터를 무한 대기한다.
-            # 만약 접속이 끊기게 된다면 except가 발생해서 접속이 끊기게 된다.
-            while True:
-                # socket의 recv함수는 연결된 소켓으로부터 데이터를 받을 대기하는 함수입니다. 최초 4바이트를 대기합니다.
-                data = client_socket.recv(4)
-                # 최초 4바이트는 전송할 데이터의 크기이다. 그 크기는 little 엔디언으로 byte에서 int형식으로 변환한다.
-                length = int.from_bytes(data, "little")
-                # 다시 데이터를 수신한다.
-                data = client_socket.recv(length)
-                # 수신된 데이터를 str형식으로 decode한다.
-                request_type = data.decode()
-
-                # 수신된 메시지를 콘솔에 출력한다.
-                msg = request_type
-                print('Received from', addr, msg)
-                # 수신된 메시지 앞에 「echo:」 라는 메시지를 붙힌다.
-                msg = "echo : " + msg
-                # 바이너리(byte)형식으로 변환한다.
-                data = msg.encode()
-                # 바이너리의 데이터 사이즈를 구한다.
-                length = len(data)
-                # 데이터 사이즈를 little 엔디언 형식으로 byte로 변환한 다음 전송한다.
-                client_socket.sendall(length.to_bytes(4, byteorder="little"))
-                # 데이터를 클라이언트로 전송한다.
-                client_socket.sendall(data)
-        except:
-            # 접속이 끊기면 except가 발생한다.
-            print("except : " , addr)
-        finally:
-        # 접속이 끊기면 socket 리소스를 닫는다.
-            client_socket.close()
-
-
-    def recvall(self, data, length):
-        pass
-    def sendall(self, data):
-        pass
     
-    #endregion
 
 class GroupObject(object):
     def __init__(self, group_info):
@@ -258,14 +213,14 @@ def import_group_object_to_scene(obj_root, scene):
 # Instruction_info["Group"]
 if __name__ == "__main__":
     pyrep_module = PyRepModule()
-    part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
-    primitive_group_info = load_yaml_to_dic("./assembly/STEFAN/group_info/group_info_0.yaml")
+    # part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
+    # primitive_group_info = load_yaml_to_dic("./assembly/STEFAN/group_info/group_info_0.yaml")
 
-    # initialize each primitive group using part info
-    for group_id in primitive_group_info.keys():
-        part_name = primitive_group_info[group_id]["part_name"]
-        info = part_info[part_name]
-        pyrep_module.import_primitive_part(part_name, info)
+    # # initialize each primitive group using part info
+    # for group_id in primitive_group_info.keys():
+    #     part_name = primitive_group_info[group_id]["part_name"]
+    #     info = part_info[part_name]
+    #     pyrep_module.import_primitive_part(part_name, info)
     
 
 
