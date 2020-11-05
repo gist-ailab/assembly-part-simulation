@@ -73,18 +73,41 @@ ikea_stefan_long: # part name
   type: furniture_part # part type(connector / furniture)
 ```
 
+# Part_instance_info.yaml
+```yaml
+ikea_stefan_long: # part name
+  part_id: 5 # part id
+  instance_id: 0
+  assembly_points: #assembly point status
+    0: None # 아무 결합이 없는 경우
+    1: connector_0 # connector가 결합되어 있는 경우
+    2: group # connector를 통해 다른 group과 결합한 경우
+  document: # document file path
+  step_file: # step file path
+  type: furniture_part # part type(connector / furniture)
+```
+
 # Group_instance_info.yaml
 ```yaml
 0: # group id(matched with group_info)
-  group_id: 1 #TODO: group id 가 하나 더 있네요. 
+  instance_id: 0 
   obj_file: assembly/STEFAN/group_obj/group_1/base.obj
   connector:
-    ikea_l_bracket(4ea): 2
-1:
-  group_id: 3
-  obj_file: assembly/STEFAN/group_obj/group_1/base.obj
+    ikea_l_bracket(4ea): 2 # 결합이 가능한 connector들(설명서 이미지 상 인식이 가능한 connector)
+  assembly: #group 조립과정 :: assembly point들간의 결합으로 표기
+            #어떤 furniture part의 assembly point들끼리 결합했는지
+4:
+  group_id: 0
+  obj_file: assembly/STEFAN/group_obj/group_7/base.obj
   connector:
     ikea_l_bracket(4ea): 2
+  assembly:
+    - 
+      - right_0_4
+      - short_0_5
+    -
+      - right_0_6
+      - short_0_5
 ```
 
 # Group_info.yaml
