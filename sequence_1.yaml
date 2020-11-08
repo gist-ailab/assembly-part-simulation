@@ -1,0 +1,56 @@
+part:                    # 조립하는 모든 part isntance
+	0:                     # key=part_id
+		part_name: short 
+		instance_id: 0
+	1: 
+		part_name: long
+		instance_id: 0
+	2:
+	  part_name: bracket 
+		instance_id: 0
+	3:
+	  part_name: bracket
+		instance_id: 1
+	4:
+	  part_name: bracket 
+		instance_id: 2
+	5:
+	  part_name: bracket
+		instance_id: 3
+
+assembly:                  # 이번 step에서 조립하는 assembly의 정보, 순서 X
+	0:                       # 조립하는 두개의 part를 0, 1로 구분, 순서의 의미 없음
+		0:                     # {assembly_id: {0:, 1:}}
+			part_id: 0
+			assembly_point: 6
+		1:
+			part_id: 2
+			assembly_point: 0
+	1:
+		0: 
+			part_id: 0
+			assembly_point: 7
+		1:
+			part_id: 3
+			assembly_point: 0
+	2:
+		0: 
+			part_id: 1
+			assembly_point: 6
+		1:
+			part_id: 4
+			assembly_point: 0
+	3:
+		0: 
+			part_id: 1
+			assembly_point: 7
+		1:
+			part_id: 5
+			assembly_point: 0
+
+assembly_sequence:      # 상기 assembly_id들의 순서 조합
+	- 0_1_2_3
+	- 0_1_3_2
+	- 0_2_1_3
+	- 0_3_2_1
+	- ...

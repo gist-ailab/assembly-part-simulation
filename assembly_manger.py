@@ -150,8 +150,7 @@ class AssemblyManager(object):
                                                                          step_name=part_name,
                                                                          doc_path=doc_path,
                                                                          part_type=part_type,
-                                                                         logger=self.logger,
-                                                                         condition=reverse_condition[part_id])
+                                                                         logger=self.logger)
                 part_info[part_name] = {
                     "part_id": part_id,
                     "type": part_type.value,

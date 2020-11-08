@@ -3,7 +3,6 @@
 import socket
 import struct
 import pickle
-import cv2
 import numpy as np
 import pickle_compat
 
@@ -35,17 +34,3 @@ def sendall_pickle(sock, data):
     data = pickle.dumps(data, protocol=2)
     sock.send(struct.pack("L", len(data)))
     sock.send(data)
-
-def recvall_image(sock):
-    length = recvall(sock, 16) 
-    string_data = recvall(sock, int(length))
-    data = np.fromstring(string_data, dtype='uint8')
-    return cv2.imdecode(data, 1)
-
-def sendall_image(sock, image):
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 90]
-    result, imgencode = cv2.imencode('.jpg', image, encode_param)
-    data = np.array(imgencode)
-    string_data = data.tostring()
-    sock.send(str(len(string_data)).ljust(16))
-    sock.send(string_data)

@@ -1,7 +1,6 @@
 from enum import Enum, auto
 import os
 
-
 #------------------------------------------------------------------------------------
 class PartType(Enum):
     furniture = "furniture_part"
@@ -42,12 +41,15 @@ class AssemblyPair(object):
         self.direction = True
         self.offset = offset
 
-class PyRepRequestType(Enum):
-    initialize_scene = auto
-    get_region = auto
+class PyRepRequestType():
+    initialize_scene = "initialize_scene"
+    get_region = "get_region"
 
-class FreeCADRequestType(Enum):
-    initialize_cad_info = auto
+class FreeCADRequestType():
+    initialize_cad_info = "initialize_cad_info"
+    check_assembly_possibility = "check_assembly_possibility"
+
+
 class SocketType(Enum):
     pyrep = {
         "host": '127.0.0.1',
@@ -56,8 +58,11 @@ class SocketType(Enum):
     }
     freecad = {
         "host": '127.0.0.1',
-        "port": 9292,
+        "port": 9293,
         "reqeust_type": FreeCADRequestType,
     }
 
-
+class SocketRequest:
+    def __init__(self, request: str, data):
+        self.request = request
+        self.data = data

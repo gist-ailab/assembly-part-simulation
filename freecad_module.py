@@ -18,9 +18,9 @@ import copy
 from os.path import join
 import socket
 
-from script.const import SocketType
-from script import fileApi
-
+from script.const import SocketType, FreeCADRequestType, PartType
+from script.fileApi import *
+from script.socket_utils import *
 
 
 PART_INFO = None
@@ -29,10 +29,10 @@ unique_radius = []
 
 # hole direction condition(matched with step name)
 hole_condition = {
-    "flat_head_screw_iso": [0, 1, 2],
-    "ikea_l_bracket": [1, 2],
-    "ikea_wood_pin": [],
-    "pan_head_screw_iso": [0,1,2],
+    "flat_head_screw_iso(6ea)": [0, 1, 2],
+    "ikea_l_bracket(4ea)": [1, 2],
+    "ikea_wood_pin(14ea)": [],
+    "pan_head_screw_iso(4ea)": [0,1,2],
     "ikea_stefan_bottom": [],
     "ikea_stefan_long": [3,4,5,7,8,9,10,11],
     "ikea_stefan_middle": [0,1,2,6,7,8,9,11],
@@ -451,7 +451,57 @@ def set_obj_color(doc, obj, color):
 
 #endregion
 
-def extract_assembly_points(step_path, step_name, doc_path, logger, part_type):
+def extract_part_info(cad_path):
+    """extract furniture's part info from cad files
+
+    Returns:
+        [type]: [description]
+    """
+    part_info = {}
+    cad_dir_list = get_dir_list(cad_path)
+    part_document_path = "./assembly/STEFAN/part_documents"
+    if isdir(part_document_path):
+        part_document_path = part_document_path + format(np.random.rand(),".4f")
+    check_and_create_dir(part_document_path)
+    part_id = 0
+    cad_dir_list.sort()
+    for cad_dir in cad_dir_list:
+        if PartType.furniture.value in cad_dir:
+            part_type = PartType.furniture
+        elif PartType.connector.value in cad_dir:
+            part_type = PartType.connector
+        else:
+            print("unknown part type")
+            exit()
+        cad_list = get_file_list(cad_dir)
+        cad_list.sort()
+        for cad_file in cad_list:
+            _, part_name = os.path.split(cad_file)
+            part_name = os.path.splitext(part_name)[0]
+            doc_path = join(part_document_path, part_name+".FCStd")
+            assembly_points = extract_assembly_points(step_path=cad_file,
+                                                      step_name=part_name,
+                                                      doc_path=doc_path,
+                                                      part_type=part_type,
+                                                      )
+            if part_name in region_condition.keys():
+                region = region_condition[part_name]
+                print(type(region))
+            else:
+                region = {}
+            part_info[part_name] = {
+                "part_id": part_id,
+                "type": part_type.value,
+                "document": doc_path,
+                "step_file": cad_file,
+                "assembly_points": assembly_points,
+                "region": region
+            }
+            part_id += 1
+
+    return part_info
+
+def extract_assembly_points(step_path, step_name, doc_path, part_type):
     global unique_radius
     """extract assembly_points from step file
 
@@ -509,7 +559,6 @@ def extract_assembly_points(step_path, step_name, doc_path, logger, part_type):
         if hole.radius in unique_radius:
             pass
         else:
-            print(hole.radius)
             unique_radius.append(hole.radius)
             unique_radius.sort()
 
@@ -526,7 +575,6 @@ def extract_assembly_points(step_path, step_name, doc_path, logger, part_type):
                 "position": npfloat_to_float(hole.start_circle.get_position_m()),
                 "quaternion": npfloat_to_float(hole.start_circle.quaternion)
             },
-            "region": region_condition[step_name],
         }
         assembly_points[idx] = assembly_point
     doc.saveAs(doc_path)
@@ -541,6 +589,53 @@ def extract_group_obj(doc_path, obj_path):
         if "furniture" in obj.Label:
             group_objs.append(obj)
     importOBJ.export(group_objs, obj_path)
+
+def get_assembly_pairs(self):
+    """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
+    """
+    def get_group(radius):
+        idx = unique_radius.index(radius)
+        for group in radius_group.keys():
+            if idx in radius_group[group]:
+                return group
+    assembly_pairs = {}
+    if check_file("./pairs.yaml"):
+        return load_yaml_to_dic("./pairs.yaml")
+    
+    unique_radius = []
+    for part in self.part_info.keys():
+        points = self.part_info[part]["assembly_points"]
+        for point in points:
+            radius = point["radius"]
+            if radius in unique_radius:
+                pass
+            else:
+                unique_radius.append(radius)
+    unique_radius.sort()
+    count = 0
+    for part1 in self.part_info.keys():
+        for part2 in self.part_info.keys():
+            info1 = self.part_info[part1]
+            info2 = self.part_info[part2]
+            points1 = info1["assembly_points"]
+            points2 = info2["assembly_points"]
+            for point1 in points1:
+                for point2 in points2:
+                    if point1["type"] == point2["type"]:
+                        continue
+                    if get_group(point1["radius"]) == get_group(point2["radius"]):
+                        offset = 0
+                        if get_group(point1["radius"]) == "pin group":
+                            offset = 15 # 0.015
+                        new_pair = {
+                            "part1": [part1, point1["id"]],
+                            "part2": [part2, point2["id"]],
+                            "offset": offset
+                        }
+                        assembly_pairs["pair_" + str(count)] = new_pair
+                        count += 1
+    save_dic_to_yaml(assembly_pairs, "./pairs.yaml")
+    return assembly_pairs
 
 def assemble_A_and_B(instance_info_a, instance_info_b, region_a=[0, 1, 2], region_b=[0, 1, 2], assembly_num=1):
     """
@@ -622,7 +717,7 @@ def assemble_A_and_B(instance_info_a, instance_info_b, region_a=[0, 1, 2], regio
 
 def assemble_pair_test(pairs):
     save_root = "./pair_test"
-    fileApi.check_and_create_dir(save_root)
+    check_and_create_dir(save_root)
     unique_pair = []
     doc_path = join(save_root, "initial.FCStd")
     doc = AssemblyDocument(doc_path=doc_path)
@@ -633,7 +728,7 @@ def assemble_pair_test(pairs):
             continue
         part1, part2, idx1, idx2, offset = pair
         save_dir = join(save_root,  part1+"_"+part2)
-        fileApi.check_and_create_dir(save_dir)
+        check_and_create_dir(save_dir)
         
         info1 = PART_INFO[part1]
         info2 = PART_INFO[part2]
@@ -680,35 +775,90 @@ def create_assembly_doc(doc_name, part_doc):
     obj = importPartFromFile(doc, part_doc)
     
     return doc
-    
+
+
+
 class FreeCADModule():
     def __init__(self):
-        self.client = self.initialize_client()
-    
+        self.server = self.initialize_server()
+        try:
+            print("Waiting for FreeCAD client {}:{}".format(self.host, self.port))
+            self.connected_client, addr = self.server.accept()
+            print("Connected to {}".format(addr))
+        except:
+            print("FreeCAD Server Error")
+        finally:
+            self.server.close()
+        
+        self.callback = {
+            FreeCADRequestType.initialize_cad_info: self.initialize_cad_info,
+            FreeCADRequestType.check_assembly_possibility: self.check_assembly_possibility
+        }
+
+    def get_callback(self, request):
+        return self.callback[request]
+
     #region socket
-    def initialize_client(self):
-        sock = socket.socket()
+    def initialize_server(self):
+        print("Initialize FreeCAD Server")
         host = SocketType.freecad.value["host"]
         port = SocketType.freecad.value["port"]
-        sock.connect((host, port))
-        print("==> Connected to FreeCAD server on {}:{}".format(host, port))
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        sock.bind((host, port))
+        sock.listen(True)
+        self.host = host
+        self.port = port
+
         return sock
     
+    def initialize_cad_info(self):
+        print("ready to extract part info")
+        sendall_pickle(self.connected_client, True)
+        cad_file_path = recvall_pickle(self.connected_client)
+        print("Extract part info from {}".format(cad_file_path))
+        self.part_info = extract_part_info(cad_file_path)
+        print("Success to extract part info from {}".format(cad_file_path))
+        sendall_pickle(self.connected_client, self.part_info)
+    
+    def check_assembly_possibility(self):
+        print("ready to check possibility")
+        sendall_pickle(self.connected_client, True)
+
+        assembly_pair = recvall_pickle(self.connected_client)
+        """
+        assembly_pair = {
+            "target": {
+                "0": {
+                    "part_name": "ikea_stefan_long",  # part info의 key(=part name)
+        			"instance_id": "7",
+                    "assembly_point": "1"
+                },
+                "1": {
+                    "id": "7",
+			        "instance_id": "3",
+                    "assembly_point": "5"
+                }},
+            "status": {
+	            리스트 형태,
+	            ikea_stefan_long_7_1 : part name_instance id_assembly point id
+	            assembly point들의 sequence == 이전 target assembly point 쌍
+        }}
+        """
+        self.part_info = extract_part_info()
+        
     
 
-    
+    def close(self):
+        self.server.close()
 
+    
 if __name__ == "__main__":
+    
     freecad_module = FreeCADModule()
-    while True:
-        pass
-    # # 1. extract cad info 
-    # part_info_path = join(self.assembly_root, self.furniture_name, "part_info.yaml")
-    #     if check_file(part_info_path):
-    #         self.part_info = load_yaml_to_dic(part_info_path)
-    #     else:
-    #         #TODO: use freecad module to extract info
-    #         self.part_info = load_yaml_to_dic(part_info_path)
+    request = recvall_pickle(freecad_module.connected_client)
+    print("Get request to {}".format(request))
+    callback = freecad_module.get_callback(request)
+    callback()
 
-    # 2. extract obj from document
-    # 3. 
+    freecad_module.close()    

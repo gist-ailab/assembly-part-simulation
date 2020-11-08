@@ -53,14 +53,6 @@ class PyRepModule(object):
         self.pr.start()
 
         self.client = self.initialize_client()
-
-        # self._initialize_server()
-        # try:
-        #     client_socket, addr = self.server_socket.accept()
-        #     self.client_th = threading.Thread(target=self.binding, args = (client_socket, addr))
-        #     self.client_th.start()
-        # except:
-        #     print("pyrep server error")
     
     def initialize_client(self):
         sock = socket.socket()
@@ -205,12 +197,7 @@ def import_group_object_to_scene(obj_root, scene):
             base_obj_path = obj_path
         elif "group" in obj_name:
             composed_obj_paths.append(obj_path)
-        
 
-
-# 1. initialize pyrep scene
-# 2. add each group to scene: dict -> json -> pickle
-# Instruction_info["Group"]
 if __name__ == "__main__":
     pyrep_module = PyRepModule()
     # part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
