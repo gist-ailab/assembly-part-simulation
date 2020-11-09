@@ -29,9 +29,9 @@ unique_radius = []
 
 # hole direction condition(matched with step name)
 hole_condition = {
-    "flat_head_screw_iso(6ea)": [0, 1, 2],
-    "ikea_l_bracket(4ea)": [1, 2],
-    "ikea_wood_pin(14ea)": [],
+    "ikea_stefan_bolt_side": [0, 1, 2],
+    "ikea_stefan_bracket": [1, 2],
+    "ikea_stefan_pin": [],
     "pan_head_screw_iso(4ea)": [0,1,2],
     "ikea_stefan_bottom": [],
     "ikea_stefan_long": [3,4,5,7,8,9,10,11],
@@ -40,7 +40,24 @@ hole_condition = {
     "ikea_stefan_side_left": [3,7,12],
     "ikea_stefan_side_right": [0,1,2,4,5,6,8,9,10,11,13,14,15, 16, 17, 18, 19],
 }
-
+"""STEFAN unique radius
+    0 2.499999999999989 => pin
+    1 2.499999999999995 => pin
+    2 2.5000000000000004 => long, short for flat head penet
+    3 2.7499999999999747 => side hole for flat head penet
+    4 2.750000000000001 => side hole for flat head penet
+    5 3.000000000000001 => braket penetration
+    6 3.0000000000000027 => long, short hole for braket
+    7 3.4999999999999996 => short hole for pin
+    8 3.5 => braket insert
+    9 4.0 => long hole for pin 
+    10 4.000000000000001 => middle hole for pin
+    11 4.000000000000002 => middle hole for pin
+    12 4.000000000000003 => middle hole for pin
+    13 4.0000000000000036 => side hole for pin
+    14 5.65 => flat head
+    15 6.0 => pan head
+"""
 # pair condition
 radius_group = {
     "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
@@ -912,7 +929,6 @@ class FreeCADModule():
 
     def close(self):
         self.server.close()
-
     
 if __name__ == "__main__":
     

@@ -90,32 +90,33 @@ ikea_stefan_long: # part name
         instance_id:
         assembly_point:
   1: # instance id
-
 ```
-
-# Group_instance_info.yaml
+# assembly_status.yaml
 ```yaml
-0: # group id(matched with group_info)
-  instance_id: 0 
-  obj_file: assembly/STEFAN/group_obj/group_1/base.obj
-  connector:
-    ikea_l_bracket(4ea): 2 # 결합이 가능한 connector들(설명서 이미지 상 인식이 가능한 connector)
-  assembly: #group 조립과정 :: assembly point들간의 결합으로 표기
-            #어떤 furniture part의 assembly point들끼리 결합했는지
-4:
-  group_id: 0
-  obj_file: assembly/STEFAN/group_obj/group_7/base.obj
-  connector:
-    ikea_l_bracket(4ea): 2
-  assembly:
-    - 
-      - right_0_4
-      - short_0_5
-    -
-      - right_0_6
-      - short_0_5
+ikea_stefan_long: # part name
+  0: # instance id
+    ikea_stefan_pin: # part name
+    - 6 # instance id
+    - 7
 ```
-
+# assembly_info
+```python
+# used when check assembly possibility => FreeCAD Module
+assembly_info = {
+    0: {
+        "part_name": part_0,  # part info의 key(=part name)
+        "instance_id": instance_id_0,
+        "assembly_point": point_idx_0,
+        "status": status_0
+    },
+    1: {
+        "part_name": part_1,
+        "instance_id": instance_id_1,
+        "assembly_point": point_idx_1,
+        "status": status_1
+    }
+}
+```
 # Group_info.yaml
 ```yaml
 0: # group_id(name)
@@ -126,7 +127,6 @@ ikea_stefan_long: # part name
   part_name: ikea_stefan_bottom # if group obj is primitive part then has part name
   instance: [] # matched with group instance
 ```
-
 # Group_obj
 ```shell
 assembly/STEFAN//group_obj
@@ -139,4 +139,26 @@ assembly/STEFAN//group_obj
 │   ├── group_1.obj # composed part
 │   └── group_2.obj # composed part
 ...
+```
+# Group_instance_info.yaml
+```yaml
+0: # group id(matched with group_info)
+  instance_id: 0
+  obj_file: assembly/STEFAN/group_obj/group_1/base.obj
+  connector:
+    ikea_l_bracket(4ea): 2 # 결합이 가능한 connector들(설명서 이미지 상 인식이 가능한 connector)
+  assembly: # group 조립과정 :: assembly point들간의 결합으로 표기
+            # 어떤 furniture part의 assembly point들끼리 결합했는지
+4:
+  group_id: 0
+  obj_file: assembly/STEFAN/group_obj/group_7/base.obj
+  connector:
+    ikea_l_bracket(4ea): 2
+  assembly:
+    - 
+      - right_0_4
+      - short_0_5
+    -
+      - right_0_6
+      - short_0_5
 ```

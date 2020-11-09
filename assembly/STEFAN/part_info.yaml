@@ -1,4 +1,4 @@
-flat_head_screw_iso(6ea):
+ikea_stefan_bolt_side:
   assembly_points:
     0:
       depth: 0.06
@@ -21,12 +21,19 @@ flat_head_screw_iso(6ea):
         - 0.7071067811865475
       radius: 5.65
       type: insertion
-  document: ./assembly/STEFAN/part_documents0.8636/flat_head_screw_iso(6ea).FCStd
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_bolt_side.FCStd
   part_id: 0
   region: {}
-  step_file: ./cad_file/STEFAN/connector_part/flat_head_screw_iso(6ea).STEP
+  step_file: ./cad_file/STEFAN/connector_part/ikea_stefan_bolt_side.STEP
   type: connector_part
-ikea_l_bracket(4ea):
+ikea_stefan_bottom:
+  assembly_points: {}
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_bottom.FCStd
+  part_id: 4
+  region: {}
+  step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_bottom.STEP
+  type: furniture_part
+ikea_stefan_bracket:
   assembly_points:
     0:
       depth: 0.009999999999999998
@@ -70,18 +77,11 @@ ikea_l_bracket(4ea):
         - 1.0
       radius: 3.5
       type: hole
-  document: ./assembly/STEFAN/part_documents0.8636/ikea_l_bracket(4ea).FCStd
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_bracket.FCStd
   part_id: 1
   region: {}
-  step_file: ./cad_file/STEFAN/connector_part/ikea_l_bracket(4ea).STEP
+  step_file: ./cad_file/STEFAN/connector_part/ikea_stefan_bracket.STEP
   type: connector_part
-ikea_stefan_bottom:
-  assembly_points: {}
-  document: ./assembly/STEFAN/part_documents0.8636/ikea_stefan_bottom.FCStd
-  part_id: 4
-  region: {}
-  step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_bottom.STEP
-  type: furniture_part
 ikea_stefan_long:
   assembly_points:
     0:
@@ -252,7 +252,7 @@ ikea_stefan_long:
         - 1.0
       radius: 3.0000000000000027
       type: hole
-  document: ./assembly/STEFAN/part_documents0.8636/ikea_stefan_long.FCStd
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_long.FCStd
   part_id: 5
   region:
     0:
@@ -439,7 +439,7 @@ ikea_stefan_middle:
         - -0.7071067811865475
       radius: 4.000000000000003
       type: hole
-  document: ./assembly/STEFAN/part_documents0.8636/ikea_stefan_middle.FCStd
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_middle.FCStd
   part_id: 6
   region:
     0:
@@ -456,6 +456,55 @@ ikea_stefan_middle:
     - 7
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_middle.STEP
   type: furniture_part
+ikea_stefan_pin:
+  assembly_points:
+    0:
+      depth: 0.015
+      direction:
+      - 0.0
+      - 0.0
+      - 1.0
+      edge_index:
+      - 13
+      - aligned
+      pose:
+        position:
+        - 0.0
+        - 0.0
+        - 0.015
+        quaternion:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+      radius: 2.499999999999995
+      type: insertion
+    1:
+      depth: 0.015
+      direction:
+      - 0.0
+      - 0.0
+      - -1.0
+      edge_index:
+      - 14
+      - aligned
+      pose:
+        position:
+        - 0.0
+        - 0.0
+        - 0.015
+        quaternion:
+        - 1.0
+        - 0.0
+        - 0.0
+        - 0.0
+      radius: 2.499999999999989
+      type: insertion
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_pin.FCStd
+  part_id: 2
+  region: {}
+  step_file: ./cad_file/STEFAN/connector_part/ikea_stefan_pin.STEP
+  type: connector_part
 ikea_stefan_short:
   assembly_points:
     0:
@@ -626,7 +675,7 @@ ikea_stefan_short:
         - 1.0
       radius: 3.0000000000000027
       type: hole
-  document: ./assembly/STEFAN/part_documents0.8636/ikea_stefan_short.FCStd
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_short.FCStd
   part_id: 7
   region:
     0:
@@ -855,7 +904,7 @@ ikea_stefan_side_left:
         - 1.0
       radius: 4.0000000000000036
       type: hole
-  document: ./assembly/STEFAN/part_documents0.8636/ikea_stefan_side_left.FCStd
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_side_left.FCStd
   part_id: 8
   region:
     0:
@@ -1086,7 +1135,7 @@ ikea_stefan_side_right:
         - 1.0
       radius: 4.0000000000000036
       type: hole
-  document: ./assembly/STEFAN/part_documents0.8636/ikea_stefan_side_right.FCStd
+  document: ./assembly/STEFAN/part_documents0.2839/ikea_stefan_side_right.FCStd
   part_id: 9
   region:
     0:
@@ -1105,55 +1154,6 @@ ikea_stefan_side_right:
     - 7
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_side_right.STEP
   type: furniture_part
-ikea_wood_pin(14ea):
-  assembly_points:
-    0:
-      depth: 0.015
-      direction:
-      - 0.0
-      - 0.0
-      - 1.0
-      edge_index:
-      - 13
-      - aligned
-      pose:
-        position:
-        - 0.0
-        - 0.0
-        - 0.015
-        quaternion:
-        - 0.0
-        - 0.0
-        - 0.0
-        - 1.0
-      radius: 2.499999999999995
-      type: insertion
-    1:
-      depth: 0.015
-      direction:
-      - 0.0
-      - 0.0
-      - -1.0
-      edge_index:
-      - 14
-      - aligned
-      pose:
-        position:
-        - 0.0
-        - 0.0
-        - 0.015
-        quaternion:
-        - 1.0
-        - 0.0
-        - 0.0
-        - 0.0
-      radius: 2.499999999999989
-      type: insertion
-  document: ./assembly/STEFAN/part_documents0.8636/ikea_wood_pin(14ea).FCStd
-  part_id: 2
-  region: {}
-  step_file: ./cad_file/STEFAN/connector_part/ikea_wood_pin(14ea).STEP
-  type: connector_part
 pan_head_screw_iso(4ea):
   assembly_points:
     0:
@@ -1177,7 +1177,7 @@ pan_head_screw_iso(4ea):
         - 0.7071067811865475
       radius: 6.0
       type: insertion
-  document: ./assembly/STEFAN/part_documents0.8636/pan_head_screw_iso(4ea).FCStd
+  document: ./assembly/STEFAN/part_documents0.2839/pan_head_screw_iso(4ea).FCStd
   part_id: 3
   region: {}
   step_file: ./cad_file/STEFAN/connector_part/pan_head_screw_iso(4ea).STEP

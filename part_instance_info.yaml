@@ -1,4 +1,4 @@
-flat_head_screw_iso(6ea):
+ikea_stefan_bolt_side:
   0:
     status: {}
     used_assembly_points: []
@@ -17,7 +17,11 @@ flat_head_screw_iso(6ea):
   5:
     status: {}
     used_assembly_points: []
-ikea_l_bracket(4ea):
+ikea_stefan_bottom:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_bracket:
   0:
     status: {}
     used_assembly_points: []
@@ -30,10 +34,6 @@ ikea_l_bracket(4ea):
   3:
     status: {}
     used_assembly_points: []
-ikea_stefan_bottom:
-  0:
-    status: {}
-    used_assembly_points: []
 ikea_stefan_long:
   0:
     status: {}
@@ -42,19 +42,7 @@ ikea_stefan_middle:
   0:
     status: {}
     used_assembly_points: []
-ikea_stefan_short:
-  0:
-    status: {}
-    used_assembly_points: []
-ikea_stefan_side_left:
-  0:
-    status: {}
-    used_assembly_points: []
-ikea_stefan_side_right:
-  0:
-    status: {}
-    used_assembly_points: []
-ikea_wood_pin(14ea):
+ikea_stefan_pin:
   0:
     status: {}
     used_assembly_points: []
@@ -95,6 +83,18 @@ ikea_wood_pin(14ea):
     status: {}
     used_assembly_points: []
   13:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_short:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_side_left:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_side_right:
+  0:
     status: {}
     used_assembly_points: []
 pan_head_screw_iso(4ea):

@@ -6,7 +6,7 @@ from script.socket_utils import *
 from script.fileApi import *
 import random
 import time
-
+from sequence_joo import *
 
 
 
@@ -76,70 +76,20 @@ class SocketModule():
         self.s_freecad.close()
     #endregion
 
-sequence_1 = [
-    {
-        0: {
-            "part_name": "ikea_stefan_short",  
-            "instance_id": 0,
-            "assembly_point": 6,
-        },
-        1: {
-            "part_name": "ikea_l_bracket(4ea)",
-            "instance_id": 0,
-            "assembly_point": 0,
-        }
-    },
-    {
-        0: {
-            "part_name": "ikea_stefan_short",  
-            "instance_id": 0,
-            "assembly_point": 7,
-        },
-        1: {
-            "part_name": "ikea_l_bracket(4ea)",
-            "instance_id": 1,
-            "assembly_point": 0,
-        }
-    },
-    {
-        0: {
-            "part_name": "ikea_stefan_long",  
-            "instance_id": 0,
-            "assembly_point": 6,
-        },
-        1: {
-            "part_name": "ikea_l_bracket(4ea)",
-            "instance_id": 2,
-            "assembly_point": 0,
-        }
-    },
-    {
-        0: {
-            "part_name": "ikea_stefan_long",  
-            "instance_id": 0,
-            "assembly_point": 7,
-        },
-        1: {
-            "part_name": "ikea_l_bracket(4ea)",
-            "instance_id": 3,
-            "assembly_point": 0,
-        }
-    },
-]
 if __name__=="__main__":
     s = SocketModule()
     part_info = s.initialize_cad_info("./cad_file/STEFAN")
     save_dic_to_yaml(part_info, "./assembly/STEFAN/part_info.yaml")
-    """
     # TODO: create part instance info
+    """
     part_instance_quantity = {
-        "flat_head_screw_iso(6ea)": 6,
-        "ikea_l_bracket(4ea)": 4,
-        "ikea_wood_pin(14ea)": 14,
+        "ikea_stefan_bolt_side": 6,
+        "ikea_stefan_bracket": 4,
+        "ikea_stefan_pin": 14,
         "pan_head_screw_iso(4ea)": 4,
     }
     part_instance_info = {}
-    for part_name in part_names:
+    for part_name in part_info.keys():
         part_instance_info[part_name] = {}
         try:
             quantity = part_instance_quantity[part_name]
@@ -150,8 +100,12 @@ if __name__=="__main__":
                 "used_assembly_points": [],
                 "status": {}
             }
+    save_dic_to_yaml(part_instance_info, "./part_instance_info.yaml")
     """
     part_instance_info = load_yaml_to_dic("./part_instance_info.yaml")
+    assemble_status = {}
+    for instance_name in part_instance_info.keys():
+        assemble_status[instance_name] = []
     """
     #TODO: get instance, point id from instruction
     1. group to instance
@@ -159,7 +113,7 @@ if __name__=="__main__":
     3. 
     """
     part_names = part_instance_info.keys() # == part_info.keys()
-    for instruction_info in sequence_1:
+    for instruction_info in sequence_5:
         """
         part_0, part_1 = random.sample(part_names, 2)
         
@@ -196,8 +150,7 @@ if __name__=="__main__":
         instance_id_1 = instruction_info[1]["instance_id"]
         point_idx_1 = instruction_info[1]["assembly_point"]
         instance_info_1 = part_instance_info[part_1][instance_id_1]
-        status_1 = instance_info_1["status"]
-
+        status_1 = instance_info_1["status"] 
         assembly_info = {
             0: {
                 "part_name": part_0,  # part info의 key(=part name)
@@ -212,7 +165,10 @@ if __name__=="__main__":
                 "status": status_1
             }
         }
-        is_possible = s.check_assembly_possibility(assembly_info)
+        try:
+            is_possible = s.check_assembly_possibility(assembly_info)
+        except:
+            print(assembly_info)
         if is_possible:
             instance_info_0["used_assembly_points"].append(point_idx_0)
             instance_info_1["used_assembly_points"].append(point_idx_1)
@@ -226,6 +182,6 @@ if __name__=="__main__":
                 "instance_id": instance_id_0,
                 "assembly_point": point_idx_0,
             }
-        print(status_0)
-    save_dic_to_yaml(part_instance_info, "./instance_info_sequence_1.yaml")
-
+    save_dic_to_yaml(part_instance_info, "./instance_info_sequence_5.yaml")
+    
+    

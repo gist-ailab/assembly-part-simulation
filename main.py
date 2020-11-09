@@ -2,9 +2,7 @@ import argparse
 import logging
 import time
 
-# from assembly_manger import AssemblyManager
-from assembly_manager_joo import AssemblyManager
-
+from assembly_manager import AssemblyManager
 
 def get_args_parser():
     parser = argparse.ArgumentParser('Set IKEA Assembly Part Simulation', add_help=False)
@@ -39,7 +37,7 @@ if __name__ == "__main__":
 
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
-    
+    """
     # assembly simulation
     while not asm_manager.is_end:
         # get instruction info 
@@ -61,6 +59,6 @@ if __name__ == "__main__":
         # update group status
         asm_manager.update_group_status()
         asm_manager.step()
-
+    """
     # create assembly sequence
 

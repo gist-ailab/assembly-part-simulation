@@ -1,103 +1,44 @@
 from script.const import PartType, AssemblyType, AssemblyPair
 from script.fileApi import *
-import freecad_module
 from enum import Enum
-
-"""TODO:
-- when quantity decided
-"""
-
-reverse_condition = [
-    [0, 1, 2], # flat_head_screw_iso
-    [1, 2], # ikea_l_bracket
-    [], # ikea_wood_pin
-    [0,1,2], # pan_head_screw_iso
-    [], # ikea_stefan_bottom
-    [3,4,5,7,8,9,10,11], # ikea_stefan_long
-    [0,1,2,6,7,8,9,11], # ikea_stefan_middle
-    [3,4,5,7,8,9,10,11], # ikea_stefan_short
-    [3,7,12], # ikea_stefan_side_left
-    [0,1,2,4,5,6,8,9,10,11,13,14,15, 16, 17, 18, 19], # ikea_stefan_side_right
-]
-
-"""STEFAN unique radius
-    0 2.499999999999989 => pin
-    1 2.499999999999995 => pin
-    2 2.5000000000000004 => long, short for flat head penet
-    3 2.7499999999999747 => side hole for flat head penet
-    4 2.750000000000001 => side hole for flat head penet
-    5 3.000000000000001 => braket penetration
-    6 3.0000000000000027 => long, short hole for braket
-    7 3.4999999999999996 => short hole for pin
-    8 3.5 => braket insert
-    9 4.0 => long hole for pin 
-    10 4.000000000000001 => middle hole for pin
-    11 4.000000000000002 => middle hole for pin
-    12 4.000000000000003 => middle hole for pin
-    13 4.0000000000000036 => side hole for pin
-    14 5.65 => flat head
-    15 6.0 => pan head
-    
-    pin group [0, 1, 7, 9, 10, 11, 12, 13]
-    braket group [5, 8]
-    flat_penet group [2, 3, 4, 14]
-    pan [15]
-"""
-radius_group = {
-    "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
-    "braket group": [5, 8],
-    "flat_penet group": [2, 3, 4, 14],
-    "pan": [15]
-}
+from socket_module import SocketModule
 
 class AssemblyManager(object):
-    """
-    get CAD and instruction data to assemble furniture
-    
-        CAD from join(cad_root, furniture_name)
-        Instruction from join(instruction_root, furniture_name)
 
-    simulating assembly until instruction end
-    
-    Assembly Manager 
-        - link Instruction Module with other Modules
-            - communicate by file save and load
-        - file load and save
-        
-    FreeCAD Module
-        - extract assemlby points
-        - assemble 2 parts
-        - extract intermidiate parts
-
-    """
     def __init__(self, logger, furniture_name, cad_root="./cad_file", instruction_root="./instruction"):
         self.logger = logger
         self.furniture_name = furniture_name
+
+        # input path
         self.cad_path = join(cad_root, self.furniture_name)
         self.instruction_path = join(instruction_root, self.furniture_name)
-        self.FC_module = freecad_module
-        self.current_step = 0 # current instruction step
+        
         self.is_end = False
 
-        #region initialize folder
         # 조립 폴더 생성
+        self.assembly_root = "./assembly"
         check_and_create_dir("./assembly")
         self.assembly_path = join("./assembly", self.furniture_name)
         check_and_create_dir(self.assembly_path)
-        # Part Document 폴더 생성
-        self.part_document_path = join(self.assembly_path, "part_documents")
-        check_and_create_dir(self.part_document_path)  
         # Group(*.obj) 폴더 생성
         self.group_obj_path = join(self.assembly_path, "group_obj")
         check_and_create_dir(self.group_obj_path)
         # Group info 폴더 생성
         self.group_info_path = join(self.assembly_path, "group_info")
         check_and_create_dir(self.group_info_path)
-        # assembly Document 폴더 생성
-        self.assembly_document_path = join(self.assembly_path, "assembly_documents")
-        check_and_create_dir(self.assembly_document_path)  
-        #endregion
+        
+        self.current_step = 1
+        self.instruction_info = None
+        self.instance_info = {}
+        
+        self.socket_module = SocketModule()
+        
+        # 내부에서 사용하는 데이터(저장은 선택)
+        self.part_info_path = join(self.assembly_path, "part_info.yaml")
+        self.assembly_pair_path = join(self.assembly_path, "assembly_pair.yaml")
+        
 
+        '''
         self.furniture_parts, self.connector_parts = [], [] # save part_name
         self.part_info_path = join(self.assembly_path, "part_info.yaml")
         self.part_info = self.get_part_info()
@@ -111,59 +52,206 @@ class AssemblyManager(object):
         self.initialize_connector_info()
         self.instance_info = {}
         self.instance_info_path = join(self.assembly_path, "intance_info.yaml")
-        self.status = {}
-        self.current_step += 1
-
-    def get_part_info(self):
-        if check_file(self.part_info_path):
-            return load_yaml_to_dic(self.part_info_path)
-
-        else: #extract part info from cad files
-            return self.extract_part_info()
-
-    def extract_part_info(self):
-        """extract furniture's part info from cad files
-
-        Returns:
-            [type]: [description]
-        """
-        part_info = {}
-        cad_dir_list = get_dir_list(self.cad_path)
-        
-        part_id = 0
-        cad_dir_list.sort()
-        for cad_dir in cad_dir_list:
-            if PartType.furniture.value in cad_dir:
-                part_type = PartType.furniture
-            elif PartType.connector.value in cad_dir:
-                part_type = PartType.connector
-            else:
-                print("unknown part type")
-                exit()
-            cad_list = get_file_list(cad_dir)
-            cad_list.sort()
-            for cad_file in cad_list:
-                _, part_name = os.path.split(cad_file)
-                part_name = os.path.splitext(part_name)[0]
-                doc_path = join(self.part_document_path, part_name+".FCStd")
-                assembly_points = self.FC_module.extract_assembly_points(step_path=cad_file,
-                                                                         step_name=part_name,
-                                                                         doc_path=doc_path,
-                                                                         part_type=part_type,
-                                                                         logger=self.logger)
-                part_info[part_name] = {
-                    "part_id": part_id,
-                    "type": part_type.value,
-                    "document": doc_path,
-                    "step_file": cad_file,
-                    "assembly_points": assembly_points
-                }
-                part_id += 1
-
-        save_dic_to_yaml(part_info, self.part_info_path)
-
-        return part_info
+        '''
     
+    def initialize_CAD_info(self):
+        self.part_info = self.socket_module.initialize_cad_info(self.cad_path)
+        save_dic_to_yaml(self.part_info, self.part_info_path)
+        self.assembly_pair = self._initialize_assembly_pair()
+        save_dic_to_yaml(self.assembly_pair, self.assembly_pair_path)
+    
+    def _initialize_assembly_pair(self):
+        """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
+        """
+        radius_group = {
+            "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
+            "braket group": [5, 6, 8],
+            "flat_penet group": [2, 3, 4, 14],
+            "pan": [15]
+        }
+        def get_group(radius):
+            idx = unique_radius.index(radius)
+            for group in radius_group.keys():
+                if idx in radius_group[group]:
+                    return group
+        assembly_pairs = {}
+        
+        unique_radius = []
+        for part in self.part_info.keys():
+            points = self.part_info[part]["assembly_points"] # type(points) == dict
+            for point_idx in points.keys():
+                radius = points[point_idx]["radius"]
+                if radius in unique_radius:
+                    pass
+                else:
+                    unique_radius.append(radius)
+        unique_radius.sort()
+        for part_name_1 in self.part_info.keys():
+            assembly_pairs[part_name_1] = {}
+            info1 = self.part_info[part_name_1]
+            assembly_points_1 = info1["assembly_points"]
+            for point_idx_1 in assembly_points_1.keys():
+                assembly_pairs[part_name_1][point_idx_1] = []
+                point_1 = assembly_points_1[point_idx_1]
+                for part_name_2 in self.part_info.keys():
+                    if part_name_1 == part_name_2:
+                        continue
+                    info2 = self.part_info[part_name_2]
+                    assembly_points_2 = info2["assembly_points"]
+                    for point_idx_2 in assembly_points_2.keys():
+                        point_2 = assembly_points_2[point_idx_2]
+                        if point_1["type"] == point_2["type"]:
+                            continue
+                        if get_group(point_1["radius"]) == get_group(point_2["radius"]):
+                            offset = 0
+                            if get_group(point_1["radius"]) == "pin group":
+                                offset = -15 # 0.015
+                            target = {
+                                "part_name": part_name_2,
+                                "assembly_point": point_idx_2,
+                                "offset": offset
+                            }
+                            assembly_pairs[part_name_1][point_idx_1].append(target)
+        
+        return assembly_pairs
+
+    def check_instruction_info(self):
+        """ check instruction information of current step
+            return True when both .yaml and .txt files are exist
+        """
+        self.logger.info("... wating for instruction of [step {}]".format(self.current_step))
+
+        current_instrution = "instruction_{}.yaml".format(self.current_step)
+        current_instrution_path = join(self.instruction_path, current_instrution)
+
+        current_checkfile = "instruction_{}.txt".format(self.current_step)
+        current_checkfile_path = join(self.instruction_path, current_checkfile)
+        
+        if os.path.isfile(current_instrution_path) and os.path.isfile(current_checkfile_path):
+            self.logger.info("Get instruction of [step {}] information !".format(self.current_step))
+            self.instruction_info = load_yaml_to_dic(current_instrution_path)
+
+            instance_info = join(self.group_instance_info_path, "group_instnace_info_{}.yaml".format(self.current_step-1))
+            self.instance_info = load_yaml_to_dic(instance_info)
+            if self.instance_info is None:
+                self.instance_info = {}
+            return True
+        else:
+            return False
+
+    def extract_assembly_info(self):
+        """ extract assembly information including assembly regions
+                1. 현재 step의 instruction에 인식된 group의 instances를 인식 (이전 status 정보 참조)
+                2. for each group instances, select all target assembly regions
+                3. count which assembly regions has to be assembled with connenctor
+        Input:
+            instruction_info 
+            조립에 사용되는 group들과 connection lines
+            [type]: dict
+        Returns:
+            assembly_region_info
+            어떤 assembly region끼리 어떤 connenctor로 몇번 결합하는지
+            assembly region와 connenctor를 조립되는 순서로 key
+            [type]: dict
+            key: AssemblyRegion_ConnectorID_AssemblyRegion
+            value: the number of count 
+        """
+    
+        # 1. select group instances
+        # 이전 status에서 instruction의 instance id를 group의 instance id와 매칭
+        # 새로 나온 group이면 instance id 0부터 추가
+        # 기존에 있던 group일 경우, connector 정보를 바탕으로 매칭
+
+        self.instance_Instruction_to_Group = {}
+        groups = self.instruction_info['Group']
+        for group in groups:
+            InstanceInstruction = group["instance_id"]
+
+            group_id = group["group_id"]
+            connectorInstruction = group["connector"]
+            InstanceGroup = self.find_group_instance_id(group_id, connectorInstruction)
+
+            self.instance_Instruction_to_Group[InstanceInstruction] = {"group": group_id,
+                                                                       "instnace_id": InstanceGroup}
+        
+
+        # 2. find assembly regions
+        # connection lines로 표현된 assembly info를 assembly region 단위로 변환
+        # assembly region과 결합하는 connector를 Assembly_g#_c#_g# 단위로 count
+        assembly_region_info = {}
+        connections = self.instruction_info['Connection']['connections']
+        for connection in connections:
+            components = connection["components"]
+            components = self.set_order_connenction(components)
+            key = 'Assembly'
+            for component in components:
+                if component['type'] == 'group':
+                    group_id = component['id']
+                    connection_point = component['connect_point']
+                    assembly_region_id = self.find_assembly_region_id(group_id, connection_point)
+                    key += '_g{}'.format(assembly_region_id)
+                else:
+                    key += '_c{}'.format(component['id'])
+            if key not in assembly_region_info:
+                assembly_region_info[key] = 0    
+            assembly_region_info[key] += 1
+
+        # rename assembly region keys
+        # 같은 g-c-g / g-g-c의 count 합치기
+        # g-c / c-g는 g-c 순서로 sorting
+        self.assembly_region_info = self.set_order_assembly_region(assembly_region_info)
+
+    def search_assemble_sequences(self):
+        """ 가능한 Assembly sequence를 탐색
+            1. Group-Connector를 우선 조립 후, 남은 Group-Connector-Group를 조립
+            2. Assembly region안에서 결합이 가능한 Assembly pair를 바탕으로 경우의 수 탐색
+            3. 중복된 sequence 병합
+
+        Input:
+            assembly_region_info
+        Returns:
+            assembly_region_info
+            [type]: dict
+        """
+
+        # group-connector와 group-group 분리
+        assemble_connector = []
+        assemble_group = []
+        for assemble in self.assembly_region_info:
+            components = assemble.split('_')[1:]
+            component_summary = [c[0] for c in components]
+            component_summary = '_'.join(component_summary)
+            if component_summary == 'g_c':
+                assemble_connector.append(assemble)
+            elif component_summary in ['g_c_g', 'c_g_g']:
+                assemble_group.append(assemble)
+
+        # group-connector 결합 수행
+        for assemble in assemble_connector:
+            _, assembly_region, connector = assemble.split('_')
+            assembly_region = assembly_region[1:]
+            connector = connector[1:]
+            num_assemble = self.assembly_region_info[assemble]
+            print(assemble, assembly_region, connector, num_assemble)
+            
+            #TODO Raeyo, Joosoon: Assembly search input-output format 정하기
+            assemblies = self.request_assemble_search(assembly_region, connector, num_assemble)
+        quit()
+
+    def simulate_instruction_step(self):
+        pass
+
+    def check_hidden_assembly(self):
+        pass
+
+    def update_group_status(self):
+        pass
+
+    def step(self):
+        self.current_step += 1
+        self.instruction_info = None
+
+    #############################################################
     def initialize_each_parts(self):
         for part_name in self.part_info.keys():
             if self.part_info[part_name]["type"] == PartType.furniture.value:
