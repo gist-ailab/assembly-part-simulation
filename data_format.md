@@ -76,15 +76,21 @@ ikea_stefan_long: # part name
 # Part_instance_info.yaml
 ```yaml
 ikea_stefan_long: # part name
-  part_id: 5 # part id
-  instance_id: 0
-  assembly_points: #assembly point status
-    0: None # 아무 결합이 없는 경우
-    1: connector_0 # connector가 결합되어 있는 경우
-    2: group # connector를 통해 다른 group과 결합한 경우
-  document: # document file path
-  step_file: # step file path
-  type: furniture_part # part type(connector / furniture)
+  0: # instance id
+    used_assembly_points: # 조립 후보 추출 시 사용(사용된 포인트는 후보 제외)
+      - 0
+      - 2
+    status: # 사용된 포인트들이 다른 부품과 결합된 상태
+      0: 
+        part_name:
+        instance_id:
+        assembly_point:
+      2:
+        part_name:
+        instance_id:
+        assembly_point:
+  1: # instance id
+
 ```
 
 # Group_instance_info.yaml

@@ -1,0 +1,112 @@
+flat_head_screw_iso(6ea):
+  0:
+    status: {}
+    used_assembly_points: []
+  1:
+    status: {}
+    used_assembly_points: []
+  2:
+    status: {}
+    used_assembly_points: []
+  3:
+    status: {}
+    used_assembly_points: []
+  4:
+    status: {}
+    used_assembly_points: []
+  5:
+    status: {}
+    used_assembly_points: []
+ikea_l_bracket(4ea):
+  0:
+    status: {}
+    used_assembly_points: []
+  1:
+    status: {}
+    used_assembly_points: []
+  2:
+    status: {}
+    used_assembly_points: []
+  3:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_bottom:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_long:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_middle:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_short:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_side_left:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_stefan_side_right:
+  0:
+    status: {}
+    used_assembly_points: []
+ikea_wood_pin(14ea):
+  0:
+    status: {}
+    used_assembly_points: []
+  1:
+    status: {}
+    used_assembly_points: []
+  2:
+    status: {}
+    used_assembly_points: []
+  3:
+    status: {}
+    used_assembly_points: []
+  4:
+    status: {}
+    used_assembly_points: []
+  5:
+    status: {}
+    used_assembly_points: []
+  6:
+    status: {}
+    used_assembly_points: []
+  7:
+    status: {}
+    used_assembly_points: []
+  8:
+    status: {}
+    used_assembly_points: []
+  9:
+    status: {}
+    used_assembly_points: []
+  10:
+    status: {}
+    used_assembly_points: []
+  11:
+    status: {}
+    used_assembly_points: []
+  12:
+    status: {}
+    used_assembly_points: []
+  13:
+    status: {}
+    used_assembly_points: []
+pan_head_screw_iso(4ea):
+  0:
+    status: {}
+    used_assembly_points: []
+  1:
+    status: {}
+    used_assembly_points: []
+  2:
+    status: {}
+    used_assembly_points: []
+  3:
+    status: {}
+    used_assembly_points: []

@@ -1,3 +1,4 @@
+
 part:                    # 조립하는 모든 part isntance
 	0:                     # key=part_id
 		part_name: short 

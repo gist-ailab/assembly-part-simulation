@@ -210,7 +210,7 @@ class AssemblyManager(object):
                         if get_group(point1["radius"]) == get_group(point2["radius"]):
                             offset = 0
                             if get_group(point1["radius"]) == "pin group":
-                                offset = 15 # 0.015
+                                offset = -15 # 0.015
                             new_pair = {
                                 "part1": [part1, point1["id"]],
                                 "part2": [part2, point2["id"]],

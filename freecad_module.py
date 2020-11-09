@@ -243,13 +243,13 @@ class AssemblyDocument(object):
         return obj
     
     def assemble(self, obj1, obj2, edge_pair, direction, offset=0):
-        constraint_two_circle(doc=self.doc, 
-                                parent_obj=obj1, 
-                                child_obj=obj2, 
-                                parent_edge=edge_pair[0], 
-                                child_edge=edge_pair[1], 
-                                direction=direction, 
-                                offset=offset)
+        return constraint_two_circle(doc=self.doc, 
+                                     parent_obj=obj1, 
+                                     child_obj=obj2, 
+                                     parent_edge=edge_pair[0], 
+                                     child_edge=edge_pair[1], 
+                                     direction=direction, 
+                                     offset=offset)
     
     def save_doc(self, path):
         save_doc_as(self.doc, path)
@@ -435,7 +435,7 @@ def constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, d
     
     co.offset = offset
     
-    solver.solveConstraints(doc)
+    return solver.solveConstraints(doc)
 
 def solve_system(doc):
     return solver.solveConstraints(doc)
@@ -486,7 +486,6 @@ def extract_part_info(cad_path):
                                                       )
             if part_name in region_condition.keys():
                 region = region_condition[part_name]
-                print(type(region))
             else:
                 region = {}
             part_info[part_name] = {
@@ -776,8 +775,6 @@ def create_assembly_doc(doc_name, part_doc):
     
     return doc
 
-
-
 class FreeCADModule():
     def __init__(self):
         self.server = self.initialize_server()
@@ -824,30 +821,94 @@ class FreeCADModule():
     def check_assembly_possibility(self):
         print("ready to check possibility")
         sendall_pickle(self.connected_client, True)
+        assembly_info = recvall_pickle(self.connected_client)
+        is_possible = self._check_assembly_info(assembly_info)
+        sendall_pickle(self.connected_client, is_possible)
 
-        assembly_pair = recvall_pickle(self.connected_client)
+    def _check_assembly_info(self, assembly_info):
         """
-        assembly_pair = {
-            "target": {
-                "0": {
-                    "part_name": "ikea_stefan_long",  # part info의 key(=part name)
-        			"instance_id": "7",
-                    "assembly_point": "1"
-                },
-                "1": {
-                    "id": "7",
-			        "instance_id": "3",
-                    "assembly_point": "5"
-                }},
-            "status": {
-	            리스트 형태,
-	            ikea_stefan_long_7_1 : part name_instance id_assembly point id
-	            assembly point들의 sequence == 이전 target assembly point 쌍
-        }}
+        1. 현재 상태 만들기
+            - unique_instance import
+            - unique pair 계산
+            - (instance, point_id) 집합을 생성(status_set_0, status_set_1)
+            - 차집합 이용 A 합치고, B-A 합침
         """
-        self.part_info = extract_part_info()
+        assembly_doc = AssemblyDocument()
+        unique_instance = []
+        unique_pair = []
+        # check unique instance part
+        for idx in assembly_info.keys(): # 0, 1
+            part_info = assembly_info[idx]
+            part_name = part_info["part_name"]
+            instance_id = part_info["instance_id"]
+            if (part_name, instance_id) in unique_instance:
+                continue
+            unique_instance.append((part_name, instance_id))
+            status = part_info["status"]
+            for point_idx in status.keys():
+                child_info = status[point_idx]
+                child_name = child_info["part_name"]
+                child_instance_id = child_info["instance_id"]
+                if (child_name, child_instance_id) in unique_instance:
+                    continue
+                unique_instance.append((child_name, child_instance_id))
+        assembly_obj = {}
+        # import unique instance to scene
+        for part_name, ins in unique_instance:
+            part_path = self.part_info[part_name]["document"]
+            obj = assembly_doc.import_part(part_path)
+            assembly_obj[(part_name, ins)] = obj
+        # assemble status
+        for idx in assembly_info.keys():
+            part_info = assembly_info[idx]
+            part_name = part_info["part_name"]
+            instance_id = part_info["instance_id"]
+            parent_obj = assembly_obj[(part_name, instance_id)]
+            parent_info = self.part_info[part_name]
+            status = part_info["status"]
+            for point_idx in status.keys():
+                parent_point = parent_info["assembly_points"][point_idx]
+                parent_edge = parent_point["edge_index"][0]
+
+                child_info = status[point_idx]
+                child_name = child_info["part_name"]
+                child_instance_id = child_info["instance_id"]
+                child_obj = assembly_obj[(child_name, child_instance_id)]
+                child_point_idx = child_info["assembly_point"]
+
+                child_part_info = self.part_info[child_name]
+                child_point = child_part_info["assembly_points"][child_point_idx]
+                child_edge = child_point["edge_index"][0]
+
+                direction = parent_point["edge_index"][1] == child_point["edge_index"][1]
+                assembly_doc.assemble(parent_obj, child_obj, [parent_edge, child_edge], direction, 0)
+        # assemble target
+        part_info_0 = assembly_info[0]
+        part_name_0 = part_info_0["part_name"]
+        instance_id_0 = part_info_0["instance_id"]
+        point_idx_0 = part_info_0["assembly_point"]
+        point_0 = self.part_info[part_name_0]["assembly_points"][point_idx_0]
+        edge_0 = point_0["edge_index"][0]
+        obj_0 = assembly_obj[(part_name_0, instance_id_0)]
         
-    
+
+        part_info_1 = assembly_info[1]
+        part_name_1 = part_info_1["part_name"]
+        instance_id_1 = part_info_1["instance_id"]
+        point_idx_1 = part_info_1["assembly_point"]
+        point_1 = self.part_info[part_name_1]["assembly_points"][point_idx_1]
+        edge_1 = point_1["edge_index"][0]
+        obj_1 = assembly_obj[(part_name_1, instance_id_1)]
+
+        direction = point_0["edge_index"][1] == point_1["edge_index"][1]
+
+        is_possible = assembly_doc.assemble(obj_0, obj_1, [edge_0, edge_1], direction, 0)
+
+        doc_path = "./test" + format(np.random.rand(),".4f") + ".FCStd"
+        assembly_doc.save_doc(doc_path)
+
+        #TODO: is_possible is not bool
+        return True
 
     def close(self):
         self.server.close()
@@ -856,9 +917,12 @@ class FreeCADModule():
 if __name__ == "__main__":
     
     freecad_module = FreeCADModule()
-    request = recvall_pickle(freecad_module.connected_client)
-    print("Get request to {}".format(request))
-    callback = freecad_module.get_callback(request)
-    callback()
-
+    while True:
+        try:
+            request = recvall_pickle(freecad_module.connected_client)
+            print("Get request to {}".format(request))
+            callback = freecad_module.get_callback(request)
+            callback()
+        except:
+            break
     freecad_module.close()    
