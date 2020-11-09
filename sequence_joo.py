@@ -269,7 +269,6 @@ sequence_4 = [
             "assembly_point": 7
         }
     },
-    {   
         0: {
             "part_name": "ikea_stefan_pin",
             "instance_id": 8,
@@ -460,8 +459,8 @@ sequence_5 = [
         1: {
             "part_name": "ikea_stefan_side_right",
             "instance_id": 0,
-            "assembly_point": 4
-        },
+            "assembly_point": 0
+        }
     },
 ]
 sequence_6 = [
@@ -480,7 +479,7 @@ sequence_6 = [
     {
         0: {
             "part_name": "ikea_stefan_bolt_side",
-            "instance_id": 1,
+            "instance_id": 5,
             "assembly_point": 0
         },
         1: {
@@ -504,13 +503,6 @@ sequence_6 = [
     {
         0: {
             "part_name": "ikea_stefan_bolt_side",
-            "instance_id": 2,
-            "assembly_point": 0
-        },
-        1: {
-            "part_name": "ikea_stefan_side_right",
-            "instance_id": 0,
-            "assembly_point": 0
             "instance_id": 3,
             "assembly_point": 0
         },
@@ -534,14 +526,6 @@ sequence_6 = [
     },
     {
         0: {
-            "part_name": None,
-            "instance_id": None,
-            "assembly_point": None
-        },
-        1: {
-            "part_name": None,
-            "instance_id": None,
-            "assembly_point": None
             "part_name": "ikea_stefan_bolt_side",
             "instance_id": 4,
             "assembly_point": 0
