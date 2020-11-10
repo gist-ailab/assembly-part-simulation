@@ -122,6 +122,10 @@ class AssemblyManager(object):
         
         return assembly_pairs
 
+    def extract_assembly_info_test(self):
+    
+    
+    
     def check_instruction_info(self):
         """ check instruction information of current step
             return True when both .yaml and .txt files are exist

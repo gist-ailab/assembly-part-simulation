@@ -37,6 +37,9 @@ if __name__ == "__main__":
 
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
+    
+    asm_manager.simulate_instruction_step()
+
     # assembly simulation
     # while not asm_manager.is_end:
     #     # get instruction info 
