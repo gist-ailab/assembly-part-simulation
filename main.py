@@ -37,28 +37,26 @@ if __name__ == "__main__":
 
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
-    """
     # assembly simulation
-    while not asm_manager.is_end:
-        # get instruction info 
-        while not asm_manager.check_instruction_info(): 
-            time.sleep(10)
+    # while not asm_manager.is_end:
+    #     # get instruction info 
+    #     while not asm_manager.check_instruction_info(): 
+    #         time.sleep(10)
 
-        # extract assembly info 
-        asm_manager.extract_assembly_info()
+    #     # extract assembly info 
+    #     asm_manager.extract_assembly_info()
 
-        # search assembly sequence
-        asm_manager.search_assemble_sequences()
+    #     # search assembly sequence
+    #     asm_manager.search_assemble_sequences()
 
-        # assemble parts and calculate cost by distance taken during assembly
-        asm_manager.simulate_instruction_step()
+    #     # assemble parts and calculate cost by distance taken during assembly
+    #     asm_manager.simulate_instruction_step()
         
-        # 설명서에서 나오지 않은 추가적인 결합 체크
-        asm_manager.check_hidden_assembly()
+    #     # 설명서에서 나오지 않은 추가적인 결합 체크
+    #     asm_manager.check_hidden_assembly()
 
-        # update group status
-        asm_manager.update_group_status()
-        asm_manager.step()
-    """
+    #     # update group status
+    #     asm_manager.update_group_status()
+    #     asm_manager.step()
     # create assembly sequence
 

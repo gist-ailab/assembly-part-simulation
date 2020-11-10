@@ -15,4 +15,4 @@
 /.vscode
 *.json
 
-test*
+*test*

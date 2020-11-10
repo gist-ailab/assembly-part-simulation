@@ -25,7 +25,7 @@ from script.socket_utils import *
 
 
 PART_INFO = None
-temp_doc_path = "./temp.FCStd"
+temp_doc_path = "./test.FCStd"
 unique_radius = []
 
 # hole direction condition(matched with step name)
@@ -484,9 +484,7 @@ def extract_part_info(cad_path):
     part_info = {}
     cad_dir_list = get_dir_list(cad_path)
     part_document_path = "./assembly/STEFAN/part_documents"
-    if isdir(part_document_path):
-        part_document_path = part_document_path + format(np.random.rand(),".4f")
-    check_and_create_dir(part_document_path)
+    check_and_reset_dir(part_document_path)
     part_id = 0
     cad_dir_list.sort()
     for cad_dir in cad_dir_list:
@@ -790,8 +788,8 @@ class FreeCADModule():
 if __name__ == "__main__":
     
     freecad_module = FreeCADModule()
-
     freecad_module.initialize_server()
+    
     while True:
         try:
             request = recvall_pickle(freecad_module.connected_client)

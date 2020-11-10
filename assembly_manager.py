@@ -10,8 +10,10 @@ class AssemblyManager(object):
         self.furniture_name = furniture_name
 
         # input path
-        self.cad_path = join(cad_root, self.furniture_name)
-        self.instruction_path = join(instruction_root, self.furniture_name)
+        self.cad_root = cad_root
+        self.cad_path = join(self.cad_root, self.furniture_name)
+        self.instruction_root = instruction_root
+        self.instruction_path = join(self.instruction_root, self.furniture_name)
         
         self.is_end = False
 
@@ -36,7 +38,7 @@ class AssemblyManager(object):
         # 내부에서 사용하는 데이터(저장은 선택)
         self.part_info_path = join(self.assembly_path, "part_info.yaml")
         self.assembly_pair_path = join(self.assembly_path, "assembly_pair.yaml")
-        
+        self.refined_pair_path = join(self.assembly_path, "assembly_pair_refined.yaml")
 
         '''
         self.furniture_parts, self.connector_parts = [], [] # save part_name
@@ -57,12 +59,16 @@ class AssemblyManager(object):
     def initialize_CAD_info(self):
         self.part_info = self.socket_module.initialize_cad_info(self.cad_path)
         save_dic_to_yaml(self.part_info, self.part_info_path)
-        self.assembly_pair = self._initialize_assembly_pair()
-        save_dic_to_yaml(self.assembly_pair, self.assembly_pair_path)
+        # self.part_info = load_yaml_to_dic(self.part_info_path)
+
+        # self.assembly_pair = self._initialize_assembly_pair()
+        # save_dic_to_yaml(self.assembly_pair, self.assembly_pair_path)
+        self.assembly_pair = load_yaml_to_dic(self.refined_pair_path)
     
     def _initialize_assembly_pair(self):
         """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
         """
+        assert False, "Not use this function! load refined file instead"
         radius_group = {
             "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
             "braket group": [5, 6, 8],
@@ -479,3 +485,88 @@ class AssemblyManager(object):
 
     def step(self):
         self.current_step += 1
+
+
+    ##########################################################
+    def find_group_instance_id(self, group_id, connector_info):
+        if group_id not in self.instance_info:
+            self.instance_info[group_id] = {
+                                            "instance_id": 0,
+                                            "connector": connector_info
+                                            }
+            instance_id = 0
+        else:
+            #TODO: joosoon, connector 정보를 바탕으로 group instance 매칭하기
+            pass
+        return instance_id
+
+    def find_assembly_region_id(self, group_id, connection_point):
+        #TODO: Rayeo, Pyrep 에서 assembly region 찾기
+        x, y, z = connection_point["X"], connection_point["Y"], connection_point["Z"]
+        key = "{}_{}_{}_{}".format(group_id, x, y, z)
+        if key not in self.assembly_region_ids: 
+            self.assembly_region_ids[key] = len(self.assembly_region_ids)
+        return self.assembly_region_ids[key]
+
+    def set_order_connenction(self, components):
+        component_buff = {}
+        for component in components:
+            order = component['order']
+            component_buff[order] = component
+        order_component = []
+        for i in range(len(component_buff)):
+            order_component.append(component_buff[i])
+        return order_component
+
+    def set_order_assembly_region(self, assembly_region_info):
+        rename_list = {}
+        # 같은 g-c-g / g-g-c / c-g-g 의 count 합치기
+        # g-g-c / c-g-g 는 c-g-g 순서로 sorting
+        target_list = [k for k in assembly_region_info.keys() if len(k.split("_"))==4]
+        for key in target_list:
+            key_split = key.split("_")
+            reversed_key = "_".join([key_split[0], key_split[3], key_split[2], key_split[1]])
+            if key in rename_list:
+                rename_list[key].append(key)
+            elif reversed_key in rename_list:
+                rename_list[reversed_key].append(key)
+            else:
+                component_summary = '{}_{}_{}'.format(key_split[1][0], key_split[2][0], key_split[3][0])
+                if component_summary in ('g_c_g', 'c_g_c'):
+                    main_key = key
+                elif component_summary in ('c_g_g'):
+                    main_key = reversed_key
+                if main_key not in rename_list:
+                    rename_list[main_key] = []
+                rename_list[main_key].append(key)        
+
+        # g-c / c-g는 g-c 순서로 sorting
+        target_list = [k for k in assembly_region_info.keys() if len(k.split("_"))==3]
+        for key in target_list:
+            key_split = sorted(key.split("_")[1:])
+            new_key = "Assembly_{}_{}".format(key_split[1], key_split[0])
+            if new_key not in rename_list:
+                rename_list[new_key] = []
+            rename_list[new_key].append(key)
+
+        # re-count
+        assembly_region_info_sort = {}
+        for new_key, keys in rename_list.items():
+            assembly_region_info_sort[new_key] = 0
+            for key in keys:
+                assembly_region_info_sort[new_key] += assembly_region_info[key]
+        return assembly_region_info_sort
+
+    def request_assemble_search(self, assembly_region_id, connector_id, num_assemble):
+        """ 주어진 assembly region에서 connenctor로 결합 가능한 assembly pair 찾기
+            Input: 
+                assembly_region_id: assembly region과 1대1 매핑
+                connector_id: connector_info.yaml 의 connenctor_id
+                num_assemble: 결합 횟수
+            Return:
+                포맷 정해야 함
+        """
+        #TODO Raeyo, Joosoon: Assembly search input-output format 정하기
+        pass
+
+    

@@ -6,7 +6,7 @@ from script.socket_utils import *
 from script.fileApi import *
 import random
 import time
-from sequence_joo import *
+from sequence_example import *
 
 
 

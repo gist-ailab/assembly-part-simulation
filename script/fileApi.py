@@ -4,6 +4,7 @@ from os import listdir
 import yaml
 from datetime import datetime
 import time
+import shutil
 
 def get_file_list(path):
     file_list = [join(path, f) for f in listdir(path) if isfile(join(path, f))]
@@ -29,11 +30,23 @@ def load_yaml_to_dic(yaml_path):
     return dic
 
 def check_and_create_dir(dir_path):
-    if not os.path.isdir(dir_path):
+    if not check_dir(dir_path):
         os.mkdir(dir_path)
         return True
     else:
         return False
+
+def check_and_reset_dir(dir_path):
+    if check_dir(dir_path):
+        shutil.rmtree(dir_path)
+        os.mkdir(dir_path)
+        return True
+    else:
+        os.mkdir(dir_path)
+        return False
+
+def check_dir(dir_path):
+    return os.path.isdir(dir_path)
 
 def check_file(file_path):
     return os.path.isfile(file_path)
