@@ -109,6 +109,7 @@ class AssemblyManager(object):
                             target = {
                                 "part_name": part_name_2,
                                 "assembly_point": point_idx_2,
+                                "direction": "aligned",
                                 "offset": offset
                             }
                             assembly_pairs[part_name_1][point_idx_1].append(target)

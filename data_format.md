@@ -73,31 +73,32 @@ ikea_stefan_long: # part name
   type: furniture_part # part type(connector / furniture)
 ```
 
-# Part_instance_info.yaml
+# part_instance_info.yaml
 ```yaml
+# 현재 파트별 인스턴스의 결합 상태 확인
 ikea_stefan_long: # part name
   0: # instance id
     used_assembly_points: # 조립 후보 추출 시 사용(사용된 포인트는 후보 제외)
       - 0
       - 2
-    status: # 사용된 포인트들이 다른 부품과 결합된 상태
-      0: 
-        part_name:
-        instance_id:
-        assembly_point:
-      2:
-        part_name:
-        instance_id:
-        assembly_point:
-  1: # instance id
+    instance_group_id: 0 # 0 is primitive group
 ```
-# assembly_status.yaml
+# instance_group_info.yaml
 ```yaml
-ikea_stefan_long: # part name
-  0: # instance id
-    ikea_stefan_pin: # part name
-    - 6 # instance id
-    - 7
+# 그룹 별 상태
+0: [] # primitive
+1:
+- 0:
+    part_name:
+    instance_id:
+    assembly_point:
+  1:
+    part_name:
+    instance_id:
+    assembly_point:
+- 0:
+  1:
+2:
 ```
 # assembly_info
 ```python

@@ -1,0 +1,147 @@
+0: []
+1:
+- 0:
+    assembly_point: 0
+    instance_id: 1
+    part_name: ikea_stefan_bracket
+  1:
+    assembly_point: 7
+    instance_id: 0
+    part_name: ikea_stefan_long
+- 0:
+    assembly_point: 0
+    instance_id: 0
+    part_name: ikea_stefan_bracket
+  1:
+    assembly_point: 6
+    instance_id: 0
+    part_name: ikea_stefan_long
+- 0:
+    assembly_point: 0
+    instance_id: 4
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 5
+    instance_id: 0
+    part_name: ikea_stefan_long
+- 0:
+    assembly_point: 0
+    instance_id: 5
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 3
+    instance_id: 0
+    part_name: ikea_stefan_long
+- 0:
+    assembly_point: 0
+    instance_id: 7
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 2
+    instance_id: 0
+    part_name: ikea_stefan_long
+- 0:
+    assembly_point: 0
+    instance_id: 6
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 0
+    instance_id: 0
+    part_name: ikea_stefan_long
+- &id001
+  0:
+    assembly_point: 0
+    instance_id: 2
+    part_name: ikea_stefan_bracket
+  1:
+    assembly_point: 7
+    instance_id: 0
+    part_name: ikea_stefan_short
+- &id002
+  0:
+    assembly_point: 0
+    instance_id: 3
+    part_name: ikea_stefan_bracket
+  1:
+    assembly_point: 6
+    instance_id: 0
+    part_name: ikea_stefan_short
+- &id003
+  0:
+    assembly_point: 0
+    instance_id: 0
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 0
+    instance_id: 0
+    part_name: ikea_stefan_short
+- &id004
+  0:
+    assembly_point: 0
+    instance_id: 2
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 2
+    instance_id: 0
+    part_name: ikea_stefan_short
+- &id005
+  0:
+    assembly_point: 0
+    instance_id: 1
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 3
+    instance_id: 0
+    part_name: ikea_stefan_short
+- &id006
+  0:
+    assembly_point: 0
+    instance_id: 3
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 5
+    instance_id: 0
+    part_name: ikea_stefan_short
+- &id007
+  0:
+    assembly_point: 1
+    instance_id: 1
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 8
+    instance_id: 0
+    part_name: ikea_stefan_side_left
+- &id008
+  0:
+    assembly_point: 1
+    instance_id: 3
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 9
+    instance_id: 0
+    part_name: ikea_stefan_side_left
+- 0:
+    assembly_point: 1
+    instance_id: 7
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 2
+    instance_id: 0
+    part_name: ikea_stefan_side_left
+- 0:
+    assembly_point: 1
+    instance_id: 6
+    part_name: ikea_stefan_pin
+  1:
+    assembly_point: 1
+    instance_id: 0
+    part_name: ikea_stefan_side_left
+2:
+- *id001
+- *id002
+- *id003
+- *id004
+- *id005
+- *id006
+- *id007
+- *id008

@@ -17,6 +17,7 @@ import numpy as np
 import copy
 from os.path import join
 import socket
+from enum import Enum
 
 from script.const import SocketType, FreeCADRequestType, PartType
 from script.fileApi import *
@@ -101,6 +102,9 @@ region_condition = {
         3: [7]
     },
 }
+class AssembleDirection(Enum):
+    aligned = "aligned"
+    opposed = "opposed"
 
 #region custom class
 class Circle(object):
@@ -136,7 +140,12 @@ class Circle(object):
             if not check_circle_edge(edge):
                 continue
             if edge.isSame(self.edge):
-                if not self.is_reverse:
+                circle = edge.Curve
+                z_axis = [circle.Axis.x, circle.Axis.y, circle.Axis.z]
+                count = 0
+                for i in range(3):
+                    count += z_axis[i] * self.direction[i]
+                if count > 0:
                     self.edge_index = [ind + 1, "aligned"]
                     find_edge = True
                 else:
@@ -332,8 +341,9 @@ def get_circles(obj):
                 circle_wires.append(wire)
 
     circles = get_unique_circle(circle_wires)
+
     for circle in circles:
-        circle.get_edge_index_from_shape(shape)
+        circle.get_edge_index_from_shape(obj.Shape)
 
     return circles
 def check_plane_wire(wire):
@@ -444,15 +454,12 @@ def constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, d
     s1 = a2plib.SelectionExObject(doc, parent_obj, "Edge" + str(parent_edge))
     s2 = a2plib.SelectionExObject(doc, child_obj, "Edge" + str(child_edge))
     cc = a2pconst.CircularEdgeConstraint([s1, s2])
-    if direction:
-        cc.direction = "aligned"
-    else:
-        cc.direction = "opposed"
     co = cc.constraintObject
     
+    co.directionConstraint = direction
     co.offset = offset
     
-    return solver.solveConstraints(doc)
+    return solver.solveConstraints(doc, showFailMessage=False)
 
 def solve_system(doc):
     return solver.solveConstraints(doc)
@@ -606,177 +613,6 @@ def extract_group_obj(doc_path, obj_path):
             group_objs.append(obj)
     importOBJ.export(group_objs, obj_path)
 
-def get_assembly_pairs(self):
-    """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
-    """
-    def get_group(radius):
-        idx = unique_radius.index(radius)
-        for group in radius_group.keys():
-            if idx in radius_group[group]:
-                return group
-    assembly_pairs = {}
-    if check_file("./pairs.yaml"):
-        return load_yaml_to_dic("./pairs.yaml")
-    
-    unique_radius = []
-    for part in self.part_info.keys():
-        points = self.part_info[part]["assembly_points"]
-        for point in points:
-            radius = point["radius"]
-            if radius in unique_radius:
-                pass
-            else:
-                unique_radius.append(radius)
-    unique_radius.sort()
-    count = 0
-    for part1 in self.part_info.keys():
-        for part2 in self.part_info.keys():
-            info1 = self.part_info[part1]
-            info2 = self.part_info[part2]
-            points1 = info1["assembly_points"]
-            points2 = info2["assembly_points"]
-            for point1 in points1:
-                for point2 in points2:
-                    if point1["type"] == point2["type"]:
-                        continue
-                    if get_group(point1["radius"]) == get_group(point2["radius"]):
-                        offset = 0
-                        if get_group(point1["radius"]) == "pin group":
-                            offset = 15 # 0.015
-                        new_pair = {
-                            "part1": [part1, point1["id"]],
-                            "part2": [part2, point2["id"]],
-                            "offset": offset
-                        }
-                        assembly_pairs["pair_" + str(count)] = new_pair
-                        count += 1
-    save_dic_to_yaml(assembly_pairs, "./pairs.yaml")
-    return assembly_pairs
-
-def assemble_A_and_B(instance_info_a, instance_info_b, region_a=[0, 1, 2], region_b=[0, 1, 2], assembly_num=1):
-    """
-    TODO
-    - Part A info Part B info
-    long [0, 1, 2] Placement [Pos=(-93,40,0), Yaw-Pitch-Roll=(0,0,0)]
-    left [0, 1, 2] Placement [Pos=(185,410.191,-10.1319), Yaw-Pitch-Roll=(90,-87.5864,90)]
-    """
-    class AssemblyInfo(object):
-        def __init__(self, instance_info):
-            self.part_name = instance_info["part_name"]
-            self.used_points = instance_info["used_points"]
-            self.assembly_document = instance_info["assembly_document"]
-            
-            self.part_info = PART_INFO[self.part_name]
-            self.assembly_points = PART_INFO["assembly_points"]
-
-        def get_part_path(self):
-            return self.assembly_document
-        
-        def get_edge_index_(self, idx):
-            return self.assembly_points[idx]
-
-
-        
-    class AssemblyPair(object):
-        def __init__(self, info_a, info_b, region_a, region_b):
-            self.info_a = info_a
-            self.info_b = info_b
-            self.region_a = region_a
-            self.region_b = region_b
-            self.point_pairs = []
-            self.initialize_point_pairs()
-
-        def initialize_point_pairs(self):
-            for point_a in self.region_a:
-                for point_b in self.region_b:
-                    new_pair = (point_a, point_b)
-                    if new_pair in self.point_pairs:
-                        continue
-                    self.point_pairs.append(new_pair)
-            
-        def get_lowest_cost_pair(self):
-            min_cost = np.inf
-            lowest_pair = [0, 0]
-            edge_pair = [0, 0]
-            for idx_a, idx_b in self.point_pairs:
-                edge_a, dir_a = assembly_points_a[idx_a]["edge_index"]
-                edge_b, dir_b = assembly_points_b[idx_b]["edge_index"]
-                distance = get_distance_between_edges(obj_a.Shape.Edges[edge_a], obj_b.Shape.Edges[edge_b])
-                if distance < min_cost:
-                    min_cost = distance
-                    lowest_pair = [idx_a, idx_b]  
-                    edge_pair = [edge_a, edge_b]
-                print(edge_a, edge_b, distance)
-            return lowest_pair , edge_pair, dir_a == dir_b
-    
-    # 1. initialize assembly document
-    assembly_doc = AssemblyDocument()
-
-    # 2. initialize assembly parts info
-    info_a = AssemblyInfo(instance_info_a)
-    info_b = AssemblyInfo(instance_info_b)
-    
-    # 3. import part on document    
-    obj_a = assembly_doc.import_part(info_a.get_part_path(), pos=(-93,40,0), ypr=(0,0,0))
-    obj_b = assembly_doc.import_part(info_b.get_part_path(), pos=(185,410.191,-10.1319), ypr=(90,-87.5864,90))
-
-    # 4. calculate all possible point pair for region pair
-    point_pairs = []
-    # create assembly point pairs
-
-    
-    # calculate lowest cost pair
-    point_pair, edge_pair, direction = get_lowest_cost_pair()
-    # assemble
-    assembly_doc.assemble(obj_a, obj_b, edge_pair, direction)
-    assembly_doc.save_doc_as("temp41.FCStd")    
-
-def assemble_pair_test(pairs):
-    save_root = "./pair_test"
-    check_and_create_dir(save_root)
-    unique_pair = []
-    doc_path = join(save_root, "initial.FCStd")
-    doc = AssemblyDocument(doc_path=doc_path)
-
-    for pair_id, pair in enumerate(pairs):
-        doc.reset()
-        if tuple(pair) in unique_pair:
-            continue
-        part1, part2, idx1, idx2, offset = pair
-        save_dir = join(save_root,  part1+"_"+part2)
-        check_and_create_dir(save_dir)
-        
-        info1 = PART_INFO[part1]
-        info2 = PART_INFO[part2]
-        doc1 = info1["document"]
-        doc2 = info2["document"]
-        point1 = info1["assembly_points"][idx1]
-        point2 = info2["assembly_points"][idx2]
-        edge1 = point1["edge_index"][0]
-        edge2 = point2["edge_index"][0]
-        direction = point1["edge_index"][1] == point2["edge_index"][1]
-
-        obj1 = doc.import_part(doc1)
-        obj2 = doc.import_part(doc2)
-        doc.assemble(obj1, obj2, [edge1, edge2], direction, offset=offset)
-        doc.save_doc(join(save_dir, str(pair_id)+".FCStd"))
-        unique_pair.append((part1, part2, idx1, idx2, offset))
-        unique_pair.append((part2, part1, idx2, idx1, offset))
-        if "pin" in part1:
-            if idx1 == 0:
-                unique_pair.append((part1, part2, 1, idx2, offset))
-                unique_pair.append((part2, part1, idx2, 1, offset))
-            else:
-                unique_pair.append((part1, part2, 0, idx2, offset))
-                unique_pair.append((part2, part1, idx2, 0, offset))
-        elif "pin" in part2:
-            if idx2 == 0:
-                unique_pair.append((part1, part2, idx1, 1, offset))
-                unique_pair.append((part2, part1, 1, idx1, offset))
-            else:
-                unique_pair.append((part1, part2, idx1, 0, offset))
-                unique_pair.append((part2, part1, 0, idx1, offset))
-
 def open_doc(filepath):
     return FreeCAD.openDocument(filepath)
 
@@ -794,21 +630,11 @@ def create_assembly_doc(doc_name, part_doc):
 
 class FreeCADModule():
     def __init__(self):
-        self.server = self.initialize_server()
-        try:
-            print("Waiting for FreeCAD client {}:{}".format(self.host, self.port))
-            self.connected_client, addr = self.server.accept()
-            print("Connected to {}".format(addr))
-        except:
-            print("FreeCAD Server Error")
-        finally:
-            self.server.close()
-        
         self.callback = {
             FreeCADRequestType.initialize_cad_info: self.initialize_cad_info,
             FreeCADRequestType.check_assembly_possibility: self.check_assembly_possibility
         }
-
+    
     def get_callback(self, request):
         return self.callback[request]
 
@@ -817,14 +643,20 @@ class FreeCADModule():
         print("Initialize FreeCAD Server")
         host = SocketType.freecad.value["host"]
         port = SocketType.freecad.value["port"]
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        sock.bind((host, port))
-        sock.listen(True)
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server.bind((host, port))
+        self.server.listen(True)
         self.host = host
         self.port = port
-
-        return sock
+        try:
+            print("Waiting for FreeCAD client {}:{}".format(self.host, self.port))
+            self.connected_client, addr = self.server.accept()
+            print("Connected to {}".format(addr))
+        except:
+            print("FreeCAD Server Error")
+        finally:
+            self.server.close()
     
     def initialize_cad_info(self):
         print("ready to extract part info")
@@ -850,89 +682,116 @@ class FreeCADModule():
             - (instance, point_id) 집합을 생성(status_set_0, status_set_1)
             - 차집합 이용 A 합치고, B-A 합침
         """
-        assembly_doc = AssemblyDocument()
+        self.assembly_doc = AssemblyDocument()
+        current_target = assembly_info["target"] # dict 
+        status = assembly_info["status"] # list
         unique_instance = []
-        unique_pair = []
         # check unique instance part
-        for idx in assembly_info.keys(): # 0, 1
-            part_info = assembly_info[idx]
+        for key in current_target.keys():
+            part_info = current_target[key]
             part_name = part_info["part_name"]
             instance_id = part_info["instance_id"]
             if (part_name, instance_id) in unique_instance:
                 continue
-            unique_instance.append((part_name, instance_id))
-            status = part_info["status"]
-            for point_idx in status.keys():
-                child_info = status[point_idx]
-                child_name = child_info["part_name"]
-                child_instance_id = child_info["instance_id"]
-                if (child_name, child_instance_id) in unique_instance:
+            else:
+                unique_instance.append((part_name, instance_id))
+        for past_target in status:
+            for key in past_target.keys():
+                part_info = past_target[key]
+                part_name = part_info["part_name"]
+                instance_id = part_info["instance_id"]
+                if (part_name, instance_id) in unique_instance:
                     continue
-                unique_instance.append((child_name, child_instance_id))
-        assembly_obj = {}
+                else:
+                    unique_instance.append((part_name, instance_id))
+        
+        self.assembly_obj = {}
         # import unique instance to scene
         for part_name, ins in unique_instance:
             part_path = self.part_info[part_name]["document"]
-            obj = assembly_doc.import_part(part_path)
-            assembly_obj[(part_name, ins)] = obj
-        # assemble status
-        for idx in assembly_info.keys():
-            part_info = assembly_info[idx]
-            part_name = part_info["part_name"]
-            instance_id = part_info["instance_id"]
-            parent_obj = assembly_obj[(part_name, instance_id)]
-            parent_info = self.part_info[part_name]
-            status = part_info["status"]
-            for point_idx in status.keys():
-                parent_point = parent_info["assembly_points"][point_idx]
-                parent_edge = parent_point["edge_index"][0]
+            obj = self.assembly_doc.import_part(part_path)
+            self.assembly_obj[(part_name, ins)] = obj
+        # assemble current status
+        for past_target in status:
+            _ = self._assemble_target(past_target)
+        rand = format(np.random.rand(),".4f")
+        doc_path = "./test_before" + rand + ".FCStd"
+        self.assembly_doc.save_doc(doc_path)
+        self._assemble_target(current_target)
+        doc_path = "./test_after" + rand + ".FCStd"
+        self.assembly_doc.save_doc(doc_path)
 
-                child_info = status[point_idx]
-                child_name = child_info["part_name"]
-                child_instance_id = child_info["instance_id"]
-                child_obj = assembly_obj[(child_name, child_instance_id)]
-                child_point_idx = child_info["assembly_point"]
-
-                child_part_info = self.part_info[child_name]
-                child_point = child_part_info["assembly_points"][child_point_idx]
-                child_edge = child_point["edge_index"][0]
-
-                direction = parent_point["edge_index"][1] == child_point["edge_index"][1]
-                assembly_doc.assemble(parent_obj, child_obj, [parent_edge, child_edge], direction, 0)
+        #TODO: is_possible is not bool
+        return True
+    
+    def _assemble_target(self, target):
+        for obj_key in self.assembly_obj.keys():
+            obj = self.assembly_obj[obj_key]
+            obj.fixedPosition = False
         # assemble target
-        part_info_0 = assembly_info[0]
+        part_info_0 = target[0]
         part_name_0 = part_info_0["part_name"]
         instance_id_0 = part_info_0["instance_id"]
         point_idx_0 = part_info_0["assembly_point"]
         point_0 = self.part_info[part_name_0]["assembly_points"][point_idx_0]
         edge_0 = point_0["edge_index"][0]
-        obj_0 = assembly_obj[(part_name_0, instance_id_0)]
-        
+        obj_0 = self.assembly_obj[(part_name_0, instance_id_0)]
 
-        part_info_1 = assembly_info[1]
+        part_info_1 = target[1]
         part_name_1 = part_info_1["part_name"]
         instance_id_1 = part_info_1["instance_id"]
         point_idx_1 = part_info_1["assembly_point"]
         point_1 = self.part_info[part_name_1]["assembly_points"][point_idx_1]
         edge_1 = point_1["edge_index"][0]
-        obj_1 = assembly_obj[(part_name_1, instance_id_1)]
+        obj_1 = self.assembly_obj[(part_name_1, instance_id_1)]
 
         direction = point_0["edge_index"][1] == point_1["edge_index"][1]
 
-        is_possible = assembly_doc.assemble(obj_0, obj_1, [edge_0, edge_1], direction, 0)
-
-        doc_path = "./test" + format(np.random.rand(),".4f") + ".FCStd"
-        assembly_doc.save_doc(doc_path)
-
-        #TODO: is_possible is not bool
-        return True
+        is_possible = self.assembly_doc.assemble(obj_0, obj_1, [edge_0, edge_1], direction, 0)
+        
+        if not is_possible == False: # None == True
+            return True
+        else:
+            return is_possible # False
 
     def close(self):
         self.server.close()
-    
+
+    def assembly_pair_test(self):
+        assembly_doc = AssemblyDocument()
+        check_and_create_dir("pairtest")
+        for part_name in self.assembly_pair.keys():
+            part_path = "./pairtest/" + part_name
+            check_and_create_dir(part_path)
+            part_info = self.assembly_pair[part_name]
+            for point_id in part_info.keys():
+                pair_list = part_info[point_id]
+                for pair_info in pair_list:
+                    assembly_doc.reset()
+                    pair_name = pair_info["part_name"]
+                    offset = pair_info["offset"]
+                    assembly_point = pair_info["assembly_point"]
+                    direction = pair_info["direction"]
+                    info_1 = self.part_info[part_name]
+                    info_2 = self.part_info[pair_name]
+                    doc_1 = info_1["document"]
+                    doc_2 = info_2["document"]
+                    point_1 = info_1["assembly_points"][point_id]
+                    point_2 = info_2["assembly_points"][assembly_point]
+                    edge1 = point_1["edge_index"][0]
+                    edge2 = point_2["edge_index"][0]
+
+                    obj1 = assembly_doc.import_part(doc_1)
+                    obj2 = assembly_doc.import_part(doc_2)
+                    assembly_doc.assemble(obj1, obj2, [edge1, edge2], direction, offset=offset)
+                    assembly_doc.save_doc(join(part_path, "{}_{}_{}".format(point_id, pair_name, assembly_point) + ".FCStd"))
+                    
+
 if __name__ == "__main__":
     
     freecad_module = FreeCADModule()
+
+    freecad_module.initialize_server()
     while True:
         try:
             request = recvall_pickle(freecad_module.connected_client)
@@ -942,3 +801,9 @@ if __name__ == "__main__":
         except:
             break
     freecad_module.close()    
+"""
+#TODO: pair refine
+- pin 에서 1번이 자꾸 opposed 가 됨.
+- left 와 볼트 aligned -> opposed 로 변경 해야함
+"""
+

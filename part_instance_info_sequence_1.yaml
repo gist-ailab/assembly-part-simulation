@@ -23,21 +23,27 @@ ikea_stefan_bottom:
     used_assembly_points: []
 ikea_stefan_bracket:
   0:
-    instance_group_id: 0
-    used_assembly_points: []
+    instance_group_id: 1
+    used_assembly_points:
+    - 0
   1:
-    instance_group_id: 0
-    used_assembly_points: []
+    instance_group_id: 1
+    used_assembly_points:
+    - 0
   2:
-    instance_group_id: 0
-    used_assembly_points: []
+    instance_group_id: 2
+    used_assembly_points:
+    - 0
   3:
-    instance_group_id: 0
-    used_assembly_points: []
+    instance_group_id: 2
+    used_assembly_points:
+    - 0
 ikea_stefan_long:
   0:
-    instance_group_id: 0
-    used_assembly_points: []
+    instance_group_id: 1
+    used_assembly_points:
+    - 7
+    - 6
 ikea_stefan_middle:
   0:
     instance_group_id: 0
@@ -87,8 +93,10 @@ ikea_stefan_pin:
     used_assembly_points: []
 ikea_stefan_short:
   0:
-    instance_group_id: 0
-    used_assembly_points: []
+    instance_group_id: 2
+    used_assembly_points:
+    - 7
+    - 6
 ikea_stefan_side_left:
   0:
     instance_group_id: 0
