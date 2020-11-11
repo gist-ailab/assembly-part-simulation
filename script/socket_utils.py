@@ -17,7 +17,6 @@ def recvall(sock, count):
         buf += newbuf
         count -= len(newbuf)
     return buf
-
 @timeout(10)
 def recvall_pickle(sock):
     pickle_compat.patch()

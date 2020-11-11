@@ -5,6 +5,7 @@ FreeCADGui.showMainWindow()
 import Part
 from FreeCAD import Base
 import importOBJ
+import Mesh
 import Draft
 
 import a2plib
@@ -263,6 +264,7 @@ class AssemblyDocument(object):
         save_doc_as(self.doc, doc_path)
 
     def import_part(self, part_path, pos=[0, 0, 0], ypr=[0,0,0]):
+        print("import part to document")
         obj = importPartFromFile(self.doc, part_path)
         obj.Placement.Base = FreeCAD.Vector(pos)
         obj.Placement.Rotation = FreeCAD.Rotation(ypr[0], ypr[1], ypr[2])
@@ -576,7 +578,7 @@ def extract_assembly_points(step_path, step_name, doc_path, part_type):
         hole.set_hole_type(doc, obj)
         
         hole.remove_hole(doc)
-        hole.visualize_frame(doc)
+        # hole.visualize_frame(doc)
         if hole.radius in unique_radius:
             pass
         else:
@@ -602,15 +604,6 @@ def extract_assembly_points(step_path, step_name, doc_path, part_type):
     FreeCAD.closeDocument(doc.Name)
     return assembly_points
 
-def extract_group_obj(doc_path, obj_path):
-    doc = open_doc(doc_path)
-    group_objs = []
-    objs = doc.findObjects()
-    for obj in objs:
-        if "furniture" in obj.Label:
-            group_objs.append(obj)
-    importOBJ.export(group_objs, obj_path)
-
 def open_doc(filepath):
     return FreeCAD.openDocument(filepath)
 
@@ -630,9 +623,16 @@ class FreeCADModule():
     def __init__(self):
         self.callback = {
             FreeCADRequestType.initialize_cad_info: self.initialize_cad_info,
-            FreeCADRequestType.check_assembly_possibility: self.check_assembly_possibility
+            FreeCADRequestType.check_assembly_possibility: self.check_assembly_possibility,
+            FreeCADRequestType.extract_group_obj: self.extract_group_obj
         }
+        # 조립에 사용하는 변수들
+        self.part_info = None
+        self.furniture_parts = []
     
+        self.assembly_doc = None
+        self.assembly_obj = None
+        
     def get_callback(self, request):
         return self.callback[request]
 
@@ -662,9 +662,19 @@ class FreeCADModule():
         cad_file_path = recvall_pickle(self.connected_client)
         print("Extract part info from {}".format(cad_file_path))
         self.part_info = extract_part_info(cad_file_path)
+        self._initialize_each_parts()
         print("Success to extract part info from {}".format(cad_file_path))
         sendall_pickle(self.connected_client, self.part_info)
     
+    def _initialize_each_parts(self):
+        for part_name in self.part_info.keys():
+            if self.part_info[part_name]["type"] == PartType.furniture.value:
+                self.furniture_parts.append(part_name)
+            elif self.part_info[part_name]["type"] == PartType.connector.value:
+                continue
+            else:
+                exit()
+
     def check_assembly_possibility(self):
         print("ready to check possibility")
         sendall_pickle(self.connected_client, True)
@@ -710,19 +720,20 @@ class FreeCADModule():
             obj = self.assembly_doc.import_part(part_path)
             self.assembly_obj[(part_name, ins)] = obj
         # assemble current status
-        for past_target in status:
-            _ = self._assemble_target(past_target)
+        for past_pair in status:
+            _ = self._assemble_pair(past_pair)
         rand = format(np.random.rand(),".4f")
         doc_path = "./test_before" + rand + ".FCStd"
         self.assembly_doc.save_doc(doc_path)
-        self._assemble_target(current_target)
+        self._assemble_pair(current_target)
         doc_path = "./test_after" + rand + ".FCStd"
         self.assembly_doc.save_doc(doc_path)
 
         #TODO: is_possible is not bool
         return True
     
-    def _assemble_target(self, target):
+    def _assemble_pair(self, target):
+        print("start assemble pair")
         for obj_key in self.assembly_obj.keys():
             obj = self.assembly_obj[obj_key]
             obj.fixedPosition = False
@@ -752,7 +763,48 @@ class FreeCADModule():
         else:
             return is_possible # False
 
+    def extract_group_obj(self):
+        print("ready to extract group obj")
+        sendall_pickle(self.connected_client, True)
+        group_info = recvall_pickle(self.connected_client)
+        group_status = group_info["group_status"]
+        obj_root = group_info["obj_root"]
+        print("Export group obj in {}".format(obj_root))
+        result = self._export_group_obj(group_status, obj_root)
+        print("Success to extract group obj into {}".format(obj_root))
+        sendall_pickle(self.connected_client, result)
+    
+    def _export_group_obj(self, group_status, obj_root):
+        composed_part = group_status["composed_part"]
+        status = group_status["status"]
+        self.assembly_doc = AssemblyDocument()
+        unique_instance = []
+        self.assembly_obj = {}
+        # import all parts to document
+        for part_info in composed_part:
+            part_name = part_info["part_name"]
+            ins = part_info["instance_id"]
+            part_path = self.part_info[part_name]["document"]
+            obj = self.assembly_doc.import_part(part_path)
+            self.assembly_obj[(part_name, ins)] = obj
+        
+        # assemble to current state
+        for assembly_pair in status:
+            self._assemble_pair(assembly_pair)
+        base_obj = []
+        for obj_key in self.assembly_obj.keys():
+            part_name = obj_key[0]
+            if part_name in self.furniture_parts:
+                group_obj = self.assembly_obj[obj_key]
+                Mesh.export([group_obj], join(obj_root, "{}.obj".format(part_name)))
+                base_obj.append(group_obj)
+        Mesh.export(base_obj, join(obj_root, "base.obj"))
+        
+        return True
+
+
     def close(self):
+        self.connected_client.close()
         self.server.close()
 
     def assembly_pair_test(self):

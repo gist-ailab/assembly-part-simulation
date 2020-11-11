@@ -7,7 +7,8 @@ from pyrep.objects.shape import Shape
 from pyrep.const import PrimitiveShape
 
 from script.fileApi import *
-from script.const import SocketType
+from script.const import SocketType, PyRepRequestType
+from script.socket_utils import *
 
     
 region_condition = {
@@ -45,55 +46,6 @@ region_condition = {
         3: [7]
     },
 }
-
-class PyRepModule(object):
-    def __init__(self, headless=False):
-        self.pr = PyRep()
-        self.pr.launch(headless=headless)
-        self.pr.start()
-
-        self.client = self.initialize_client()
-    
-    def initialize_client(self):
-        sock = socket.socket()
-        host = SocketType.pyrep.value["host"]
-        port = SocketType.pyrep.value["port"]
-        sock.connect((host, port))
-        print("==> Connected to PyRep server on {}:{}".format(host, port))
-        return sock
-
-    def import_primitive_part(self, part_name, part_info):
-        part_base = Dummy.create()
-        part_base.set_name(part_name + "_base")
-        # import each assembly points to scene
-        assembly_points = part_info["assembly_points"]
-        for a_p in assembly_points:
-            idx = a_p["id"]
-            radius = a_p["radius"] / 1000
-            depth = a_p["depth"]
-            position = a_p["pose"]["position"]
-            quaternion = a_p["pose"]["quaternion"]
-            direction = a_p["direction"]
-            assembly_point = Shape.create(PrimitiveShape.CYLINDER,
-                                          size=[radius*2, radius*2, depth],
-                                          respondable=False,
-                                          static=True,
-                                          )
-            pose = position + quaternion           
-            assembly_point.set_pose(pose)
-            assembly_point.set_name(part_name + "_asm_point_" + str(idx))
-            assembly_point.set_parent(part_base)
-
-    def close(self):
-        self.client.close()
-        self.pr.stop()
-        self.pr.shutdown()
-    
-    def step(self):
-        self.pr.step()
-    
-    def save_scene(self, path):
-        self.pr.export_scene(path)
 
     
 
@@ -198,16 +150,96 @@ def import_group_object_to_scene(obj_root, scene):
         elif "group" in obj_name:
             composed_obj_paths.append(obj_path)
 
+class PyRepModule(object):
+    def __init__(self, headless=False):
+        self.callback = {
+            PyRepRequestType.get_region: self.get_region,
+            PyRepRequestType.initialize_scene: self.initialize_scene
+        }
+        self.pr = PyRep()
+        self.pr.launch(headless=headless)
+        self.pr.start()
+        self.scene_th = threading.Thread(target=self.scene_step)
+        self.scene_th.start()
+        
+    def initialize_server(self):
+        print("Initialize PyRep Server")
+        host = SocketType.pyrep.value["host"]
+        port = SocketType.pyrep.value["port"]
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        self.server.bind((host, port))
+        self.server.listen(True)
+        self.host = host
+        self.port = port
+        try:
+            print("Waiting for PyRep client {}:{}".format(self.host, self.port))
+            self.connected_client, addr = self.server.accept()
+            print("Connected to {}".format(addr))
+        except:
+            print("PyRep Server Error")
+        finally:
+            self.server.close()
+
+    def get_callback(self, request):
+        return self.callback[request]
+
+    def get_region(self):
+        pass
+    
+    def initialize_scene(self):
+        pass
+
+    def import_primitive_part(self, part_name, part_info):
+        part_base = Dummy.create()
+        part_base.set_name(part_name + "_base")
+        # import each assembly points to scene
+        assembly_points = part_info["assembly_points"]
+        for a_p in assembly_points:
+            idx = a_p["id"]
+            radius = a_p["radius"] / 1000
+            depth = a_p["depth"]
+            position = a_p["pose"]["position"]
+            quaternion = a_p["pose"]["quaternion"]
+            direction = a_p["direction"]
+            assembly_point = Shape.create(PrimitiveShape.CYLINDER,
+                                          size=[radius*2, radius*2, depth],
+                                          respondable=False,
+                                          static=True,
+                                          )
+            pose = position + quaternion           
+            assembly_point.set_pose(pose)
+            assembly_point.set_name(part_name + "_asm_point_" + str(idx))
+            assembly_point.set_parent(part_base)
+    
+    def scene_step(self):
+        try:
+            while True:
+                self.pr.step()
+        except:
+            print("pyrep error")
+    
+    def save_scene(self, path):
+        self.pr.export_scene(path)
+
+    def close(self):
+        self.connected_client.close()
+        self.server.close()
+        self.pr.stop()
+        self.pr.shutdown()
+
 if __name__ == "__main__":
     pyrep_module = PyRepModule()
-    # part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
-    # primitive_group_info = load_yaml_to_dic("./assembly/STEFAN/group_info/group_info_0.yaml")
-
-    # # initialize each primitive group using part info
-    # for group_id in primitive_group_info.keys():
-    #     part_name = primitive_group_info[group_id]["part_name"]
-    #     info = part_info[part_name]
-    #     pyrep_module.import_primitive_part(part_name, info)
+    pyrep_module.initialize_server()
+    while True:
+        try:
+            request = recvall_pickle(pyrep_module.connected_client)
+            print("Get request to {}".format(request))
+            callback = pyrep_module.get_callback(request)
+            callback()
+        except:
+            break
+    pyrep_module.close()    
     
 
 

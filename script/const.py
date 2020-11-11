@@ -48,6 +48,10 @@ class PyRepRequestType():
 class FreeCADRequestType():
     initialize_cad_info = "initialize_cad_info"
     check_assembly_possibility = "check_assembly_possibility"
+    extract_group_obj = "extract_group_obj"
+
+class InstructionRequestType():
+    get_instruction_info = "get_instruction_info"
 
 
 class SocketType(Enum):
@@ -61,6 +65,12 @@ class SocketType(Enum):
         "port": 9293,
         "reqeust_type": FreeCADRequestType,
     }
+    instruction = {
+        "host": '127.0.0.1',
+        "port": 7777,
+        "reqeust_type": InstructionRequestType,
+    }
+    
 
 class SocketRequest:
     def __init__(self, request: str, data):

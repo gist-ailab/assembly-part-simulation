@@ -37,16 +37,20 @@ if __name__ == "__main__":
 
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
-    
-    asm_manager.simulate_instruction_step()
+
+    # initialize group info using part info
+    asm_manager.update_group_info()
 
     # assembly simulation
-    # while not asm_manager.is_end:
-    #     # get instruction info 
-    #     while not asm_manager.check_instruction_info(): 
-    #         time.sleep(10)
+    while not asm_manager.is_end:
+        # get instruction info 
+        asm_manager.get_instruction_info()
+        
+        # extract assembly info 
+        # asm_manager.extract_assembly_info()
 
-    #     # extract assembly info 
+        exit()
+
     #     asm_manager.extract_assembly_info()
 
     #     # search assembly sequence
