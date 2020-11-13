@@ -41,29 +41,27 @@ if __name__ == "__main__":
     # initialize group info using part info
     asm_manager.update_group_info()
 
+    # initialize pyrep scene
+    asm_manager.initialize_pyrep_scene()
+
     # assembly simulation
     while not asm_manager.is_end:
         # get instruction info 
         asm_manager.get_instruction_info()
         
         # extract assembly info 
-        # asm_manager.extract_assembly_info()
+        asm_manager.extract_assembly_info()
 
-        exit()
+        # search assembly sequence
+        asm_manager.search_assemble_sequences()
 
-    #     asm_manager.extract_assembly_info()
-
-    #     # search assembly sequence
-    #     asm_manager.search_assemble_sequences()
-
-    #     # assemble parts and calculate cost by distance taken during assembly
-    #     asm_manager.simulate_instruction_step()
+        # assemble parts and calculate cost by distance taken during assembly
+        asm_manager.simulate_instruction_step()
         
-    #     # 설명서에서 나오지 않은 추가적인 결합 체크
-    #     asm_manager.check_hidden_assembly()
+        #TODO 설명서에서 나오지 않은 추가적인 결합 체크
+        asm_manager.check_hidden_assembly()
 
-    #     # update group status
-    #     asm_manager.update_group_status()
-    #     asm_manager.step()
-    # create assembly sequence
+        asm_manager.step()
 
+        logger.info("SUCCESS!")
+        exit()

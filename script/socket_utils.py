@@ -8,7 +8,7 @@ import pickle_compat
 
 from .timeout import timeout
 
-@timeout(10)
+
 def recvall(sock, count):
     buf = b''
     while count:
@@ -17,7 +17,7 @@ def recvall(sock, count):
         buf += newbuf
         count -= len(newbuf)
     return buf
-@timeout(10)
+
 def recvall_pickle(sock):
     pickle_compat.patch()
     packed_length = recvall(sock, 8) 

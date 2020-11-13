@@ -1,0 +1,98 @@
+0:
+  composed_group:
+  - 0
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_bottom
+  status: []
+1:
+  composed_group:
+  - 1
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_long
+  - instance_id: 0
+    part_name: ikea_stefan_bracket
+  - instance_id: 1
+    part_name: ikea_stefan_bracket
+  status:
+  - method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 6
+        instance_id: 0
+        part_name: ikea_stefan_long
+      1:
+        assembly_point: 0
+        instance_id: 0
+        part_name: ikea_stefan_bracket
+  - method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 7
+        instance_id: 0
+        part_name: ikea_stefan_long
+      1:
+        assembly_point: 0
+        instance_id: 1
+        part_name: ikea_stefan_bracket
+2:
+  composed_group:
+  - 2
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_middle
+  status: []
+3:
+  composed_group:
+  - 3
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_short
+  - instance_id: 2
+    part_name: ikea_stefan_bracket
+  - instance_id: 3
+    part_name: ikea_stefan_bracket
+  status:
+  - method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 6
+        instance_id: 0
+        part_name: ikea_stefan_short
+      1:
+        assembly_point: 0
+        instance_id: 2
+        part_name: ikea_stefan_bracket
+  - method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 7
+        instance_id: 0
+        part_name: ikea_stefan_short
+      1:
+        assembly_point: 0
+        instance_id: 3
+        part_name: ikea_stefan_bracket
+4:
+  composed_group:
+  - 4
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_side_left
+  status: []
+5:
+  composed_group:
+  - 5
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_side_right
+  status: []

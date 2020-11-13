@@ -33,8 +33,10 @@ class InstructionModule():
     def get_instruction_info(self):
         print("ready to extract instruction info")
         sendall_pickle(self.connected_client, True)
-        group_info = recvall_pickle(self.connected_client)
-        
+        request = recvall_pickle(self.connected_client)
+        group_info = request["group_info"]
+        connector_info = request["connector_info"]
+
         instruction_info = load_yaml_to_dic("instruction/STEFAN/instruction_1.yaml")
         sendall_pickle(self.connected_client, instruction_info)
 

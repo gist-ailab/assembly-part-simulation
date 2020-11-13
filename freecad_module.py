@@ -19,6 +19,7 @@ import copy
 from os.path import join
 import socket
 from enum import Enum
+import threading
 
 from script.const import SocketType, FreeCADRequestType, PartType
 from script.fileApi import *
@@ -285,6 +286,9 @@ class AssemblyDocument(object):
     def reset(self):
         close_doc(self.doc)
         self.doc = open_doc(self.initial_path)
+
+    def close(self):
+        close_doc(self.doc.Name)
 
 #endregion
 
@@ -626,6 +630,10 @@ class FreeCADModule():
             FreeCADRequestType.check_assembly_possibility: self.check_assembly_possibility,
             FreeCADRequestType.extract_group_obj: self.extract_group_obj
         }
+        self.main_window = FreeCADGui.getMainWindow()
+        self.th = threading.Thread(target=self.binding)
+        self.th.start()
+
         # 조립에 사용하는 변수들
         self.part_info = None
         self.furniture_parts = []
@@ -635,6 +643,18 @@ class FreeCADModule():
         
     def get_callback(self, request):
         return self.callback[request]
+
+    def binding(self):
+        try:
+            while True:
+                self.main_window.update()
+        except Exception as e:
+            print("freecad server error {}".format(e))
+
+    def close(self):
+        self.main_window.close()
+        self.connected_client.close()
+        self.server.close()
 
     #region socket
     def initialize_server(self):
@@ -678,11 +698,11 @@ class FreeCADModule():
     def check_assembly_possibility(self):
         print("ready to check possibility")
         sendall_pickle(self.connected_client, True)
-        assembly_info = recvall_pickle(self.connected_client)
-        is_possible = self._check_assembly_info(assembly_info)
+        target_assembly_info = recvall_pickle(self.connected_client)
+        is_possible = self._check_assembly_possibility(target_assembly_info)
         sendall_pickle(self.connected_client, is_possible)
 
-    def _check_assembly_info(self, assembly_info):
+    def _check_assembly_possibility(self, target_assembly_info):
         """
         1. 현재 상태 만들기
             - unique_instance import
@@ -691,21 +711,27 @@ class FreeCADModule():
             - 차집합 이용 A 합치고, B-A 합침
         """
         self.assembly_doc = AssemblyDocument()
-        current_target = assembly_info["target"] # dict 
-        status = assembly_info["status"] # list
+        current_assembly_info = target_assembly_info["target"] 
+        status = target_assembly_info["status"] # list
+        
+        target_pair = current_assembly_info["target_pair"]
+        method = current_assembly_info["method"]
+        
         unique_instance = []
         # check unique instance part
-        for key in current_target.keys():
-            part_info = current_target[key]
+        for key in target_pair.keys(): # key is 0, 1
+            part_info = target_pair[key]
             part_name = part_info["part_name"]
             instance_id = part_info["instance_id"]
             if (part_name, instance_id) in unique_instance:
                 continue
             else:
                 unique_instance.append((part_name, instance_id))
-        for past_target in status:
-            for key in past_target.keys():
-                part_info = past_target[key]
+        for past_assembly_info in status:
+            past_pair = past_assembly_info["target_pair"]
+            past_method = past_assembly_info["method"]
+            for key in past_pair.keys(): # key is 0, 1
+                part_info = past_pair[key]
                 part_name = part_info["part_name"]
                 instance_id = part_info["instance_id"]
                 if (part_name, instance_id) in unique_instance:
@@ -720,23 +746,19 @@ class FreeCADModule():
             obj = self.assembly_doc.import_part(part_path)
             self.assembly_obj[(part_name, ins)] = obj
         # assemble current status
-        for past_pair in status:
-            _ = self._assemble_pair(past_pair)
-        rand = format(np.random.rand(),".4f")
-        doc_path = "./test_before" + rand + ".FCStd"
-        self.assembly_doc.save_doc(doc_path)
-        self._assemble_pair(current_target)
-        doc_path = "./test_after" + rand + ".FCStd"
-        self.assembly_doc.save_doc(doc_path)
-
-        #TODO: is_possible is not bool
-        return True
+        for past_assembly_info in status:
+            _ = self._assemble_pair(past_assembly_info)
+        is_possible = self._assemble_pair(current_assembly_info)
+        
+        return is_possible
     
-    def _assemble_pair(self, target):
+    def _assemble_pair(self, pair_assembly_info):
         print("start assemble pair")
         for obj_key in self.assembly_obj.keys():
             obj = self.assembly_obj[obj_key]
             obj.fixedPosition = False
+        target = pair_assembly_info["target_pair"]
+        method = pair_assembly_info["method"]
         # assemble target
         part_info_0 = target[0]
         part_name_0 = part_info_0["part_name"]
@@ -754,9 +776,10 @@ class FreeCADModule():
         edge_1 = point_1["edge_index"][0]
         obj_1 = self.assembly_obj[(part_name_1, instance_id_1)]
 
-        direction = point_0["edge_index"][1] == point_1["edge_index"][1]
+        direction = method["direction"]
+        offset = method["offset"]
 
-        is_possible = self.assembly_doc.assemble(obj_0, obj_1, [edge_0, edge_1], direction, 0)
+        is_possible = self.assembly_doc.assemble(obj_0, obj_1, [edge_0, edge_1], direction, offset)
         
         if not is_possible == False: # None == True
             return True
@@ -789,8 +812,8 @@ class FreeCADModule():
             self.assembly_obj[(part_name, ins)] = obj
         
         # assemble to current state
-        for assembly_pair in status:
-            self._assemble_pair(assembly_pair)
+        for assembly_info in status:
+            self._assemble_pair(assembly_info)
         base_obj = []
         for obj_key in self.assembly_obj.keys():
             part_name = obj_key[0]
@@ -802,10 +825,7 @@ class FreeCADModule():
         
         return True
 
-
-    def close(self):
-        self.connected_client.close()
-        self.server.close()
+    #endregion
 
     def assembly_pair_test(self):
         assembly_doc = AssemblyDocument()

@@ -10,62 +10,11 @@ from script.fileApi import *
 from script.const import SocketType, PyRepRequestType
 from script.socket_utils import *
 
-    
-region_condition = {
-    "ikea_stefan_bottom": {
-        
-    },
-    "ikea_stefan_long": {
-        0: [0,1,2],
-        1: [3,4,5],
-        2: [6],
-        3: [7]
-    },
-    "ikea_stefan_middle": {
-        0: [0, 1, 2],
-        1: [3, 4, 5],
-        2: [6],
-        3: [7]
-    },
-    "ikea_stefan_short": {
-        0: [0,1,2],
-        1: [3,4,5],
-        2: [6],
-        3: [7]
-    },
-    "ikea_stefan_side_left": {
-        0: [0,1,2],
-        1: [4,5,6],
-        2: [3,8,9],
-        3: [7]
-    },
-    "ikea_stefan_side_right": {
-        0: [0,1,2],
-        1: [4,5,6],
-        2: [3,8,9],
-        3: [7]
-    },
-}
 
-    
-
-class GroupObject(object):
-    def __init__(self, group_info):
-        self.group_id = group_info["id"]
-        self.obj_root = group_info["obj_root"]
-        self.part_name = group_info["part_name"]
-        self.import_object_to_scene()
-
-    def import_object_to_scene(self):
-        obj_list = get_file_list(self.obj_root)
-        for obj_path in obj_list:
-            obj_name, ext = get_file_name(obj_path)
-            if not ext == ".obj":
-                continue
-            if obj_name == "base":
-                self.base_obj = ObjObject.create_object(obj_path)
-            elif "group" in obj_name:
-                composed_obj_paths.append(obj_path)
+class GroupObj():
+    def __init__(self, base_obj, composed_parts):
+        self.base_obj = base_obj
+        self.composed_parts = composed_parts
 
 class ObjObject():
     def __init__(self, obj: Shape, frame: Dummy):
@@ -73,14 +22,14 @@ class ObjObject():
         self.frame = frame
         
     @staticmethod
-    def create_object(obj_path, scaling_factor=1):
+    def create_object(obj_path, scaling_factor=0.001):
         obj_name, ext = get_file_name(obj_path)
         if not ext == ".obj":
             print("[ERROR] please check obj file {}".format(obj_path))
             exit()
         obj = Shape.import_mesh(obj_path, scaling_factor=scaling_factor)
-        obj_base = Dummy.create()
-        obj_base.set_parent(obj)
+        frame = Dummy.create()
+        frame.set_parent(obj)
 
         return ObjObject(obj, frame)
 
@@ -98,7 +47,6 @@ class ObjObject():
         self.frame.set_pose(pose, relative_to=relative_to)
         self.shape.set_parent(None)
         self.frame.set_parent(self.shape)
-        
     
     #endregion
 
@@ -132,24 +80,18 @@ class ObjObject():
         return self.shape.check_collision(obj)    
 
     #endregion
+    
+    def set_parent(self, parent):
+        self.shape.set_parent(parent)
+
+    def set_name(self, name):
+        self.shape.set_name(name)
+        self.frame.set_name("{}_frame".format(name))
+
     def remove(self):
         self.shape.remove()
         self.frame.remove()
     
-def import_group_object_to_scene(obj_root, scene):
-    # decompose base and each parts
-    obj_list = get_file_list(obj_root)
-    base_obj_path = ""
-    composed_obj_paths = []
-    for obj_path in obj_list:
-        obj_name, ext = get_file_name(obj_path)
-        if not ext == ".obj":
-            continue
-        if obj_name == "base":
-            base_obj_path = obj_path
-        elif "group" in obj_name:
-            composed_obj_paths.append(obj_path)
-
 class PyRepModule(object):
     def __init__(self, headless=False):
         self.callback = {
@@ -159,9 +101,15 @@ class PyRepModule(object):
         self.pr = PyRep()
         self.pr.launch(headless=headless)
         self.pr.start()
-        self.scene_th = threading.Thread(target=self.scene_step)
+        self.scene_th = threading.Thread(target=self.scene_binding)
         self.scene_th.start()
-        
+
+        # used to visualize and assembly
+        self.part_info = None
+        self.part_bases = {}
+        self.group_info = None
+        self.group_obj = {}
+
     def initialize_server(self):
         print("Initialize PyRep Server")
         host = SocketType.pyrep.value["host"]
@@ -184,35 +132,7 @@ class PyRepModule(object):
     def get_callback(self, request):
         return self.callback[request]
 
-    def get_region(self):
-        pass
-    
-    def initialize_scene(self):
-        pass
-
-    def import_primitive_part(self, part_name, part_info):
-        part_base = Dummy.create()
-        part_base.set_name(part_name + "_base")
-        # import each assembly points to scene
-        assembly_points = part_info["assembly_points"]
-        for a_p in assembly_points:
-            idx = a_p["id"]
-            radius = a_p["radius"] / 1000
-            depth = a_p["depth"]
-            position = a_p["pose"]["position"]
-            quaternion = a_p["pose"]["quaternion"]
-            direction = a_p["direction"]
-            assembly_point = Shape.create(PrimitiveShape.CYLINDER,
-                                          size=[radius*2, radius*2, depth],
-                                          respondable=False,
-                                          static=True,
-                                          )
-            pose = position + quaternion           
-            assembly_point.set_pose(pose)
-            assembly_point.set_name(part_name + "_asm_point_" + str(idx))
-            assembly_point.set_parent(part_base)
-    
-    def scene_step(self):
+    def scene_binding(self):
         try:
             while True:
                 self.pr.step()
@@ -228,6 +148,81 @@ class PyRepModule(object):
         self.pr.stop()
         self.pr.shutdown()
 
+
+    #region socket function
+    def get_region(self):
+        pass
+    
+    def initialize_scene(self):
+        print("ready to initialize scene")
+        sendall_pickle(self.connected_client, True)
+        request = recvall_pickle(self.connected_client)
+        self.part_info = request["part_info"]
+        self.group_info = request["group_info"]
+        print("...initializing pyrep scene")
+        for part_name in self.part_info.keys():
+            self._import_part_info(part_name)
+        for group_id in self.group_info.keys():
+            self._import_group_obj(group_id)
+        print("End to initialize pyrep scene")
+        sendall_pickle(self.connected_client, True)
+
+    def _import_part_info(self, part_name):
+        assert self.part_info
+        part_base = Dummy.create()
+        part_base.set_name(part_name + "_base")
+        # import each assembly points to scene
+        assembly_points = self.part_info[part_name]["assembly_points"]
+        for idx in assembly_points.keys():
+            ap = assembly_points[idx]
+            radius = ap["radius"] / 1000
+            depth = ap["depth"]
+            position = ap["pose"]["position"]
+            quaternion = ap["pose"]["quaternion"]
+            direction = ap["direction"]
+            assembly_point = Shape.create(PrimitiveShape.SPHERE,
+                                          size=[radius]*3,
+                                          respondable=False,
+                                          static=True,
+                                          )
+            pose = position + quaternion         
+            assembly_point.set_pose(pose)
+            assembly_point.set_name(part_name + "_asm_point_" + str(idx))
+            assembly_point.set_parent(part_base)
+        self.part_bases[part_name] = part_base
+    
+    def _import_group_obj(self, group_id):
+        assert self.group_info
+        group_info = self.group_info[group_id]
+        obj_root = group_info["obj_root"]
+        file_list = get_file_list(obj_root)
+
+        base_obj = None
+        composed_parts = {}
+        count = 0
+        for file_path in file_list:
+            obj_name, ext = get_file_name(file_path)
+            if not ext == ".obj":
+                continue
+
+            if obj_name == "base": # import base object
+                base_obj = ObjObject.create_object(file_path)
+                base_obj.set_name("group_{}".format(group_id))
+            else:
+                part_name = obj_name
+                obj = ObjObject.create_object(file_path)
+                obj.set_name("group_{}_composed_part_{}".format(group_id, count))
+                count += 1
+                composed_parts[part_name] = obj
+        assert base_obj, "No base object"
+        for part_name in composed_parts.keys():
+            obj = composed_parts[part_name]
+            obj.set_parent(base_obj.shape)
+        self.group_obj[group_id] = GroupObj(base_obj, composed_parts)
+                
+    #endregion
+    
+    
 if __name__ == "__main__":
     pyrep_module = PyRepModule()
     pyrep_module.initialize_server()
@@ -237,7 +232,8 @@ if __name__ == "__main__":
             print("Get request to {}".format(request))
             callback = pyrep_module.get_callback(request)
             callback()
-        except:
+        except Exception as e:
+            print("Error occur {}".format(e))
             break
     pyrep_module.close()    
     

@@ -75,9 +75,22 @@ ikea_stefan_long: # part name
     used_assembly_points: # 조립 후보 추출 시 사용(사용된 포인트는 후보 제외)
       - 0
       - 2
-    # group_id: 0
+    group_id: None / 1 
 ```
 
+
+
+# connector_info.yaml
+```yaml
+0: 
+  part_name: ikea_stefan_bolt_side
+1:
+  part_name: ikea_stefan_bracket
+2:
+  part_name: ikea_stefan_pin
+3:
+  part_name: pan_head_screw_iso(4ea)
+```
 # group_status.yaml
 ```yaml
 # 그룹 별 상태
@@ -85,6 +98,8 @@ ikea_stefan_long: # part name
   composed_part:
   - instance_id: 0
     part_name: ikea_stefan_bottom
+  composed_group:
+  - 0
   status: []
 0:
   composed_part:
@@ -99,6 +114,8 @@ ikea_stefan_long: # part name
       assembly_point:
   - 0:
     1:    
+  composed_group:
+  - 0
 1:
 2:
 ```
@@ -115,15 +132,25 @@ ikea_stefan_long: # part name
 ```
 # group_obj file
 ```shell
-assembly/STEFAN//group_obj
-├── group_0 # group + str(group_id)
-│   └── base.obj # group .obj file
-...
-├── group_n
-│   ├── base.obj # group .obj file(composed by primitive group 0, 1, 2)
-│   ├── group_0.obj # composed part
-│   ├── group_1.obj # composed part
-│   └── group_2.obj # composed part
+assembly/STEFAN/group_obj/ # group_obj folder
+├── group_0 # group root
+│   ├── base.obj # group obj
+│   └── ikea_stefan_bottom.obj # composed part obj(matching with part info)
+├── group_1
+│   ├── base.obj
+│   └── ikea_stefan_long.obj
+├── group_2
+│   ├── base.obj
+│   └── ikea_stefan_middle.obj
+├── group_3
+│   ├── base.obj
+│   └── ikea_stefan_short.obj
+├── group_4
+│   ├── base.obj
+│   └── ikea_stefan_side_left.obj
+└── group_5
+    ├── base.obj
+    └── ikea_stefan_side_right.obj
 ...
 ```
 # Instruction_info.yaml
@@ -170,23 +197,35 @@ Connection: # connection info
     - ...
 ```
 
+
+
+# pair assembly info
+```python
+pair_assembly_info = {
+  "target_pair":{
+    0:{
+        "part_name": part_name,
+        "instance_id": instance_id,
+        "assembly_point": assembly_point,
+    },
+    1:{
+        "part_name": part_name,
+        "instance_id": instance_id,
+        "assembly_point": assembly_point
+    }
+  },
+  "method": {
+    "direction": direction,
+    "offset": offset
+  }
+} 
+```
 # assembly_info
 ```python
 # used when check assembly possibility => FreeCAD Module
 assembly_info = {
-  "target":{
-      0: {
-          "part_name": part_0,  # part info의 key(=part name)
-          "instance_id": instance_id_0,
-          "assembly_point": point_idx_0,
-      },
-      1: {
-          "part_name": part_1,
-          "instance_id": instance_id_1,
-          "assembly_point": point_idx_1,
-      }
-  },
-  "status": status
+  "target": target_pair_assembly_info, # target pair assembly info
+  "status": status # current status (list of pair assembly info)
 }
 ```
 
