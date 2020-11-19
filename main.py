@@ -37,16 +37,18 @@ if __name__ == "__main__":
     #endregion
 
     #region simulate assembly
-    # get instruction info 
+    # get instruction info
     asm_manager.get_instruction_info()
         
     # assembly simulation
     while not asm_manager.is_end: # end sign from instruction_info
         # extract assembly info 
         asm_manager.extract_assembly_info()
+        
+        asm_manager.test_search_sequence()
 
         # search assembly sequence
-        asm_manager.search_assemble_sequences()
+        # asm_manager.search_assemble_sequences()
 
         # assemble parts and calculate cost by distance taken during assembly
         asm_manager.simulate_instruction_step()
@@ -55,7 +57,11 @@ if __name__ == "__main__":
         asm_manager.check_hidden_assembly()
 
         asm_manager.step()
+
+        asm_manager.get_instruction_info()
     #endregion
 
     logger.info("SUCCESS!")
+    exit()
+        
 

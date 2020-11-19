@@ -12,36 +12,36 @@
   composed_part:
   - instance_id: 0
     part_name: ikea_stefan_long
-  - instance_id: 0
-    part_name: ikea_stefan_bracket
   - instance_id: 1
+    part_name: ikea_stefan_bracket
+  - instance_id: 0
     part_name: ikea_stefan_bracket
   is_exist: true
   status:
-  - method:
-      direction: aligned
-      offset: 0
-    target_pair:
-      0:
-        assembly_point: 6
-        instance_id: 0
-        part_name: ikea_stefan_long
-      1:
-        assembly_point: 0
-        instance_id: 0
-        part_name: ikea_stefan_bracket
   - method:
       direction: opposed
       offset: 0
     target_pair:
       0:
-        assembly_point: 7
-        instance_id: 0
-        part_name: ikea_stefan_long
-      1:
         assembly_point: 0
         instance_id: 1
         part_name: ikea_stefan_bracket
+      1:
+        assembly_point: 7
+        instance_id: 0
+        part_name: ikea_stefan_long
+  - method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        instance_id: 0
+        part_name: ikea_stefan_bracket
+      1:
+        assembly_point: 6
+        instance_id: 0
+        part_name: ikea_stefan_long
 2:
   composed_group:
   - 2
@@ -62,86 +62,86 @@
     part_name: ikea_stefan_bracket
   - instance_id: 0
     part_name: ikea_stefan_pin
-  - instance_id: 1
-    part_name: ikea_stefan_pin
   - instance_id: 2
+    part_name: ikea_stefan_pin
+  - instance_id: 1
     part_name: ikea_stefan_pin
   - instance_id: 3
     part_name: ikea_stefan_pin
   is_exist: false
   status:
   - method:
-      direction: aligned
-      offset: 0
-    target_pair:
-      0:
-        assembly_point: 6
-        instance_id: 0
-        part_name: ikea_stefan_short
-      1:
-        assembly_point: 0
-        instance_id: 2
-        part_name: ikea_stefan_bracket
-  - method:
       direction: opposed
       offset: 0
     target_pair:
       0:
+        assembly_point: 0
+        instance_id: 2
+        part_name: ikea_stefan_bracket
+      1:
         assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_short
-      1:
+  - method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
         assembly_point: 0
         instance_id: 3
         part_name: ikea_stefan_bracket
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 0
+      1:
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_short
-      1:
+  - method:
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
         assembly_point: 0
         instance_id: 0
         part_name: ikea_stefan_pin
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 2
-        instance_id: 0
-        part_name: ikea_stefan_short
       1:
         assembly_point: 0
-        instance_id: 1
-        part_name: ikea_stefan_pin
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 3
         instance_id: 0
         part_name: ikea_stefan_short
-      1:
+  - method:
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
         assembly_point: 0
         instance_id: 2
         part_name: ikea_stefan_pin
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 5
+      1:
+        assembly_point: 2
         instance_id: 0
         part_name: ikea_stefan_short
+  - method:
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 0
+        instance_id: 1
+        part_name: ikea_stefan_pin
       1:
+        assembly_point: 3
+        instance_id: 0
+        part_name: ikea_stefan_short
+  - method:
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
         assembly_point: 0
         instance_id: 3
         part_name: ikea_stefan_pin
+      1:
+        assembly_point: 5
+        instance_id: 0
+        part_name: ikea_stefan_short
 4:
   composed_group:
   - 4
@@ -160,11 +160,9 @@
   status: []
 6:
   composed_group:
-  - 4
   - 3
+  - 4
   composed_part:
-  - instance_id: 0
-    part_name: ikea_stefan_side_left
   - instance_id: 0
     part_name: ikea_stefan_short
   - instance_id: 2
@@ -173,107 +171,109 @@
     part_name: ikea_stefan_bracket
   - instance_id: 0
     part_name: ikea_stefan_pin
-  - instance_id: 1
-    part_name: ikea_stefan_pin
   - instance_id: 2
+    part_name: ikea_stefan_pin
+  - instance_id: 1
     part_name: ikea_stefan_pin
   - instance_id: 3
     part_name: ikea_stefan_pin
+  - instance_id: 0
+    part_name: ikea_stefan_side_left
   is_exist: true
   status:
-  - method:
-      direction: aligned
-      offset: 0
-    target_pair:
-      0:
-        assembly_point: 6
-        instance_id: 0
-        part_name: ikea_stefan_short
-      1:
-        assembly_point: 0
-        instance_id: 2
-        part_name: ikea_stefan_bracket
   - method:
       direction: opposed
       offset: 0
     target_pair:
       0:
+        assembly_point: 0
+        instance_id: 2
+        part_name: ikea_stefan_bracket
+      1:
         assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_short
-      1:
+  - method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
         assembly_point: 0
         instance_id: 3
         part_name: ikea_stefan_bracket
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 0
+      1:
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_short
-      1:
+  - method:
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
         assembly_point: 0
         instance_id: 0
         part_name: ikea_stefan_pin
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 2
-        instance_id: 0
-        part_name: ikea_stefan_short
       1:
         assembly_point: 0
-        instance_id: 1
-        part_name: ikea_stefan_pin
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 3
         instance_id: 0
         part_name: ikea_stefan_short
-      1:
+  - method:
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
         assembly_point: 0
         instance_id: 2
         part_name: ikea_stefan_pin
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 5
+      1:
+        assembly_point: 2
         instance_id: 0
         part_name: ikea_stefan_short
+  - method:
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 0
+        instance_id: 1
+        part_name: ikea_stefan_pin
       1:
+        assembly_point: 3
+        instance_id: 0
+        part_name: ikea_stefan_short
+  - method:
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
         assembly_point: 0
         instance_id: 3
         part_name: ikea_stefan_pin
+      1:
+        assembly_point: 5
+        instance_id: 0
+        part_name: ikea_stefan_short
   - method:
       direction: aligned
-      offset: -15
+      offset: 15
     target_pair:
       0:
-        assembly_point: 1
-        instance_id: 0
-        part_name: ikea_stefan_side_left
-      1:
-        assembly_point: 1
-        instance_id: 0
-        part_name: ikea_stefan_pin
-  - method:
-      direction: aligned
-      offset: -15
-    target_pair:
-      0:
-        assembly_point: 2
-        instance_id: 0
-        part_name: ikea_stefan_side_left
-      1:
         assembly_point: 1
         instance_id: 1
         part_name: ikea_stefan_pin
+      1:
+        assembly_point: 8
+        instance_id: 0
+        part_name: ikea_stefan_side_left
+  - method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        instance_id: 3
+        part_name: ikea_stefan_pin
+      1:
+        assembly_point: 9
+        instance_id: 0
+        part_name: ikea_stefan_side_left

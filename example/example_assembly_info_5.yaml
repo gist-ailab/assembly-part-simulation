@@ -1,0 +1,1933 @@
+assembly:
+  0:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 23
+  1:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 24
+  2:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 25
+  3:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  4:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  5:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  6:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 11
+  7:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 12
+  8:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 18
+  9:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 19
+  10:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  11:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  12:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  13:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 11
+  14:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 12
+  15:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 18
+  16:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 19
+  17:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 23
+  18:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 24
+  19:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 25
+  20:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 23
+  21:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 24
+  22:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 25
+  23:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  24:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  25:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  26:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 11
+  27:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 12
+  28:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 18
+  29:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 19
+  30:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  31:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  32:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  33:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 11
+  34:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 12
+  35:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 18
+  36:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 19
+  37:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  38:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  39:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  40:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 11
+  41:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 12
+  42:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 18
+  43:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 19
+  44:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  45:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  46:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  47:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 11
+  48:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 12
+  49:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 18
+  50:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 19
+  51:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  52:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  53:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  54:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 11
+  55:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 12
+  56:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 18
+  57:
+    method:
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 19
+  58:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 5
+      1:
+        assembly_point: 1
+        part_id: 0
+  59:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 5
+      1:
+        assembly_point: 2
+        part_id: 0
+  60:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 5
+      1:
+        assembly_point: 5
+        part_id: 0
+  61:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 5
+      1:
+        assembly_point: 6
+        part_id: 0
+  62:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 5
+      1:
+        assembly_point: 7
+        part_id: 0
+  63:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 5
+      1:
+        assembly_point: 8
+        part_id: 0
+  64:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 5
+      1:
+        assembly_point: 9
+        part_id: 0
+  65:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 6
+      1:
+        assembly_point: 1
+        part_id: 0
+  66:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 6
+      1:
+        assembly_point: 2
+        part_id: 0
+  67:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 6
+      1:
+        assembly_point: 5
+        part_id: 0
+  68:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 6
+      1:
+        assembly_point: 6
+        part_id: 0
+  69:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 6
+      1:
+        assembly_point: 7
+        part_id: 0
+  70:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 6
+      1:
+        assembly_point: 8
+        part_id: 0
+  71:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 6
+      1:
+        assembly_point: 9
+        part_id: 0
+  72:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 7
+      1:
+        assembly_point: 1
+        part_id: 0
+  73:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 7
+      1:
+        assembly_point: 2
+        part_id: 0
+  74:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 7
+      1:
+        assembly_point: 5
+        part_id: 0
+  75:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 7
+      1:
+        assembly_point: 6
+        part_id: 0
+  76:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 7
+      1:
+        assembly_point: 7
+        part_id: 0
+  77:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 7
+      1:
+        assembly_point: 8
+        part_id: 0
+  78:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 7
+      1:
+        assembly_point: 9
+        part_id: 0
+  79:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 11
+      1:
+        assembly_point: 1
+        part_id: 0
+  80:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 11
+      1:
+        assembly_point: 2
+        part_id: 0
+  81:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 11
+      1:
+        assembly_point: 5
+        part_id: 0
+  82:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 11
+      1:
+        assembly_point: 6
+        part_id: 0
+  83:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 11
+      1:
+        assembly_point: 7
+        part_id: 0
+  84:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 11
+      1:
+        assembly_point: 8
+        part_id: 0
+  85:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 11
+      1:
+        assembly_point: 9
+        part_id: 0
+  86:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 12
+      1:
+        assembly_point: 1
+        part_id: 0
+  87:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 12
+      1:
+        assembly_point: 2
+        part_id: 0
+  88:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 12
+      1:
+        assembly_point: 5
+        part_id: 0
+  89:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 12
+      1:
+        assembly_point: 6
+        part_id: 0
+  90:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 12
+      1:
+        assembly_point: 7
+        part_id: 0
+  91:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 12
+      1:
+        assembly_point: 8
+        part_id: 0
+  92:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 12
+      1:
+        assembly_point: 9
+        part_id: 0
+  93:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 18
+      1:
+        assembly_point: 1
+        part_id: 0
+  94:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 18
+      1:
+        assembly_point: 2
+        part_id: 0
+  95:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 18
+      1:
+        assembly_point: 5
+        part_id: 0
+  96:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 18
+      1:
+        assembly_point: 6
+        part_id: 0
+  97:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 18
+      1:
+        assembly_point: 7
+        part_id: 0
+  98:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 18
+      1:
+        assembly_point: 8
+        part_id: 0
+  99:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 18
+      1:
+        assembly_point: 9
+        part_id: 0
+  100:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 19
+      1:
+        assembly_point: 1
+        part_id: 0
+  101:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 19
+      1:
+        assembly_point: 2
+        part_id: 0
+  102:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 19
+      1:
+        assembly_point: 5
+        part_id: 0
+  103:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 19
+      1:
+        assembly_point: 6
+        part_id: 0
+  104:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 19
+      1:
+        assembly_point: 7
+        part_id: 0
+  105:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 19
+      1:
+        assembly_point: 8
+        part_id: 0
+  106:
+    method:
+      direction: aligned
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 19
+      1:
+        assembly_point: 9
+        part_id: 0
+  107:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 23
+  108:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 24
+  109:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 25
+  110:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 23
+  111:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 24
+  112:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 25
+  113:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 23
+  114:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 24
+  115:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 22
+      1:
+        assembly_point: 0
+        part_id: 25
+  116:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 23
+      1:
+        assembly_point: 0
+        part_id: 22
+  117:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 23
+      1:
+        assembly_point: 3
+        part_id: 22
+  118:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 23
+      1:
+        assembly_point: 4
+        part_id: 22
+  119:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 23
+      1:
+        assembly_point: 0
+        part_id: 0
+  120:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 23
+      1:
+        assembly_point: 3
+        part_id: 0
+  121:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 23
+      1:
+        assembly_point: 4
+        part_id: 0
+  122:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 24
+      1:
+        assembly_point: 0
+        part_id: 22
+  123:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 24
+      1:
+        assembly_point: 3
+        part_id: 22
+  124:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 24
+      1:
+        assembly_point: 4
+        part_id: 22
+  125:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 24
+      1:
+        assembly_point: 0
+        part_id: 0
+  126:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 24
+      1:
+        assembly_point: 3
+        part_id: 0
+  127:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 24
+      1:
+        assembly_point: 4
+        part_id: 0
+  128:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 25
+      1:
+        assembly_point: 0
+        part_id: 22
+  129:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 25
+      1:
+        assembly_point: 3
+        part_id: 22
+  130:
+    method:
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 25
+      1:
+        assembly_point: 4
+        part_id: 22
+  131:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 25
+      1:
+        assembly_point: 0
+        part_id: 0
+  132:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 25
+      1:
+        assembly_point: 3
+        part_id: 0
+  133:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 25
+      1:
+        assembly_point: 4
+        part_id: 0
+assembly_sequence: []
+group_info:
+  5:
+    pose:
+      X: -1
+      Y: 1
+      Z: 1
+      pitch: 0
+      roll: 0
+      yaw: 0
+    status:
+      composed_group:
+      - 5
+      composed_part:
+      - instance_id: 0
+        part_name: ikea_stefan_side_right
+      is_exist: true
+      status: []
+  8:
+    pose:
+      X: -1
+      Y: 1
+      Z: 1
+      pitch: 0
+      roll: 0
+      yaw: 0
+    status:
+      composed_group:
+      - 2
+      - 1
+      - 3
+      - 4
+      composed_part:
+      - instance_id: 0
+        part_name: ikea_stefan_middle
+      - instance_id: 13
+        part_name: ikea_stefan_pin
+      - instance_id: 10
+        part_name: ikea_stefan_pin
+      - instance_id: 11
+        part_name: ikea_stefan_pin
+      - instance_id: 8
+        part_name: ikea_stefan_pin
+      - instance_id: 9
+        part_name: ikea_stefan_pin
+      - instance_id: 12
+        part_name: ikea_stefan_pin
+      - instance_id: 0
+        part_name: ikea_stefan_long
+      - instance_id: 1
+        part_name: ikea_stefan_bracket
+      - instance_id: 0
+        part_name: ikea_stefan_bracket
+      - instance_id: 4
+        part_name: ikea_stefan_pin
+      - instance_id: 5
+        part_name: ikea_stefan_pin
+      - instance_id: 7
+        part_name: ikea_stefan_pin
+      - instance_id: 6
+        part_name: ikea_stefan_pin
+      - instance_id: 0
+        part_name: ikea_stefan_short
+      - instance_id: 2
+        part_name: ikea_stefan_bracket
+      - instance_id: 3
+        part_name: ikea_stefan_bracket
+      - instance_id: 0
+        part_name: ikea_stefan_pin
+      - instance_id: 2
+        part_name: ikea_stefan_pin
+      - instance_id: 1
+        part_name: ikea_stefan_pin
+      - instance_id: 3
+        part_name: ikea_stefan_pin
+      - instance_id: 0
+        part_name: ikea_stefan_side_left
+      is_exist: true
+      status:
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 13
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 1
+            instance_id: 0
+            part_name: ikea_stefan_middle
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 10
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 0
+            instance_id: 0
+            part_name: ikea_stefan_middle
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 11
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 6
+            instance_id: 0
+            part_name: ikea_stefan_middle
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 8
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 4
+            instance_id: 0
+            part_name: ikea_stefan_middle
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 9
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 3
+            instance_id: 0
+            part_name: ikea_stefan_middle
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 12
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 7
+            instance_id: 0
+            part_name: ikea_stefan_middle
+      - method:
+          direction: opposed
+          offset: 0
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 1
+            part_name: ikea_stefan_bracket
+          1:
+            assembly_point: 7
+            instance_id: 0
+            part_name: ikea_stefan_long
+      - method:
+          direction: aligned
+          offset: 0
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 0
+            part_name: ikea_stefan_bracket
+          1:
+            assembly_point: 6
+            instance_id: 0
+            part_name: ikea_stefan_long
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 4
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 5
+            instance_id: 0
+            part_name: ikea_stefan_long
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 5
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 3
+            instance_id: 0
+            part_name: ikea_stefan_long
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 7
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 2
+            instance_id: 0
+            part_name: ikea_stefan_long
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 6
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 0
+            instance_id: 0
+            part_name: ikea_stefan_long
+      - method:
+          direction: opposed
+          offset: 0
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 2
+            part_name: ikea_stefan_bracket
+          1:
+            assembly_point: 7
+            instance_id: 0
+            part_name: ikea_stefan_short
+      - method:
+          direction: aligned
+          offset: 0
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 3
+            part_name: ikea_stefan_bracket
+          1:
+            assembly_point: 6
+            instance_id: 0
+            part_name: ikea_stefan_short
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 0
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 0
+            instance_id: 0
+            part_name: ikea_stefan_short
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 2
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 2
+            instance_id: 0
+            part_name: ikea_stefan_short
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 1
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 3
+            instance_id: 0
+            part_name: ikea_stefan_short
+      - method:
+          direction: opposed
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 0
+            instance_id: 3
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 5
+            instance_id: 0
+            part_name: ikea_stefan_short
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 1
+            instance_id: 1
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 8
+            instance_id: 0
+            part_name: ikea_stefan_side_left
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 1
+            instance_id: 3
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 9
+            instance_id: 0
+            part_name: ikea_stefan_side_left
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 1
+            instance_id: 7
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 2
+            instance_id: 0
+            part_name: ikea_stefan_side_left
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 1
+            instance_id: 6
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 1
+            instance_id: 0
+            part_name: ikea_stefan_side_left
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 1
+            instance_id: 13
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 5
+            instance_id: 0
+            part_name: ikea_stefan_side_left
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 1
+            instance_id: 10
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 6
+            instance_id: 0
+            part_name: ikea_stefan_side_left
+      - method:
+          direction: aligned
+          offset: 15
+        target_pair:
+          0:
+            assembly_point: 1
+            instance_id: 11
+            part_name: ikea_stefan_pin
+          1:
+            assembly_point: 7
+            instance_id: 0
+            part_name: ikea_stefan_side_left
+part:
+  0:
+    instance_id: 0
+    part_name: ikea_stefan_side_right
+  1:
+    instance_id: 0
+    part_name: ikea_stefan_middle
+  2:
+    instance_id: 13
+    part_name: ikea_stefan_pin
+  3:
+    instance_id: 10
+    part_name: ikea_stefan_pin
+  4:
+    instance_id: 11
+    part_name: ikea_stefan_pin
+  5:
+    instance_id: 8
+    part_name: ikea_stefan_pin
+  6:
+    instance_id: 9
+    part_name: ikea_stefan_pin
+  7:
+    instance_id: 12
+    part_name: ikea_stefan_pin
+  8:
+    instance_id: 0
+    part_name: ikea_stefan_long
+  9:
+    instance_id: 1
+    part_name: ikea_stefan_bracket
+  10:
+    instance_id: 0
+    part_name: ikea_stefan_bracket
+  11:
+    instance_id: 4
+    part_name: ikea_stefan_pin
+  12:
+    instance_id: 5
+    part_name: ikea_stefan_pin
+  13:
+    instance_id: 7
+    part_name: ikea_stefan_pin
+  14:
+    instance_id: 6
+    part_name: ikea_stefan_pin
+  15:
+    instance_id: 0
+    part_name: ikea_stefan_short
+  16:
+    instance_id: 2
+    part_name: ikea_stefan_bracket
+  17:
+    instance_id: 3
+    part_name: ikea_stefan_bracket
+  18:
+    instance_id: 0
+    part_name: ikea_stefan_pin
+  19:
+    instance_id: 2
+    part_name: ikea_stefan_pin
+  20:
+    instance_id: 1
+    part_name: ikea_stefan_pin
+  21:
+    instance_id: 3
+    part_name: ikea_stefan_pin
+  22:
+    instance_id: 0
+    part_name: ikea_stefan_side_left
+  23:
+    instance_id: 0
+    part_name: ikea_stefan_bolt_side
+  24:
+    instance_id: 1
+    part_name: ikea_stefan_bolt_side
+  25:
+    instance_id: 2
+    part_name: ikea_stefan_bolt_side

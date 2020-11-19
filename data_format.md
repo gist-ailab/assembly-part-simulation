@@ -1,4 +1,5 @@
-# part_info.yaml
+# Data extracted from cad file
+## part_info.yaml
 - extract from cad file
 - not refined => 매번 다시 뽑아도 됨
 ```yaml
@@ -30,7 +31,7 @@ ikea_stefan_long: # part name
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_long.STEP # step file path
   type: furniture_part # part type(connector / furniture)
 ```
-# assembly_pair.yaml
+## assembly_pair.yaml
 - part info 를 기반으로 생성된 결합 가능 쌍
 - part 의 결합 지점마다 가능한 모든 결합 쌍을 저장
 - 방향 및 offset 정보를 결합이 잘 될 수 있도록 수정한 상태(=> 저장된 파일을 불러서 사용)
@@ -63,7 +64,20 @@ ikea_stefan_bolt_side: # part name (matching with part_info)
     part_name: ikea_stefan_side_right
 ...
 ```
-# part_instance_status.yaml
+## connector_info.yaml
+```yaml
+0: 
+  part_name: ikea_stefan_bolt_side
+1:
+  part_name: ikea_stefan_bracket
+2:
+  part_name: ikea_stefan_pin
+3:
+  part_name: pan_head_screw_iso(4ea)
+```
+
+# Data for represent assembly state
+## part_instance_status.yaml
 - furniture / connector 파트의 인스턴스 정보
 - 가구 부품은 1개 씩 존재함
 - 미리 개수를 안다고 가정!
@@ -77,19 +91,7 @@ ikea_stefan_long: # part name
       - 2
     group_id: None / 1 
 ```
-
-# connector_info.yaml
-```yaml
-0: 
-  part_name: ikea_stefan_bolt_side
-1:
-  part_name: ikea_stefan_bracket
-2:
-  part_name: ikea_stefan_pin
-3:
-  part_name: pan_head_screw_iso(4ea)
-```
-# group_status.yaml
+## group_status.yaml
 ```yaml
 # 그룹 별 상태
 0:
@@ -117,7 +119,9 @@ ikea_stefan_long: # part name
 1:
 2:
 ```
-# group_info.yaml
+
+# Data for instruction and pyrep
+## group_info.yaml
 - 설명서에서 사용하는 "group"에 대한 현재 정보
 - 가구 부품만을 포함하는 obj 파일을 출력하여 설명서 분석에 제공
 - 원래는 group_id 에 따른 instance 를 따로 고려하려 했으나, 실제 미션에서 가구 부품이 최대 1개씩이기 때문에 그룹 instance를 고려하지 않아도 될거 같다.
@@ -128,7 +132,7 @@ ikea_stefan_long: # part name
   obj_file: assembly/STEFAN/group_obj/group_0/base.obj # group obj file path
   obj_root: assembly/STEFAN/group_obj/group_0 # group obj root folder
 ```
-# group_obj file
+## group_obj file
 ```shell
 assembly/STEFAN/group_obj/ # group_obj folder
 ├── group_0 # group root
@@ -151,7 +155,7 @@ assembly/STEFAN/group_obj/ # group_obj folder
     └── ikea_stefan_side_right.obj
 ...
 ```
-# Instruction_info.yaml
+## Instruction_info.yaml
 ```yaml
 sequence: 1 # instruction step
 file_name: stefan-chair__AA-21977-9_pub_1.png # instruction file
@@ -195,9 +199,10 @@ Connection: # connection info
     - ...
 ```
 
-
-
-# pair assembly info
+# Data for FreeCAD Assembly
+## pair assembly info
+  - 조립을 위한 기본 정보
+  - part instance pair 와 결합 포인트 쌍, 및 방법으로 구성됨
 ```python
 pair_assembly_info = {
   "target_pair":{
@@ -218,7 +223,10 @@ pair_assembly_info = {
   }
 } 
 ```
-# assembly_info
+## target_assembly_info
+  - 현재 타겟에 대한 조립 가능여부를 파악을 위해 필요한 정보
+  - 현재 상태를 나타내는 "pair assembly info" 리스트로 되어 있는 "status"
+  - 현재 타겟을 나타내는 "pair assembly info" 형태의 "target"
 ```python
 # used when check assembly possibility => FreeCAD Module
 assembly_info = {
@@ -227,3 +235,55 @@ assembly_info = {
 }
 ```
 
+# Data for real robot assembly
+```yaml
+part: # all part instance used in current step
+  0:
+    instance_id: 0
+    part_name: ikea_stefan_long
+  1:
+    instance_id: 0
+    part_name: ikea_stefan_short
+  2:
+    instance_id: 0
+    part_name: ikea_stefan_bracket
+  3:
+    instance_id: 1
+    part_name: ikea_stefan_bracket
+  4:
+    instance_id: 2
+    part_name: ikea_stefan_bracket
+  5:
+    instance_id: 3
+    part_name: ikea_stefan_bracket
+
+assembly: # all available pair in current step
+  0:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 2
+  1:
+    method:
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 3
+  ...
+assembly_sequence: # all available sequence(set) in current step
+- - 0
+  - 5
+  - 10
+  - 15
+```

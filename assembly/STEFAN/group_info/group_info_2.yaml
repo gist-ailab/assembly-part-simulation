@@ -19,13 +19,13 @@
 3:
   composed_group:
   - 3
-  is_exist: true
+  is_exist: false
   obj_file: ./assembly/STEFAN/group_obj/group_3/base.obj
   obj_root: ./assembly/STEFAN/group_obj/group_3
 4:
   composed_group:
   - 4
-  is_exist: true
+  is_exist: false
   obj_file: ./assembly/STEFAN/group_obj/group_4/base.obj
   obj_root: ./assembly/STEFAN/group_obj/group_4
 5:
@@ -34,3 +34,10 @@
   is_exist: true
   obj_file: ./assembly/STEFAN/group_obj/group_5/base.obj
   obj_root: ./assembly/STEFAN/group_obj/group_5
+6:
+  composed_group:
+  - 3
+  - 4
+  is_exist: true
+  obj_file: ./assembly/STEFAN/group_obj/group_6/base.obj
+  obj_root: ./assembly/STEFAN/group_obj/group_6

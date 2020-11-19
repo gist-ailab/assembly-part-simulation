@@ -1,5 +1,5 @@
 from enum import Enum, auto
-#------------------------------------------------------------------------------------
+
 class PartType(Enum):
     furniture = "furniture_part"
     connector = "connector_part"
@@ -9,15 +9,10 @@ class HoleType(Enum):
     insertion = "insertion"
     penetration = "penetration"
 
-class AssemblyType(Enum):
-    group_group = 0
-    group_connector_group = 1
-    group_connector = 2
-
-class GroupAssembly():
-    def __init__(self, assembly_type, assembly_parts):
-        self.assembly_type = assembly_type
-        self.assembly_parts = assembly_parts    
+class AssemblyType:
+    group_group = "group_group"
+    group_connector_group = "group_connector_group"
+    group_connector = "group_connector"
 
 class AssemblyPoint(object):
     def __init__(self, idx, hole_type, radius, edge_index, depth, direction, position, quaternion):
@@ -29,15 +24,6 @@ class AssemblyPoint(object):
         self.direction = direction
         self.position = position
         self.quaternion = quaternion
-
-class AssemblyPair(object):
-    def __init__(self, part1, part2, point1, point2, offset=0):
-        self.part_name1 = part1
-        self.part_name2 = part2
-        self.assembly_point1 = point1
-        self.assembly_point2 = point2
-        self.direction = True
-        self.offset = offset
 
 class PyRepRequestType():
     initialize_scene = "initialize_scene"
@@ -51,7 +37,6 @@ class FreeCADRequestType():
 
 class InstructionRequestType():
     get_instruction_info = "get_instruction_info"
-
 
 class SocketType(Enum):
     pyrep = {
@@ -69,9 +54,3 @@ class SocketType(Enum):
         "port": 7777,
         "reqeust_type": InstructionRequestType,
     }
-    
-
-class SocketRequest:
-    def __init__(self, request: str, data):
-        self.request = request
-        self.data = data

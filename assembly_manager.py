@@ -1,9 +1,11 @@
-from script.const import PartType, AssemblyType, AssemblyPair
+from script.const import PartType, AssemblyType
 from script.fileApi import *
 from enum import Enum
 from socket_module import SocketModule
-# from pyprnt import prnt
+from pyprnt import prnt
 import copy
+from itertools import combinations
+from example.sequence_example import *
 
 class AssemblyManager(object):
 
@@ -49,8 +51,7 @@ class AssemblyManager(object):
         self.group_info = None
         self.group_info_path = join(self.group_info_root, "group_info_{}.yaml".format(self.current_step))
         self.instruction_info = None
-        self.whole_assembly_info = None
-
+        
         # 조립 마다 바뀌는 정보
         self.part_instance_status = {}
         self.group_status = {}
@@ -140,7 +141,7 @@ class AssemblyManager(object):
                 quantity = 1
             for i in range(quantity):
                 part_instance_status[part_name][i] = {
-                    "used_assembly_points": [],
+                    "used_assembly_points": {},
                     "group_id": None
                 }
 
@@ -178,7 +179,7 @@ class AssemblyManager(object):
             self.part_instance_status[part_name][0]["group_id"] = group_id
             self.group_status[group_id] = group_status
         # save_dic_to_yaml(self.group_status, "example_group_status.yaml")
-    
+
     def update_group_info(self):
         # update group info using group status
         group_info = {}
@@ -199,12 +200,12 @@ class AssemblyManager(object):
         self.group_info = group_info
         self.group_info_path = join(self.group_info_root, "group_info_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.group_info, self.group_info_path)
-    
+
     def initialize_pyrep_scene(self):
         self.logger.info("...Waiting for initialize PyRep scene")
         self.socket_module.initialize_pyrep_scene(self.part_info, self.group_info)
         self.current_step = 1
-    
+
     def initialize_instruction_scene(self):
         # what step?, group status
         pass
@@ -222,8 +223,9 @@ class AssemblyManager(object):
         else:
             self.logger.info("Instruction end!")
             self.is_end = True
-            
+
     def extract_assembly_info(self):
+        assert self.instruction_info
         used_group_info = {} # => for group assembly
         used_part_instance = [] # => unique instances
         
@@ -245,6 +247,7 @@ class AssemblyManager(object):
                 "status": used_group_status,
                 "pose": used_group_pose
             }
+        
         # add connector instance to used part
         used_connector_info = self.instruction_info["Connector"]
         for connector_info in used_connector_info:
@@ -268,10 +271,8 @@ class AssemblyManager(object):
                 else:
                     continue
             assert count == num, "number of connector error: there is no enough {}".format(connector_name)
-        
         # assembly pair 와 part_instance_status를 이용
         avaliable_pair = []
-
         for part_id, part_instance in enumerate(used_part_instance):
             # 각 part_instance에 대해 사용가능한 페어를 저장
             instance_name = part_instance["part_name"]
@@ -281,7 +282,7 @@ class AssemblyManager(object):
             instance_pairs = self.assembly_pair[instance_name]
             
             for point_idx in instance_pairs.keys():
-                if point_idx in instance_used_point:
+                if point_idx in instance_used_point.keys():
                     continue
                 point_pair_list = instance_pairs[point_idx]
                 for point_pair_info in point_pair_list:
@@ -296,7 +297,7 @@ class AssemblyManager(object):
                         if other_instance["part_name"] == pair_part_name: # 페어 가능한 인스턴스
                             other_instance_id = other_instance["instance_id"]
                             other_instance_used_point = self.part_instance_status[pair_part_name][other_instance_id]["used_assembly_points"]
-                            if pair_point in other_instance_used_point:
+                            if pair_point in other_instance_used_point.keys():
                                 continue
                             assembly_pair = [
                                     {
@@ -336,14 +337,13 @@ class AssemblyManager(object):
             self.assembly_info["part"][idx] = part
         for idx, pair in enumerate(avaliable_pair):
             self.assembly_info["assembly"][idx] = pair
-        # prnt(self.assembly_info)
+        
         self.logger.info("Success to extract assembly info")
 
     def search_assemble_sequences(self):
         assert self.assembly_info
         available_assembly = self.assembly_info["assembly"]
-        # All possible sequence => Too many sequences
-        # TODO: using group pose to extract group assembly
+        #region TODO: using group pose to extract group assembly
         """
         1. group 1, pose 1, group 2, pose 2 => (region 1, region 2) * n using pyrep module
         2. group 1, region 1, group 2, region 2 => available pair
@@ -351,6 +351,8 @@ class AssemblyManager(object):
             case2. connector have to assembled => (if None) -> assemble connector first(with region 1 or region 2)  -> case1
         3. 
         """
+        pass
+        #endregion
         #region extract all possible pair from "available_assembly"
         all_possible_pair_set = [] # list of list
         target_idx = 0
@@ -364,9 +366,9 @@ class AssemblyManager(object):
             assembly_sequence.append(target_idx)
             for idx in target_pair.keys():
                 point = target_pair[idx]
-                used_point.append(point)
+                used_point.append(point) # point == {assembly point, part_id}
             
-            # search for nonconfilicting pair for target pair
+            # search for non-confilicting pair for target pair
             for assembly_idx in available_assembly.keys():
                 assembly = available_assembly[assembly_idx]
                 is_avaliable = True
@@ -394,8 +396,41 @@ class AssemblyManager(object):
                 self.assembly_info["assembly_sequence"].append(assembly_sequence)        
         #endregion
         
-        save_dic_to_yaml(self.assembly_info, "example_assembly_info_{}.yaml".format(self.current_step))
         self.logger.info("Success to search assembly sequence")
+
+    def test_search_sequence(self):
+        new_seq = []
+        sequence = seq["sequence_{}".format(self.current_step)]
+        if self.current_step == 5:
+            print()
+        for pair in sequence:
+            target_pair = {}
+            for pair_idx in pair.keys():
+                part_info = pair[pair_idx]
+                part_name = part_info["part_name"]
+                instance_id = part_info["instance_id"]
+                point_idx = part_info["assembly_point"]
+                part_key = {
+                    "part_name": part_name,
+                    "instance_id": instance_id
+                }
+                part_id = None
+                for idx in self.assembly_info["part"].keys():
+                    if self.assembly_info["part"][idx] == part_key:
+                        part_id = idx
+                        break
+                target_pair[pair_idx] = {
+                    "assembly_point": point_idx,
+                    "part_id": part_id
+                }
+            asm_idx = None
+            for idx in self.assembly_info["assembly"].keys():
+                if self.assembly_info["assembly"][idx]["target_pair"] == target_pair:
+                    asm_idx = idx
+                    break
+            new_seq.append(asm_idx)
+        assert new_seq
+        self.assembly_info["assembly_sequence"].append(new_seq)
 
     def simulate_instruction_step(self):
         assert self.assembly_info["assembly_sequence"]
@@ -521,10 +556,16 @@ class AssemblyManager(object):
                         part_name = part_instance["part_name"]
                         instance_id = part_instance["instance_id"]
                         sequence_part_status[part_name][instance_id]["group_id"] = new_group_id
-                        if part_name == part_name_0:
-                            sequence_part_status[part_name][instance_id]["used_assembly_points"].append(assembly_point_0)
-                        elif part_name == part_name_1:
-                            sequence_part_status[part_name][instance_id]["used_assembly_points"].append(assembly_point_1)
+                    sequence_part_status[part_name_0][part_instance_id_0]["used_assembly_points"][assembly_point_0] = {
+                            "part_name": part_name_1,
+                            "instance_id": part_instance_id_1,
+                            "assembly_point": assembly_point_1
+                        }
+                    sequence_part_status[part_name_1][part_instance_id_1]["used_assembly_points"][assembly_point_1] = {
+                            "part_name": part_name_0,
+                            "instance_id": part_instance_id_0,
+                            "assembly_point": assembly_point_0
+                        }
                     # 결합 추가
                     status.append(target_assembly_info["target"])
                     # 구성 그룹 정보 변경
@@ -549,10 +590,13 @@ class AssemblyManager(object):
                                                                                part_instance_id_1))
                     continue
                 #endregion
-    
+        #TODO: select best state
+        self.part_instance_status = sequence_part_status
+        self.group_status = sequence_group_status
+
         # prnt(self.group_status)
         # prnt(self.assembly_info)
-                        
+
     def check_hidden_assembly(self):
         pass
 
@@ -561,14 +605,13 @@ class AssemblyManager(object):
 
     def step(self):
         self.update_group_info()
-        
-        self.get_instruction_info()
-
+        #TODO: visualize pyrep
+        save_dic_to_yaml(self.assembly_info, "example_assembly_info_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.part_instance_status, "example_part_instance_status_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.group_status, "example_group_status_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.group_info, "example_group_info_{}.yaml".format(self.current_step))
+
         self.current_step += 1
-        self.instruction_info = None
 
     ##########################################################
     def find_assembly_region_id(self, group_id, connection_point):

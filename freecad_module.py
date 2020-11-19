@@ -803,61 +803,30 @@ class FreeCADModule():
 
     def _solve_current_constraint(self):
         # to assemble each pair one part fix and other part free
+        is_possible = True
+        num_contraints = {}
+        
         for obj_key in self.assembly_obj.keys():
             self.assembly_obj[obj_key].fixedPosition = False
-        _ = self.assembly_doc.solve_system()
-        is_possible = True
-        solved_pair_count = 0
-        while self.assembly_doc.check_unmoved_parts() and solved_pair_count < len(self.assembly_pair):
-            used_part = []
-            fixed_part = []
-            unfixed_part = []
-            for pair in self.assembly_pair[solved_pair_count:]:
-                instance_0 = pair[0]
-                instance_1 = pair[1]
-                if instance_0 in used_part and instance_1 in used_part:
-                    # check fixed and unfixed            
-                    if instance_0 in fixed_part:
-                        if instance_1 in fixed_part:
-                            # ERROR both instance are fixed
-                            break
-                        else:
-                            # 0 is fixed, 1 is unfixed
-                            pass
-                    else: # instance_0 is unfixed
-                        if instance_1 in fixed_part:
-                            # 0 is unfixed, 1 is fixed
-                            pass
-                        else:
-                            # ERROR both instance are unfixed
-                            break
-                elif instance_0 in used_part: 
-                    if instance_0 in fixed_part: # fix, unfixed
-                        self.assembly_obj[instance_1].fixedPosition = False
-                        unfixed_part.append(instance_1)
-                        used_part.append(instance_1)
-                    else: # unfix, fix
-                        self.assembly_obj[instance_1].fixedPosition = True
-                        fixed_part.append(instance_1)
-                        used_part.append(instance_1)
-                elif instance_1 in used_part:
-                    if instance_1 in fixed_part: # unfix, fix
-                        self.assembly_obj[instance_0].fixedPosition = False
-                        unfixed_part.append(instance_0)
-                        used_part.append(instance_0)
-                    else: # fix, unfix
-                        self.assembly_obj[instance_0].fixedPosition = True
-                        fixed_part.append(instance_0)
-                        used_part.append(instance_0)
-                else: # fix, unfix
-                    self.assembly_obj[instance_0].fixedPosition = True
-                    fixed_part.append(instance_0)
-                    used_part.append(instance_0)
-                    self.assembly_obj[instance_1].fixedPosition = False
-                    unfixed_part.append(instance_1)
-                    used_part.append(instance_1)
-                solved_pair_count += 1
-            is_possible = self.assembly_doc.solve_system()
+            num_contraints[obj_key] = 0
+        
+        for pair in self.assembly_pair:
+            instance_0 = pair[0]
+            instance_1 = pair[1]
+            num_contraints[instance_0] += 1
+            num_contraints[instance_1] += 1
+        c_max = -np.inf
+        max_ins = None
+        for instance in num_contraints.keys():
+            if c_max < num_contraints[instance]:
+                c_max = num_contraints[instance]
+                max_ins = instance
+
+        # assemble for max_ins
+        self.assembly_obj[max_ins].fixedPosition = True
+        is_possible = self.assembly_doc.solve_system()
+            
+        self.assembly_doc.save_doc("test/test_{}.FCStd".format(get_time_stamp()))
 
         return is_possible
 
@@ -895,10 +864,10 @@ class FreeCADModule():
         base_obj = []
         for obj_key in self.assembly_obj.keys():
             part_name = obj_key[0]
-            if part_name in self.furniture_parts:
-                group_obj = self.assembly_obj[obj_key]
-                Mesh.export([group_obj], join(obj_root, "{}.obj".format(part_name)))
-                base_obj.append(group_obj)
+            ins = obj_key[1]
+            group_obj = self.assembly_obj[obj_key]
+            Mesh.export([group_obj], join(obj_root, "{}_{}.obj".format(part_name, ins)))
+            base_obj.append(group_obj)
         Mesh.export(base_obj, join(obj_root, "base.obj"))
         
         return True
