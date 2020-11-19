@@ -150,228 +150,228 @@ ikea_stefan_pin:
   0:
   - assembly_point: 0
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_long
   - assembly_point: 2
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_long
   - assembly_point: 3
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_long
   - assembly_point: 5
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_long
   - assembly_point: 0
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 1
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 3
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 4
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 6
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 7
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 0
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_short
   - assembly_point: 2
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_short
   - assembly_point: 3
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_short
   - assembly_point: 5
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_short
   - assembly_point: 1
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 2
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 5
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 6
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 7
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 8
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 9
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 1
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 2
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 5
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 6
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 7
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 8
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 9
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   1:
   - assembly_point: 0
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_long
   - assembly_point: 2
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_long
   - assembly_point: 3
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_long
   - assembly_point: 5
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_long
   - assembly_point: 0
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 1
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 3
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 4
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 6
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 7
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_middle
   - assembly_point: 0
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_short
   - assembly_point: 2
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_short
   - assembly_point: 3
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_short
   - assembly_point: 5
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_short
   - assembly_point: 1
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 2
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 5
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 6
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 7
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 8
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 9
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_left
   - assembly_point: 1
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 2
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 5
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 6
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 7
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 8
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
   - assembly_point: 9
     direction: aligned
-    offset: -15
+    offset: 15
     part_name: ikea_stefan_side_right
 ikea_stefan_short:
   0:
