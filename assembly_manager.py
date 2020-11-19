@@ -31,7 +31,7 @@ class AssemblyManager(object):
         self.group_info_root = join(self.assembly_path, "group_info")
         check_and_create_dir(self.group_info_root)
         
-        self.socket_module = SocketModule()
+        self.socket_module = SocketModule(self.logger)
         
         # 내부에서 사용하는 데이터(저장은 선택)
         self.part_info_path = join(self.assembly_path, "part_info.yaml")
@@ -55,21 +55,10 @@ class AssemblyManager(object):
         self.part_instance_status = {}
         self.group_status = {}
 
-        '''
-        self.assembly_pairs = self.get_assembly_pairs()
-        self.FC_module.assemble_pair_test(self.assembly_pairs["pair"])
-
-        self.initialize_group_info()
-        self.initialize_connector_info()
-        self.instance_info = {}
-        self.instance_info_path = join(self.assembly_path, "intance_info.yaml")
-        '''
-    
-    
     def initialize_CAD_info(self):
+        self.logger.info("...Waiting for cad info from FreeCAD Module")
         self.part_info = self.socket_module.initialize_cad_info(self.cad_path)
         # self.part_info = load_yaml_to_dic(self.part_info_path)
-
         # self._initialize_assembly_pair()
         # save_dic_to_yaml(self.assembly_pair, self.assembly_pair_path)
         self.assembly_pair = load_yaml_to_dic(self.refined_pair_path)
@@ -199,6 +188,7 @@ class AssemblyManager(object):
             group_status = self.group_status[group_id]
             composed_group = group_status["composed_group"]
             is_exist = group_status["is_exist"]
+            self.logger.info("...Waiting for extract group object group id: {}".format(group_id))
             self.socket_module.extract_group_obj(group_status, obj_root)
             group_info[group_id] = {
                 "obj_file": join(obj_root, "base.obj"),
@@ -211,6 +201,7 @@ class AssemblyManager(object):
         save_dic_to_yaml(self.group_info, self.group_info_path)
     
     def initialize_pyrep_scene(self):
+        self.logger.info("...Waiting for initialize PyRep scene")
         self.socket_module.initialize_pyrep_scene(self.part_info, self.group_info)
         self.current_step = 1
     
@@ -442,8 +433,6 @@ class AssemblyManager(object):
                     # 가구 부품 + 가구 부품 => 새 그룹
                     if group_id_0 in sequence_group_status.keys() and group_id_1 in sequence_group_status.keys():
                         new_group_id = len(sequence_group_status)
-                        if new_group_id == 7:
-                            print()
                     # 가구 부품 + 커넥터 => 가구 그룹 따라감
                     elif group_id_0 in sequence_group_status.keys():
                         new_group_id = group_id_0
@@ -486,6 +475,10 @@ class AssemblyManager(object):
                     "status": status
                 }
                 is_possible = False
+                self.logger.info("...Waiting for simulate assemble {}_{} and {}_{}".format(part_name_0,
+                                                                                           part_instance_id_0,
+                                                                                           part_name_1,
+                                                                                           part_instance_id_1))
                 try:
                     is_possible = self.socket_module.check_assembly_possibility(target_assembly_info)
                 except:
@@ -493,7 +486,10 @@ class AssemblyManager(object):
                 #endregion
                 #region update status
                 if is_possible:
-                    print("success to assemble")
+                    self.logger.info("success to assemble {}_{} and {}_{}".format(part_name_0,
+                                                                                  part_instance_id_0,
+                                                                                  part_name_1,
+                                                                                  part_instance_id_1))
                     # group status
                     # 새로 그룹에 추가되는 파트에 대해 수행 group_id: None
                     if group_id_0 == None:
@@ -539,6 +535,10 @@ class AssemblyManager(object):
                     possible_sequence.append(pair_id)
                 else:
                     # 현재 constraints 상으로 구현이 불가능한 조립
+                    self.logger.info("Fail to assemble {}_{} and {}_{}".format(part_name_0,
+                                                                               part_instance_id_0,
+                                                                               part_name_1,
+                                                                               part_instance_id_1))
                     continue
                 #endregion
     
@@ -551,8 +551,14 @@ class AssemblyManager(object):
     def update_group_status(self):
         pass
 
+    def update_pyrep_scene(self):
+        pass
+
     def step(self):
         self.update_group_info()
+        self.update_pyrep_scene()
+        self.get_instruction_info()
+
         save_dic_to_yaml(self.part_instance_status, "example_part_instance_status_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.group_status, "example_group_status_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.group_info, "example_group_info_{}.yaml".format(self.current_step))

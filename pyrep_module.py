@@ -93,7 +93,8 @@ class ObjObject():
         self.frame.remove()
     
 class PyRepModule(object):
-    def __init__(self, headless=False):
+    def __init__(self, logger, headless=False):
+        self.logger = logger
         self.callback = {
             PyRepRequestType.get_region: self.get_region,
             PyRepRequestType.initialize_scene: self.initialize_scene
@@ -111,7 +112,7 @@ class PyRepModule(object):
         self.group_obj = {}
 
     def initialize_server(self):
-        print("Initialize PyRep Server")
+        self.logger.info("Initialize PyRep Server")
         host = SocketType.pyrep.value["host"]
         port = SocketType.pyrep.value["port"]
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -121,11 +122,11 @@ class PyRepModule(object):
         self.host = host
         self.port = port
         try:
-            print("Waiting for PyRep client {}:{}".format(self.host, self.port))
+            self.logger.info("Waiting for PyRep client {}:{}".format(self.host, self.port))
             self.connected_client, addr = self.server.accept()
-            print("Connected to {}".format(addr))
+            self.logger.info("Connected to {}".format(addr))
         except:
-            print("PyRep Server Error")
+            self.logger.info("PyRep Server Error")
         finally:
             self.server.close()
 
@@ -137,7 +138,7 @@ class PyRepModule(object):
             while True:
                 self.pr.step()
         except:
-            print("pyrep error")
+            self.logger.info("pyrep error")
     
     def save_scene(self, path):
         self.pr.export_scene(path)
@@ -148,28 +149,27 @@ class PyRepModule(object):
         self.pr.stop()
         self.pr.shutdown()
 
-
     #region socket function
     def get_region(self):
         pass
     
     def initialize_scene(self):
-        print("ready to initialize scene")
+        self.logger.info("ready to initialize scene")
         sendall_pickle(self.connected_client, True)
         request = recvall_pickle(self.connected_client)
         self.part_info = request["part_info"]
         self.group_info = request["group_info"]
-        print("...initializing pyrep scene")
+        self.logger.info("...initializing pyrep scene")
         for part_name in self.part_info.keys():
             self._import_part_info(part_name)
         for group_id in self.group_info.keys():
             self._import_group_obj(group_id)
-        print("End to initialize pyrep scene")
+        self.logger.info("End to initialize pyrep scene")
         sendall_pickle(self.connected_client, True)
 
     def _import_part_info(self, part_name):
         assert self.part_info
-        print("import part info of {}".format(part_name))
+        self.logger.info("import part info of {}".format(part_name))
         part_base = Dummy.create()
         part_base.set_name(part_name + "_base")
         # import each assembly points to scene
@@ -220,21 +220,25 @@ class PyRepModule(object):
             obj = composed_parts[part_name]
             obj.set_parent(base_obj.shape)
         self.group_obj[group_id] = GroupObj(base_obj, composed_parts)
-                
+
+    def update_scene(self):
+        pass
+
     #endregion
     
     
 if __name__ == "__main__":
-    pyrep_module = PyRepModule()
+    logger = get_logger("PyRep_Module")
+    pyrep_module = PyRepModule(logger)
     pyrep_module.initialize_server()
     while True:
         try:
             request = recvall_pickle(pyrep_module.connected_client)
-            print("Get request to {}".format(request))
+            self.logger.info("Get request to {}".format(request))
             callback = pyrep_module.get_callback(request)
             callback()
         except Exception as e:
-            print("Error occur {}".format(e))
+            self.logger.info("Error occur {}".format(e))
             break
     pyrep_module.close()    
     

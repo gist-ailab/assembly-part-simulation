@@ -1,6 +1,5 @@
 import argparse
-import logging
-import time
+from script.fileApi import get_logger
 
 from assembly_manager import AssemblyManager
 
@@ -8,15 +7,6 @@ def get_args_parser():
     parser = argparse.ArgumentParser('Set IKEA Assembly Part Simulation', add_help=False)
     parser.add_argument('--furniture_name', default='STEFAN', type=str)
     return parser
-
-def get_logger(furniture_name):
-    logger = logging.getLogger(furniture_name)
-    formatter = logging.Formatter('[%(asctime)s][%(levelname)s|%(filename)s:%(lineno)s] >> %(message)s')
-    streamHandler = logging.StreamHandler()
-    streamHandler.setFormatter(formatter)
-    logger.addHandler(streamHandler)
-    logger.setLevel(level=logging.INFO)
-    return logger
 
 # test for joosoon branch
 
@@ -32,6 +22,7 @@ if __name__ == "__main__":
     furniture_name = args.furniture_name
     logger = get_logger(furniture_name)
 
+    #region initialize
     # Assembly manager    
     asm_manager = AssemblyManager(logger, furniture_name)
 
@@ -43,12 +34,14 @@ if __name__ == "__main__":
 
     # initialize pyrep scene
     asm_manager.initialize_pyrep_scene()
+    #endregion
 
+    #region simulate assembly
     # get instruction info 
     asm_manager.get_instruction_info()
         
     # assembly simulation
-    while not asm_manager.is_end:
+    while not asm_manager.is_end: # end sign from instruction_info
         # extract assembly info 
         asm_manager.extract_assembly_info()
 
@@ -62,9 +55,7 @@ if __name__ == "__main__":
         asm_manager.check_hidden_assembly()
 
         asm_manager.step()
-
-        asm_manager.get_instruction_info()
+    #endregion
 
     logger.info("SUCCESS!")
-    exit()
 

@@ -645,7 +645,8 @@ def create_assembly_doc(doc_name, part_doc):
     return doc
 
 class FreeCADModule():
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         self.callback = {
             FreeCADRequestType.initialize_cad_info: self.initialize_cad_info,
             FreeCADRequestType.check_assembly_possibility: self.check_assembly_possibility,
@@ -674,7 +675,7 @@ class FreeCADModule():
                 self.Gui.updateGui()
                 self.main_window.update()
         except Exception as e:
-            print("freecad server error {}".format(e))
+            self.logger.info("freecad server error {}".format(e))
 
     def close(self):
         while self.App.ActiveDocument:
@@ -685,7 +686,7 @@ class FreeCADModule():
 
     #region socket
     def initialize_server(self):
-        print("Initialize FreeCAD Server")
+        self.logger.info("Initialize FreeCAD Server")
         host = SocketType.freecad.value["host"]
         port = SocketType.freecad.value["port"]
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -695,22 +696,22 @@ class FreeCADModule():
         self.host = host
         self.port = port
         try:
-            print("Waiting for FreeCAD client {}:{}".format(self.host, self.port))
+            self.logger.info("Waiting for FreeCAD client {}:{}".format(self.host, self.port))
             self.connected_client, addr = self.server.accept()
-            print("Connected to {}".format(addr))
+            self.logger.info("Connected to {}".format(addr))
         except:
-            print("FreeCAD Server Error")
+            self.logger.info("FreeCAD Server Error")
         finally:
             self.server.close()
     
     def initialize_cad_info(self):
-        print("ready to extract part info")
+        self.logger.info("ready to extract part info")
         sendall_pickle(self.connected_client, True)
         cad_file_path = recvall_pickle(self.connected_client)
-        print("Extract part info from {}".format(cad_file_path))
+        self.logger.info("Extract part info from {}".format(cad_file_path))
         self.part_info = extract_part_info(cad_file_path)
         self._initialize_each_parts()
-        print("Success to extract part info from {}".format(cad_file_path))
+        self.logger.info("Success to extract part info from {}".format(cad_file_path))
         sendall_pickle(self.connected_client, self.part_info)
     
     def _initialize_each_parts(self):
@@ -723,7 +724,7 @@ class FreeCADModule():
                 exit()
 
     def check_assembly_possibility(self):
-        print("ready to check possibility")
+        self.logger.info("ready to check possibility")
         sendall_pickle(self.connected_client, True)
         target_assembly_info = recvall_pickle(self.connected_client)
         is_possible = self._check_assembly_possibility(target_assembly_info)
@@ -863,14 +864,14 @@ class FreeCADModule():
         return is_possible
 
     def extract_group_obj(self):
-        print("ready to extract group obj")
+        self.logger.info("ready to extract group obj")
         sendall_pickle(self.connected_client, True)
         group_info = recvall_pickle(self.connected_client)
         group_status = group_info["group_status"]
         obj_root = group_info["obj_root"]
-        print("Export group obj in {}".format(obj_root))
+        self.logger.info("Export group obj in {}".format(obj_root))
         result = self._export_group_obj(group_status, obj_root)
-        print("Success to extract group obj into {}".format(obj_root))
+        self.logger.info("Success to extract group obj into {}".format(obj_root))
         sendall_pickle(self.connected_client, result)
     
     def _export_group_obj(self, group_status, obj_root):
@@ -937,18 +938,17 @@ class FreeCADModule():
                     
 
 if __name__ == "__main__":
-    
-    freecad_module = FreeCADModule()
+    logger = get_logger("FreeCAD_Module")    
+    freecad_module = FreeCADModule(logger)
     freecad_module.initialize_server()
-    
     while True:
         try:
             request = recvall_pickle(freecad_module.connected_client)
-            print("Get request to {}".format(request))
+            self.logger.info("Get request to {}".format(request))
             callback = freecad_module.get_callback(request)
             callback()
         except Exception as e:
-            print("Error occur {}".format(e))
+            self.logger.info("Error occur {}".format(e))
             break
     freecad_module.close()    
 """

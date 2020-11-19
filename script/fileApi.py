@@ -3,8 +3,17 @@ from os.path import join, isfile, isdir, splitext
 from os import listdir
 import yaml
 from datetime import datetime
-import time
+import logging
 import shutil
+
+def get_logger(module_name):
+    logger = logging.getLogger(module_name)
+    formatter = logging.Formatter('[%(asctime)s][%(levelname)s|%(filename)s:%(lineno)s] >> %(message)s')
+    streamHandler = logging.StreamHandler()
+    streamHandler.setFormatter(formatter)
+    logger.addHandler(streamHandler)
+    logger.setLevel(level=logging.INFO)
+    return logger
 
 def get_file_list(path):
     file_list = [join(path, f) for f in listdir(path) if isfile(join(path, f))]

@@ -3,13 +3,14 @@ from script.const import SocketType, InstructionRequestType
 from script.fileApi import *
 
 class InstructionModule():
-    def __init__(self):
+    def __init__(self, logger):
+        self.logger = logger
         self.callback = {
             InstructionRequestType.get_instruction_info: self.get_instruction_info
         }
     
     def initialize_server(self):
-        print("Initialize Instruction Server")
+        self.logger.info("Initialize Instruction Server")
         host = SocketType.instruction.value["host"]
         port = SocketType.instruction.value["port"]
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -19,11 +20,11 @@ class InstructionModule():
         self.host = host
         self.port = port
         try:
-            print("Waiting for Instruction client {}:{}".format(self.host, self.port))
+            self.logger.info("Waiting for Instruction client {}:{}".format(self.host, self.port))
             self.connected_client, addr = self.server.accept()
-            print("Connected to {}".format(addr))
+            self.logger.info("Connected to {}".format(addr))
         except:
-            print("Instruction Server Error")
+            self.logger.info("Instruction Server Error")
         finally:
             self.server.close()
     
@@ -31,7 +32,7 @@ class InstructionModule():
         return self.callback[request]
 
     def get_instruction_info(self):
-        print("ready to extract instruction info")
+        self.logger.info("ready to extract instruction info")
         sendall_pickle(self.connected_client, True)
         request = recvall_pickle(self.connected_client)
         current_step = request["current_step"]
@@ -49,12 +50,13 @@ class InstructionModule():
 
 
 if __name__ == "__main__":
-    instruction_module = InstructionModule()
+    logger = get_logger("Instruction_Module")
+    instruction_module = InstructionModule(logger)
     instruction_module.initialize_server()
     while True:
         try:
             request = recvall_pickle(instruction_module.connected_client)
-            print("Get request to {}".format(request))
+            self.logger.info("Get request to {}".format(request))
             callback = instruction_module.get_callback(request)
             callback()
         except:
