@@ -117,7 +117,7 @@ class SocketModule():
     #endregion
 
     #region instruction module
-    def get_instruction_info(self, group_info, connector_info):
+    def get_instruction_info(self, current_step, group_info, connector_info):
         request = InstructionRequestType.get_instruction_info
         print("Request {} to Instruction Module".format(request))
         sendall_pickle(self.c_instruction, request)
@@ -125,6 +125,7 @@ class SocketModule():
         assert response, "Not ready to get instruction info"
         # send group_info and get instruction info
         request = {
+            "current_step": current_step,
             "group_info": group_info,
             "connector_info": connector_info
         }

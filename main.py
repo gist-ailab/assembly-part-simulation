@@ -44,11 +44,11 @@ if __name__ == "__main__":
     # initialize pyrep scene
     asm_manager.initialize_pyrep_scene()
 
+    # get instruction info 
+    asm_manager.get_instruction_info()
+        
     # assembly simulation
     while not asm_manager.is_end:
-        # get instruction info 
-        asm_manager.get_instruction_info()
-        
         # extract assembly info 
         asm_manager.extract_assembly_info()
 
@@ -63,5 +63,8 @@ if __name__ == "__main__":
 
         asm_manager.step()
 
-        logger.info("SUCCESS!")
-        exit()
+        asm_manager.get_instruction_info()
+
+    logger.info("SUCCESS!")
+    exit()
+

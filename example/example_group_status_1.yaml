@@ -4,6 +4,7 @@
   composed_part:
   - instance_id: 0
     part_name: ikea_stefan_bottom
+  is_exist: true
   status: []
 1:
   composed_group:
@@ -15,6 +16,7 @@
     part_name: ikea_stefan_bracket
   - instance_id: 1
     part_name: ikea_stefan_bracket
+  is_exist: true
   status:
   - method:
       direction: aligned
@@ -46,6 +48,7 @@
   composed_part:
   - instance_id: 0
     part_name: ikea_stefan_middle
+  is_exist: true
   status: []
 3:
   composed_group:
@@ -57,6 +60,7 @@
     part_name: ikea_stefan_bracket
   - instance_id: 3
     part_name: ikea_stefan_bracket
+  is_exist: true
   status:
   - method:
       direction: aligned
@@ -88,6 +92,7 @@
   composed_part:
   - instance_id: 0
     part_name: ikea_stefan_side_left
+  is_exist: true
   status: []
 5:
   composed_group:
@@ -95,4 +100,5 @@
   composed_part:
   - instance_id: 0
     part_name: ikea_stefan_side_right
+  is_exist: true
   status: []

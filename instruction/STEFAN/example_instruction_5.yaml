@@ -1,0 +1,25 @@
+Group:
+  - group_id: 5
+    instance_id : 0
+    connector: 
+    pose: 
+      X: -1
+      Y: 1
+      Z: 1
+      roll: 0
+      yaw: 0
+      pitch: 0
+  - group_id: 8
+    instance_id : 1
+    connector:
+    pose: 
+      X: -1
+      Y: 1
+      Z: 1
+      roll: 0
+      yaw: 0
+      pitch: 0
+Connector:
+  - model_name: ikea_stefan_bolt_side.obj
+    connector_id: 0
+    number_of_connector: 3

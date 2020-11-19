@@ -34,10 +34,13 @@ class InstructionModule():
         print("ready to extract instruction info")
         sendall_pickle(self.connected_client, True)
         request = recvall_pickle(self.connected_client)
+        current_step = request["current_step"]
         group_info = request["group_info"]
         connector_info = request["connector_info"]
-
-        instruction_info = load_yaml_to_dic("instruction/STEFAN/instruction_1.yaml")
+        try:
+            instruction_info = load_yaml_to_dic("instruction/STEFAN/example_instruction_{}.yaml".format(current_step))
+        except:
+            instruction_info = {}
         sendall_pickle(self.connected_client, instruction_info)
 
     def close(self):

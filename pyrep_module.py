@@ -169,6 +169,7 @@ class PyRepModule(object):
 
     def _import_part_info(self, part_name):
         assert self.part_info
+        print("import part info of {}".format(part_name))
         part_base = Dummy.create()
         part_base.set_name(part_name + "_base")
         # import each assembly points to scene

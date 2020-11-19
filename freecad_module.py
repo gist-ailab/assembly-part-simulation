@@ -11,7 +11,23 @@ import Draft
 import a2plib
 from a2p_importpart import importPartFromFile
 import a2p_constraints as a2pconst
-import a2p_solversystem as solver
+from a2p_solversystem import SolverSystem
+solver = SolverSystem()
+"""document of SolverSystem()
+1. solveSystem(doc, matelist=None, showFailMessage=True)
+    - same as Gui Solve system Icon
+    - composed by SolverSystem::solveAccuracySteps and SolverSystem::checkForUnmovedParts
+    - if can not solve system(contraints mismatching) return False and show msg(if showFailMessage=True)
+2.solveAccuracySteps
+    - 실제로 문제를 푸는 곳
+    - 문제를 풀면 True 못 풀면 False 반환
+    - 이때, 물체 고정을 잘 못 시켰을 때도 True 반환(움직일 수 있는 건 다 풀었다)
+3. checkForUnmovedParts
+    - 안 움직인 물체를 확인하는 작업으로 물체를 잘못 움직였을 경우
+    - len(self.unmovedParts) > 0 이다.
+"""
+
+
 
 from scipy.spatial.transform import Rotation as R
 import numpy as np
@@ -20,6 +36,7 @@ from os.path import join
 import socket
 from enum import Enum
 import threading
+import copy
 
 from script.const import SocketType, FreeCADRequestType, PartType
 from script.fileApi import *
@@ -265,21 +282,30 @@ class AssemblyDocument(object):
         save_doc_as(self.doc, doc_path)
 
     def import_part(self, part_path, pos=[0, 0, 0], ypr=[0,0,0]):
-        print("import part to document")
         obj = importPartFromFile(self.doc, part_path)
         obj.Placement.Base = FreeCAD.Vector(pos)
         obj.Placement.Rotation = FreeCAD.Rotation(ypr[0], ypr[1], ypr[2])
         return obj
     
-    def assemble(self, obj1, obj2, edge_pair, direction, offset=0):
-        return constraint_two_circle(doc=self.doc, 
-                                     parent_obj=obj1, 
-                                     child_obj=obj2, 
-                                     parent_edge=edge_pair[0], 
-                                     child_edge=edge_pair[1], 
-                                     direction=direction, 
-                                     offset=offset)
+    def add_circle_constraint(self, obj1, obj2, edge_pair, direction, offset=0):
+        constraint_two_circle(doc=self.doc, parent_obj=obj1, child_obj=obj2,
+                                parent_edge=edge_pair[0], child_edge=edge_pair[1],
+                                direction=direction, offset=offset)
     
+    def assemble(self, obj1, obj2, edge_pair, direction, offset=0):
+        self.add_circle_constraint(obj1, obj2, edge_pair, direction, offset=0)
+        self.solve_system()
+
+    def solve_system(self):
+        is_solved = solver.solveAccuracySteps(self.doc, None)
+        return is_solved
+
+    def check_unmoved_parts(self):
+        if len(solver.unmovedParts) > 0:
+            return True
+        else:
+            return False
+
     def save_doc(self, path):
         save_doc_as(self.doc, path)
 
@@ -464,11 +490,6 @@ def constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, d
     
     co.directionConstraint = direction
     co.offset = offset
-    
-    return solver.solveConstraints(doc, showFailMessage=False)
-
-def solve_system(doc):
-    return solver.solveConstraints(doc)
 
 def get_distance_between_edges(edge1, edge2):
     
@@ -631,6 +652,8 @@ class FreeCADModule():
             FreeCADRequestType.extract_group_obj: self.extract_group_obj
         }
         self.main_window = FreeCADGui.getMainWindow()
+        self.App = FreeCAD
+        self.Gui = FreeCADGui
         self.th = threading.Thread(target=self.binding)
         self.th.start()
 
@@ -639,7 +662,8 @@ class FreeCADModule():
         self.furniture_parts = []
     
         self.assembly_doc = None
-        self.assembly_obj = None
+        self.assembly_obj = {}
+        self.assembly_pair = []
         
     def get_callback(self, request):
         return self.callback[request]
@@ -647,11 +671,14 @@ class FreeCADModule():
     def binding(self):
         try:
             while True:
+                self.Gui.updateGui()
                 self.main_window.update()
         except Exception as e:
             print("freecad server error {}".format(e))
 
     def close(self):
+        while self.App.ActiveDocument:
+            self.App.closeDocument(self.App.ActiveDocument.Name)
         self.main_window.close()
         self.connected_client.close()
         self.server.close()
@@ -703,13 +730,6 @@ class FreeCADModule():
         sendall_pickle(self.connected_client, is_possible)
 
     def _check_assembly_possibility(self, target_assembly_info):
-        """
-        1. 현재 상태 만들기
-            - unique_instance import
-            - unique pair 계산
-            - (instance, point_id) 집합을 생성(status_set_0, status_set_1)
-            - 차집합 이용 A 합치고, B-A 합침
-        """
         self.assembly_doc = AssemblyDocument()
         current_assembly_info = target_assembly_info["target"] 
         status = target_assembly_info["status"] # list
@@ -745,21 +765,21 @@ class FreeCADModule():
             part_path = self.part_info[part_name]["document"]
             obj = self.assembly_doc.import_part(part_path)
             self.assembly_obj[(part_name, ins)] = obj
-        # assemble current status
+        
+        self.assembly_pair = []
+        # create previous constraint
         for past_assembly_info in status:
-            _ = self._assemble_pair(past_assembly_info)
-        is_possible = self._assemble_pair(current_assembly_info)
+            self._add_pair_constraint(past_assembly_info)
+        self._add_pair_constraint(current_assembly_info)
+
+        is_possible = self._solve_current_constraint()
         
         return is_possible
     
-    def _assemble_pair(self, pair_assembly_info):
-        print("start assemble pair")
-        for obj_key in self.assembly_obj.keys():
-            obj = self.assembly_obj[obj_key]
-            obj.fixedPosition = False
+    def _add_pair_constraint(self, pair_assembly_info):
         target = pair_assembly_info["target_pair"]
         method = pair_assembly_info["method"]
-        # assemble target
+        # assemble target       
         part_info_0 = target[0]
         part_name_0 = part_info_0["part_name"]
         instance_id_0 = part_info_0["instance_id"]
@@ -779,12 +799,68 @@ class FreeCADModule():
         direction = method["direction"]
         offset = method["offset"]
 
-        is_possible = self.assembly_doc.assemble(obj_0, obj_1, [edge_0, edge_1], direction, offset)
-        
-        if not is_possible == False: # None == True
-            return True
-        else:
-            return is_possible # False
+        self.assembly_doc.add_circle_constraint(obj_0, obj_1, [edge_0, edge_1], direction, offset)
+        self.assembly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1)))
+
+    def _solve_current_constraint(self):
+        # to assemble each pair one part fix and other part free
+        for obj_key in self.assembly_obj.keys():
+            self.assembly_obj[obj_key].fixedPosition = False
+        _ = self.assembly_doc.solve_system()
+        is_possible = True
+        solved_pair_count = 0
+        while self.assembly_doc.check_unmoved_parts() and solved_pair_count < len(self.assembly_pair):
+            used_part = []
+            fixed_part = []
+            unfixed_part = []
+            for pair in self.assembly_pair[solved_pair_count:]:
+                instance_0 = pair[0]
+                instance_1 = pair[1]
+                if instance_0 in used_part and instance_1 in used_part:
+                    # check fixed and unfixed            
+                    if instance_0 in fixed_part:
+                        if instance_1 in fixed_part:
+                            # ERROR both instance are fixed
+                            break
+                        else:
+                            # 0 is fixed, 1 is unfixed
+                            pass
+                    else: # instance_0 is unfixed
+                        if instance_1 in fixed_part:
+                            # 0 is unfixed, 1 is fixed
+                            pass
+                        else:
+                            # ERROR both instance are unfixed
+                            break
+                elif instance_0 in used_part: 
+                    if instance_0 in fixed_part: # fix, unfixed
+                        self.assembly_obj[instance_1].fixedPosition = False
+                        unfixed_part.append(instance_1)
+                        used_part.append(instance_1)
+                    else: # unfix, fix
+                        self.assembly_obj[instance_1].fixedPosition = True
+                        fixed_part.append(instance_1)
+                        used_part.append(instance_1)
+                elif instance_1 in used_part:
+                    if instance_1 in fixed_part: # unfix, fix
+                        self.assembly_obj[instance_0].fixedPosition = False
+                        unfixed_part.append(instance_0)
+                        used_part.append(instance_0)
+                    else: # fix, unfix
+                        self.assembly_obj[instance_0].fixedPosition = True
+                        fixed_part.append(instance_0)
+                        used_part.append(instance_0)
+                else: # fix, unfix
+                    self.assembly_obj[instance_0].fixedPosition = True
+                    fixed_part.append(instance_0)
+                    used_part.append(instance_0)
+                    self.assembly_obj[instance_1].fixedPosition = False
+                    unfixed_part.append(instance_1)
+                    used_part.append(instance_1)
+                solved_pair_count += 1
+            is_possible = self.assembly_doc.solve_system()
+
+        return is_possible
 
     def extract_group_obj(self):
         print("ready to extract group obj")
@@ -801,7 +877,6 @@ class FreeCADModule():
         composed_part = group_status["composed_part"]
         status = group_status["status"]
         self.assembly_doc = AssemblyDocument()
-        unique_instance = []
         self.assembly_obj = {}
         # import all parts to document
         for part_info in composed_part:
@@ -811,9 +886,13 @@ class FreeCADModule():
             obj = self.assembly_doc.import_part(part_path)
             self.assembly_obj[(part_name, ins)] = obj
         
+        self.assembly_pair = []
         # assemble to current state
         for assembly_info in status:
-            self._assemble_pair(assembly_info)
+            self._add_pair_constraint(assembly_info)
+        is_solved = self._solve_current_constraint()
+        assert is_solved, "Fail to assemble group obj"
+        
         base_obj = []
         for obj_key in self.assembly_obj.keys():
             part_name = obj_key[0]
@@ -868,7 +947,8 @@ if __name__ == "__main__":
             print("Get request to {}".format(request))
             callback = freecad_module.get_callback(request)
             callback()
-        except:
+        except Exception as e:
+            print("Error occur {}".format(e))
             break
     freecad_module.close()    
 """

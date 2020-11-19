@@ -78,8 +78,6 @@ ikea_stefan_long: # part name
     group_id: None / 1 
 ```
 
-
-
 # connector_info.yaml
 ```yaml
 0: 
