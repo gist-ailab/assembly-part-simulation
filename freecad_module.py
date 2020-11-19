@@ -27,8 +27,6 @@ solver = SolverSystem()
     - len(self.unmovedParts) > 0 이다.
 """
 
-
-
 from scipy.spatial.transform import Rotation as R
 import numpy as np
 import copy
@@ -944,11 +942,11 @@ if __name__ == "__main__":
     while True:
         try:
             request = recvall_pickle(freecad_module.connected_client)
-            self.logger.info("Get request to {}".format(request))
+            logger.info("Get request to {}".format(request))
             callback = freecad_module.get_callback(request)
             callback()
         except Exception as e:
-            self.logger.info("Error occur {}".format(e))
+            logger.info("Error occur {}".format(e))
             break
     freecad_module.close()    
 """

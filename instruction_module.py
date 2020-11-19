@@ -56,9 +56,10 @@ if __name__ == "__main__":
     while True:
         try:
             request = recvall_pickle(instruction_module.connected_client)
-            self.logger.info("Get request to {}".format(request))
+            logger.info("Get request to {}".format(request))
             callback = instruction_module.get_callback(request)
             callback()
-        except:
+        except Exception as e:
+            logger.info("Error occur {}".format(e))
             break
     instruction_module.close()    

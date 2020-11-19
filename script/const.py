@@ -1,6 +1,4 @@
 from enum import Enum, auto
-import os
-
 #------------------------------------------------------------------------------------
 class PartType(Enum):
     furniture = "furniture_part"
@@ -43,7 +41,8 @@ class AssemblyPair(object):
 
 class PyRepRequestType():
     initialize_scene = "initialize_scene"
-    get_region = "get_region"
+    initialize_instruction_scene = "initialize_instruction_scene"
+    update_instruction_scene = "update_instruction_scene"
 
 class FreeCADRequestType():
     initialize_cad_info = "initialize_cad_info"

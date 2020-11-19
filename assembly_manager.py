@@ -205,6 +205,14 @@ class AssemblyManager(object):
         self.socket_module.initialize_pyrep_scene(self.part_info, self.group_info)
         self.current_step = 1
     
+    def initialize_instruction_scene(self):
+        # what step?, group status
+        pass
+
+    def update_instruction_scene(self):
+        # group status
+        pass
+
     def get_instruction_info(self):
         self.logger.info("... wating for instruction of [step {}]".format(self.current_step))
         self.instruction_info = self.socket_module.get_instruction_info(self.current_step, self.group_info, self.connector_info)
@@ -214,7 +222,7 @@ class AssemblyManager(object):
         else:
             self.logger.info("Instruction end!")
             self.is_end = True
-
+            
     def extract_assembly_info(self):
         used_group_info = {} # => for group assembly
         used_part_instance = [] # => unique instances
@@ -551,12 +559,9 @@ class AssemblyManager(object):
     def update_group_status(self):
         pass
 
-    def update_pyrep_scene(self):
-        pass
-
     def step(self):
         self.update_group_info()
-        self.update_pyrep_scene()
+        
         self.get_instruction_info()
 
         save_dic_to_yaml(self.part_instance_status, "example_part_instance_status_{}.yaml".format(self.current_step))

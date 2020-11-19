@@ -5,11 +5,11 @@ from pyrep import PyRep
 from pyrep.objects.dummy import Dummy
 from pyrep.objects.shape import Shape
 from pyrep.const import PrimitiveShape
+from pyrep.objects.camera import Camera
 
 from script.fileApi import *
 from script.const import SocketType, PyRepRequestType
 from script.socket_utils import *
-
 
 class GroupObj():
     def __init__(self, base_obj, composed_parts):
@@ -91,19 +91,32 @@ class ObjObject():
     def remove(self):
         self.shape.remove()
         self.frame.remove()
-    
+
+class InstructionFloor():
+    def __init__(self, step=0):
+        self.current_step = step
+        self.base = Dummy("Floor_{}".format(step))
+        self.instruction_plane = Shape("Instruction_Plane_{}".format(step))
+
+    def update_scene(self):
+        new_base = self.base.copy()
+
 class PyRepModule(object):
     def __init__(self, logger, headless=False):
         self.logger = logger
         self.callback = {
-            PyRepRequestType.get_region: self.get_region,
-            PyRepRequestType.initialize_scene: self.initialize_scene
+            PyRepRequestType.initialize_scene: self.initialize_scene,
+            PyRepRequestType.initialize_instruction_scene: self.initialize_instruction_scene
         }
         self.pr = PyRep()
-        self.pr.launch(headless=headless)
+        self.pr.launch("scene/demo.ttt", headless=headless)
         self.pr.start()
         self.scene_th = threading.Thread(target=self.scene_binding)
         self.scene_th.start()
+        
+        # demo visualize
+        self.camera = Camera("Camera")
+        self.insturction_floor = InstructionFloor()
 
         # used to visualize and assembly
         self.part_info = None
@@ -150,9 +163,6 @@ class PyRepModule(object):
         self.pr.shutdown()
 
     #region socket function
-    def get_region(self):
-        pass
-    
     def initialize_scene(self):
         self.logger.info("ready to initialize scene")
         sendall_pickle(self.connected_client, True)
@@ -221,7 +231,7 @@ class PyRepModule(object):
             obj.set_parent(base_obj.shape)
         self.group_obj[group_id] = GroupObj(base_obj, composed_parts)
 
-    def update_scene(self):
+    def initialize_instruction_scene(self):
         pass
 
     #endregion
@@ -234,11 +244,11 @@ if __name__ == "__main__":
     while True:
         try:
             request = recvall_pickle(pyrep_module.connected_client)
-            self.logger.info("Get request to {}".format(request))
+            logger.info("Get request to {}".format(request))
             callback = pyrep_module.get_callback(request)
             callback()
         except Exception as e:
-            self.logger.info("Error occur {}".format(e))
+            logger.info("Error occur {}".format(e))
             break
     pyrep_module.close()    
     
