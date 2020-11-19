@@ -2,7 +2,7 @@ from script.const import PartType, AssemblyType, AssemblyPair
 from script.fileApi import *
 from enum import Enum
 from socket_module import SocketModule
-from pyprnt import prnt
+# from pyprnt import prnt
 import copy
 
 class AssemblyManager(object):
