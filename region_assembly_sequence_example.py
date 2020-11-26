@@ -1,6 +1,6 @@
 from script.const import AssemblyType
 
-group_assembly_sequence_ex = {
+region_assembly_sequence_ex = {
     "sequence_1": [
         {
             "assembly_type": AssemblyType.group_connector,

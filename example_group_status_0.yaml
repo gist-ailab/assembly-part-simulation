@@ -1,0 +1,78 @@
+0:
+  available_assembly:
+    ikea_stefan_bolt_side: 0
+    ikea_stefan_bracket: 0
+    ikea_stefan_pin: 0
+    pan_head_screw_iso(4ea): 0
+  composed_group:
+  - 0
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_bottom
+  is_exist: true
+  status: []
+1:
+  available_assembly:
+    ikea_stefan_bolt_side: 0
+    ikea_stefan_bracket: 2
+    ikea_stefan_pin: 4
+    pan_head_screw_iso(4ea): 0
+  composed_group:
+  - 1
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_long
+  is_exist: true
+  status: []
+2:
+  available_assembly:
+    ikea_stefan_bolt_side: 0
+    ikea_stefan_bracket: 0
+    ikea_stefan_pin: 6
+    pan_head_screw_iso(4ea): 0
+  composed_group:
+  - 2
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_middle
+  is_exist: true
+  status: []
+3:
+  available_assembly:
+    ikea_stefan_bolt_side: 0
+    ikea_stefan_bracket: 2
+    ikea_stefan_pin: 4
+    pan_head_screw_iso(4ea): 0
+  composed_group:
+  - 3
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_short
+  is_exist: true
+  status: []
+4:
+  available_assembly:
+    ikea_stefan_bolt_side: 3
+    ikea_stefan_bracket: 0
+    ikea_stefan_pin: 7
+    pan_head_screw_iso(4ea): 0
+  composed_group:
+  - 4
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_side_left
+  is_exist: true
+  status: []
+5:
+  available_assembly:
+    ikea_stefan_bolt_side: 3
+    ikea_stefan_bracket: 0
+    ikea_stefan_pin: 7
+    pan_head_screw_iso(4ea): 0
+  composed_group:
+  - 5
+  composed_part:
+  - instance_id: 0
+    part_name: ikea_stefan_side_right
+  is_exist: true
+  status: []

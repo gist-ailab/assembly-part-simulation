@@ -1,0 +1,84 @@
+Connection:
+- components:
+  - id: 2
+    loc: null
+    order: 1
+    type: connector
+  - id: '1'
+    loc:
+    - 0.16688327491283417
+    - 0.016433067619800568
+    - -0.009847651235759258
+    order: 2
+    type: group
+  connection_id: 1
+  num_component: 2
+- components:
+  - id: 2
+    loc: null
+    order: 1
+    type: connector
+  - id: '1'
+    loc:
+    - 0.16684062778949738
+    - 0.024619128555059433
+    - -0.0005734018050134182
+    order: 2
+    type: group
+  connection_id: 2
+  num_component: 2
+- components:
+  - id: 2
+    loc: null
+    order: 2
+    type: connector
+  - id: '1'
+    loc:
+    - -0.16741007566452026
+    - -0.024502795189619064
+    - 0.0010063545778393745
+    order: 1
+    type: group
+  - id: '6'
+    loc:
+    - 0.17030787467956543
+    - -0.03978968784213066
+    - 0.22693413496017456
+    order: 3
+    type: group
+  connection_id: 3
+  num_component: 3
+- components:
+  - id: 2
+    loc: null
+    order: 2
+    type: connector
+  - id: '1'
+    loc:
+    - -0.16683973371982574
+    - -0.014958691783249378
+    - 0.009847651235759258
+    order: 1
+    type: group
+  - id: '6'
+    loc:
+    - 0.169504314661026
+    - -0.07100212574005127
+    - 0.22693324089050293
+    order: 3
+    type: group
+  connection_id: 4
+  num_component: 3
+Connector:
+- connector_id: 2
+  number_of_connector: 4
+  part_name: ikea_stefan_pin
+Group:
+- group_id: 1
+  model_name: ./obj_imp/01.obj
+- group_id: 6
+  model_name: ./obj_imp/06.obj
+connector_info: assembly/STEFAN/connector_info.yaml
+file_name: stefan-chair__AA-21977-9_pub_3.png
+group_info: assembly/STEFAN/group_info/group_info_2.yaml
+sequence_id: 3

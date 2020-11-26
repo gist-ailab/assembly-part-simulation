@@ -6,8 +6,10 @@ from socket_module import SocketModule
 import copy
 from itertools import combinations
 from example.sequence_example import *
-from group_assembly_sequence_example import group_assembly_sequence_ex
+from region_assembly_sequence_example import region_assembly_sequence_ex
 import random
+
+import numpy as np
 
 class AssemblyManager(object):
 
@@ -400,16 +402,23 @@ class AssemblyManager(object):
     def _get_region_id(self, group_id, connection_loc):
         region_id = self.socket_module.get_region_id(group_id=group_id,
                                                     connection_loc=connection_loc)
+    def _get_assembly_point(self, group_id, connection_loc):
+        part_instance = {
+            "part_name": "sdf",
+            "instance_id": 0
+        }
+        assembly_point = 9
+        return part_instance, assembly_point
 
     def search_assembly_sequence(self):
         self.assembly_info = {}
         self.assembly_info["part"] = []
         self.assembly_info["assembly"] = []
         self.assembly_info["assembly_sequence"] = []
-        group_assemlby_sequence = group_assembly_sequence_ex["sequence_{}".format(self.current_step)]
+        region_assembly_sequence = region_assembly_sequence_ex["sequence_{}".format(self.current_step)]
         assembly_sequence = self.assembly_info["assembly_sequence"]
-        for group_assembly in group_assemlby_sequence:
-            seq = self._extract_sequence_from_group_assembly(group_assembly)
+        for group_assembly in region_assembly_sequence:
+            seq = self._extract_sequence_from_region_assembly(group_assembly)
             assembly_sequence += seq
 
         temp_dict = {}
@@ -422,10 +431,10 @@ class AssemblyManager(object):
         self.assembly_info["assembly"] = temp_dict
         
         save_dic_to_yaml(self.assembly_info, "test_{}.yaml".format(self.current_step))
-    def _extract_sequence_from_group_assembly(self, group_assembly):
+    def _extract_sequence_from_region_assembly(self, region_assembly):
         used_assembly_instance = self.assembly_info["part"]
-        assembly_component = group_assembly["component"]
-        assembly_type = group_assembly["assembly_type"]
+        assembly_component = region_assembly["component"]
+        assembly_type = region_assembly["assembly_type"]
         # connector instance
         connctor_id = assembly_component["connector"]
         connector_name = self.connector_info[connctor_id]["part_name"]
@@ -463,7 +472,7 @@ class AssemblyManager(object):
             used_assembly_instance.append(target_part_instance)
         
         # get one sequence
-        available_pair = self.assembly_info["assembly"]
+        available_pair = []
         group_assembly_sequence = [] 
 
         if len(group_info_list) == 1:
@@ -507,9 +516,13 @@ class AssemblyManager(object):
                                                                     part_name_1=part_name_1,
                                                                     assembly_points_1=assembly_points_1)
             
-
-            one_possible_sequence = list(random.choice(self._get_available_sequence(available_pair, assembly_num)))
-            group_assembly_sequence = one_possible_sequence
+            self.logger.info("""...searching {} assembly between {}_{}, {}_{}""".format(
+                assembly_num, part_name_0,  part_name_1
+            ))
+            possible_sequences = self._get_available_sequence(available_pair, assembly_num)
+            one_possible_sequence = list(random.choice(possible_sequences))
+            
+            group_assembly_sequence += one_possible_sequence
 
         elif len(group_info_list) == 2 and assembly_type == AssemblyType.group_connector_group:
             """group + connector => group + group
@@ -559,9 +572,10 @@ class AssemblyManager(object):
                                                                     part_name_1=part_name_1,
                                                                     assembly_points_1=assembly_points_1)
             
-            one_possible_sequence = list(random.choice(self._get_available_sequence(available_pair, assembly_num)))
-            
+            possible_sequences = self._get_available_sequence(available_pair, assembly_num)
+            one_possible_sequence = list(random.choice(possible_sequences))
             group_assembly_sequence += one_possible_sequence
+
             #endregion
         
             #region assemble group + group(connector)
@@ -602,16 +616,19 @@ class AssemblyManager(object):
             
             possible_sequences = self._get_available_sequence(available_pair, assembly_num, 
                                                             group_condition=group_assembly_sequence)
-            group_assembly_sequence += list(random.choice(possible_sequences))#TODO: get one possible sequence
-
-            
+            one_possible_sequence = list(random.choice(possible_sequences))#TODO: get one possible sequence
+            group_assembly_sequence += one_possible_sequence
             #endregion
 
         else:
             assert False
-        
-        return group_assembly_sequence
+        previous_pair_list = self.assembly_info["assembly"]
+        previous_idx = len(previous_pair_list)
+        previous_pair_list += available_pair
+        group_assembly_sequence = list(np.array(group_assembly_sequence) + previous_idx) 
 
+        return group_assembly_sequence
+    
     def _get_available_assembly_pairs(self, part_id_0, part_name_0, assembly_points_0, 
                                             part_id_1, part_name_1, assembly_points_1):
         assert self.assembly_pair
