@@ -513,6 +513,8 @@ def extract_part_info(cad_path):
     cad_dir_list = get_dir_list(cad_path)
     part_document_path = "./assembly/STEFAN/part_documents"
     check_and_reset_dir(part_document_path)
+    obj_root_path = "./assembly/STEFAN/part_obj"
+    check_and_create_dir(obj_root_path)
     part_id = 0
     cad_dir_list.sort()
     for cad_dir in cad_dir_list:
@@ -529,9 +531,11 @@ def extract_part_info(cad_path):
             _, part_name = os.path.split(cad_file)
             part_name = os.path.splitext(part_name)[0]
             doc_path = join(part_document_path, part_name+".FCStd")
+            obj_path = join(obj_root_path, part_name+".obj")
             assembly_points = extract_assembly_points(step_path=cad_file,
                                                       step_name=part_name,
                                                       doc_path=doc_path,
+                                                      obj_path=obj_path,
                                                       part_type=part_type,
                                                       )
             if part_name in region_condition.keys():
@@ -550,10 +554,12 @@ def extract_part_info(cad_path):
                     }
             else:
                 region_info = {}
+            
             part_info[part_name] = {
                 "part_id": part_id,
                 "type": part_type.value,
                 "document": doc_path,
+                "obj_file": obj_path,
                 "step_file": cad_file,
                 "assembly_points": assembly_points,
                 "region_info": copy.deepcopy(region_info)
@@ -561,7 +567,7 @@ def extract_part_info(cad_path):
             part_id += 1
     return part_info
 
-def extract_assembly_points(step_path, step_name, doc_path, part_type):
+def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type):
     global unique_radius
     """extract assembly_points from step file
 
@@ -589,7 +595,7 @@ def extract_assembly_points(step_path, step_name, doc_path, part_type):
     Part.insert(step_path, doc.Name)    
     obj = doc.ActiveObject
     obj.Label = part_type.value
-    
+    Mesh.export([obj], obj_path)
     # extract circles
     circles = get_circles(obj)
 
@@ -672,8 +678,8 @@ class FreeCADModule():
         self.main_window = FreeCADGui.getMainWindow()
         self.App = FreeCAD
         self.Gui = FreeCADGui
-        self.th = threading.Thread(target=self.binding)
-        self.th.start()
+        # self.th = threading.Thread(target=self.binding)
+        # self.th.start()
 
         # 조립에 사용하는 변수들
         self.part_info = None

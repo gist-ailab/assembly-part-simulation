@@ -22,6 +22,7 @@ ikea_stefan_bolt_side:
       radius: 5.65
       type: insertion
   document: ./assembly/STEFAN/part_documents/ikea_stefan_bolt_side.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_bolt_side.obj
   part_id: 0
   region_info: {}
   step_file: ./cad_file/STEFAN/connector_part/ikea_stefan_bolt_side.STEP
@@ -29,6 +30,7 @@ ikea_stefan_bolt_side:
 ikea_stefan_bottom:
   assembly_points: {}
   document: ./assembly/STEFAN/part_documents/ikea_stefan_bottom.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_bottom.obj
   part_id: 4
   region_info: {}
   step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_bottom.STEP
@@ -78,6 +80,7 @@ ikea_stefan_bracket:
       radius: 3.5
       type: hole
   document: ./assembly/STEFAN/part_documents/ikea_stefan_bracket.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_bracket.obj
   part_id: 1
   region_info: {}
   step_file: ./cad_file/STEFAN/connector_part/ikea_stefan_bracket.STEP
@@ -253,6 +256,7 @@ ikea_stefan_long:
       radius: 3.0000000000000027
       type: hole
   document: ./assembly/STEFAN/part_documents/ikea_stefan_long.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_long.obj
   part_id: 5
   region_info:
     0:
@@ -460,6 +464,7 @@ ikea_stefan_middle:
       radius: 4.000000000000003
       type: hole
   document: ./assembly/STEFAN/part_documents/ikea_stefan_middle.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_middle.obj
   part_id: 6
   region_info:
     0:
@@ -541,6 +546,7 @@ ikea_stefan_pin:
       radius: 2.499999999999989
       type: insertion
   document: ./assembly/STEFAN/part_documents/ikea_stefan_pin.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_pin.obj
   part_id: 2
   region_info: {}
   step_file: ./cad_file/STEFAN/connector_part/ikea_stefan_pin.STEP
@@ -716,6 +722,7 @@ ikea_stefan_short:
       radius: 3.0000000000000027
       type: hole
   document: ./assembly/STEFAN/part_documents/ikea_stefan_short.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_short.obj
   part_id: 7
   region_info:
     0:
@@ -965,6 +972,7 @@ ikea_stefan_side_left:
       radius: 4.0000000000000036
       type: hole
   document: ./assembly/STEFAN/part_documents/ikea_stefan_side_left.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_side_left.obj
   part_id: 8
   region_info:
     0:
@@ -1216,6 +1224,7 @@ ikea_stefan_side_right:
       radius: 4.0000000000000036
       type: hole
   document: ./assembly/STEFAN/part_documents/ikea_stefan_side_right.FCStd
+  obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_side_right.obj
   part_id: 9
   region_info:
     0:
@@ -1278,6 +1287,7 @@ pan_head_screw_iso(4ea):
       radius: 6.0
       type: insertion
   document: ./assembly/STEFAN/part_documents/pan_head_screw_iso(4ea).FCStd
+  obj_file: ./assembly/STEFAN/part_obj/pan_head_screw_iso(4ea).obj
   part_id: 3
   region_info: {}
   step_file: ./cad_file/STEFAN/connector_part/pan_head_screw_iso(4ea).STEP

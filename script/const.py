@@ -20,6 +20,16 @@ class AssemblyType(Enum):
     group_group_connector = [
         {1:"group", 2:"group", 3:"connector"}
     ]
+    @classmethod
+    def find_type(cls, assemblyType):
+        if assemblyType in cls.group_connector.value:
+            return cls.group_connector
+        elif assemblyType in cls.group_connector_group.value:
+            return cls.group_connector_group
+        elif assemblyType in cls.group_group_connector.value:
+            return cls.group_group_connector
+        else:
+            assert False
 
 class AssemblyPoint(object):
     def __init__(self, idx, hole_type, radius, edge_index, depth, direction, position, quaternion):
@@ -36,6 +46,8 @@ class PyRepRequestType():
     initialize_part_to_scene = "initialize_part_to_scene"
     update_group_to_scene = "update_group_to_scene"
     get_region_id = "get_region_id"
+    get_assembly_point = "get_assembly_point"
+    update_part_status = "update_part_status"
 
 class FreeCADRequestType():
     initialize_cad_info = "initialize_cad_info"

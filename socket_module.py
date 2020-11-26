@@ -126,13 +126,32 @@ class SocketModule():
             self.logger.info("Success to update group to Scene")
         else:
             self.logger.info("Fail to update group to Scene")
+        return is_success
+
+    def update_part_status(self, part_status):
+        request = PyRepRequestType.update_part_status
+        self.logger.info("Request {} to PyRep Module".format(request))
+        sendall_pickle(self.c_pyrep, request)
+        response = recvall_pickle(self.c_pyrep)
+        assert response, "Not ready to update part status"
+        # send part info and initialize pyrep scene
+        request = {
+            "part_status": part_status,
+        }
+        sendall_pickle(self.c_pyrep, request)
+        is_success = recvall_pickle(self.c_pyrep)
+        if is_success:
+            self.logger.info("Success to update part status")
+        else:
+            self.logger.info("Fail to update group to Scene")
+        return is_success
 
     def get_region_id(self, group_id, connection_loc):
         request = PyRepRequestType.get_region_id
         self.logger.info("Request {} to PyRep Module".format(request))
         sendall_pickle(self.c_pyrep, request)
         response = recvall_pickle(self.c_pyrep)
-        assert response, "Not ready to initialize pyrep scene"
+        assert response, "Not ready to get region from scene"
         # send part info and initialize pyrep scene
         request = {
             "group_id": group_id,
@@ -140,8 +159,27 @@ class SocketModule():
         }
         sendall_pickle(self.c_pyrep, request)
         region_id = recvall_pickle(self.c_pyrep)
-        assert region_id, "Fail to initialize Scene"
+        assert region_id, "Fail to get region from scene"
+        
+        return region_id
     
+    def get_assembly_point(self, group_id, connection_loc):
+        request = PyRepRequestType.get_region_id
+        self.logger.info("Request {} to PyRep Module".format(request))
+        sendall_pickle(self.c_pyrep, request)
+        response = recvall_pickle(self.c_pyrep)
+        assert response, "Not ready to get assembly point from scene"
+        # send part info and initialize pyrep scene
+        request = {
+            "group_id": group_id,
+            "connection_loc": connection_loc
+        }
+        sendall_pickle(self.c_pyrep, request)
+        assembly_point = recvall_pickle(self.c_pyrep)
+        assert assembly_point, "Fail to get assembly point from scene"
+        
+        return assembly_point
+
     #endregion
 
     #region instruction module

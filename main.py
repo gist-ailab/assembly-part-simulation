@@ -35,10 +35,9 @@ if __name__ == "__main__":
     # assembly simulation
     while not asm_manager.is_end: # end sign from instruction_info
         # extract assembly info 
-        # asm_manager.extract_assembly_info()
+        asm_manager.extract_assembly_info()
         
         asm_manager.search_assembly_sequence()
-        
         # assemble parts and calculate cost by distance taken during assembly
         asm_manager.simulate_instruction_step()
         
