@@ -93,10 +93,8 @@ class SocketModule():
     #endregion
     
     #region pyrep module
-    def initialize_pyrep_scene(self, part_info, group_info):
-        """
-        """
-        request = PyRepRequestType.initialize_scene
+    def initialize_part_to_scene(self, part_info):
+        request = PyRepRequestType.initialize_part_to_scene
         self.logger.info("Request {} to PyRep Module".format(request))
         sendall_pickle(self.c_pyrep, request)
         response = recvall_pickle(self.c_pyrep)
@@ -104,7 +102,6 @@ class SocketModule():
         # send part info and initialize pyrep scene
         request = {
             "part_info": part_info,
-            "group_info": group_info
         }
         sendall_pickle(self.c_pyrep, request)
         is_success = recvall_pickle(self.c_pyrep)
@@ -112,6 +109,38 @@ class SocketModule():
             self.logger.info("Success to initialize Scene")
         else:
             self.logger.info("Fail to initialize Scene")
+    
+    def update_group_to_scene(self, group_info):
+        request = PyRepRequestType.update_group_to_scene
+        self.logger.info("Request {} to PyRep Module".format(request))
+        sendall_pickle(self.c_pyrep, request)
+        response = recvall_pickle(self.c_pyrep)
+        assert response, "Not ready to update group to scene"
+        # send part info and initialize pyrep scene
+        request = {
+            "group_info": group_info,
+        }
+        sendall_pickle(self.c_pyrep, request)
+        is_success = recvall_pickle(self.c_pyrep)
+        if is_success:
+            self.logger.info("Success to update group to Scene")
+        else:
+            self.logger.info("Fail to update group to Scene")
+
+    def get_region_id(self, group_id, connection_loc):
+        request = PyRepRequestType.get_region_id
+        self.logger.info("Request {} to PyRep Module".format(request))
+        sendall_pickle(self.c_pyrep, request)
+        response = recvall_pickle(self.c_pyrep)
+        assert response, "Not ready to initialize pyrep scene"
+        # send part info and initialize pyrep scene
+        request = {
+            "group_id": group_id,
+            "connection_loc": connection_loc
+        }
+        sendall_pickle(self.c_pyrep, request)
+        region_id = recvall_pickle(self.c_pyrep)
+        assert region_id, "Fail to initialize Scene"
     
     #endregion
 

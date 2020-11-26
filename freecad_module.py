@@ -35,6 +35,7 @@ import socket
 from enum import Enum
 import threading
 import copy
+import time
 
 from script.const import SocketType, FreeCADRequestType, PartType
 from script.fileApi import *
@@ -276,6 +277,8 @@ class Hole():
 class AssemblyDocument(object):
     def __init__(self, doc_path=temp_doc_path):
         self.doc = FreeCAD.newDocument()
+        FreeCAD.setActiveDocument(self.doc.Name)
+
         self.initial_path = doc_path
         save_doc_as(self.doc, doc_path)
 
@@ -533,18 +536,29 @@ def extract_part_info(cad_path):
                                                       )
             if part_name in region_condition.keys():
                 region = region_condition[part_name]
+                region_info = {}
+                for region_id in region.keys():
+                    region_points = region[region_id]
+                    average_position = np.zeros(3)
+                    for region_point_idx in region_points:
+                        position = np.array(assembly_points[region_point_idx]["pose"]["position"])
+                        average_position += position
+                    average_position /= len(region_points)
+                    region_info[region_id] = {
+                        "points": region_points,
+                        "position": npfloat_to_float(average_position)
+                    }
             else:
-                region = {}
+                region_info = {}
             part_info[part_name] = {
                 "part_id": part_id,
                 "type": part_type.value,
                 "document": doc_path,
                 "step_file": cad_file,
                 "assembly_points": assembly_points,
-                "region": region
+                "region_info": copy.deepcopy(region_info)
             }
             part_id += 1
-
     return part_info
 
 def extract_assembly_points(step_path, step_name, doc_path, part_type):
@@ -635,6 +649,11 @@ def save_doc_as(doc, filepath):
 
 def close_doc(doc):
     FreeCAD.closeDocument(doc.Name)
+
+def setview():
+    """Rearrange View"""
+    FreeCAD.Gui.SendMsgToActiveView("ViewFit")
+    FreeCAD.Gui.activeDocument().activeView().viewAxometric()
 
 def create_assembly_doc(doc_name, part_doc):
     doc = FreeCAD.newDocument(doc_name)

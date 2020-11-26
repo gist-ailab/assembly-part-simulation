@@ -5,6 +5,7 @@ import yaml
 from datetime import datetime
 import logging
 import shutil
+import json
 
 def get_logger(module_name):
     logger = logging.getLogger(module_name)
@@ -36,6 +37,11 @@ def save_dic_to_yaml(dic, yaml_path):
 def load_yaml_to_dic(yaml_path):
     with open(yaml_path, 'r') as y_file:
         dic = yaml.load(y_file, Loader=yaml.FullLoader)
+    return dic
+
+def load_json_to_dic(json_path):
+    with open(json_path, 'r') as j_file:
+        dic = json.load(j_file)
     return dic
 
 def check_and_create_dir(dir_path):

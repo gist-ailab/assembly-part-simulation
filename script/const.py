@@ -9,10 +9,17 @@ class HoleType(Enum):
     insertion = "insertion"
     penetration = "penetration"
 
-class AssemblyType:
-    group_group = "group_group"
-    group_connector_group = "group_connector_group"
-    group_connector = "group_connector"
+class AssemblyType(Enum):
+    group_connector_group = [
+        {1:"group", 2:"connector", 3:"group"}
+    ]
+    group_connector = [
+        {1:"group", 2:"connector"},
+        {1:"connector", 2:"group"}
+    ]
+    group_group_connector = [
+        {1:"group", 2:"group", 3:"connector"}
+    ]
 
 class AssemblyPoint(object):
     def __init__(self, idx, hole_type, radius, edge_index, depth, direction, position, quaternion):
@@ -26,9 +33,9 @@ class AssemblyPoint(object):
         self.quaternion = quaternion
 
 class PyRepRequestType():
-    initialize_scene = "initialize_scene"
-    initialize_instruction_scene = "initialize_instruction_scene"
-    update_instruction_scene = "update_instruction_scene"
+    initialize_part_to_scene = "initialize_part_to_scene"
+    update_group_to_scene = "update_group_to_scene"
+    get_region_id = "get_region_id"
 
 class FreeCADRequestType():
     initialize_cad_info = "initialize_cad_info"

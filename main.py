@@ -22,46 +22,29 @@ if __name__ == "__main__":
     furniture_name = args.furniture_name
     logger = get_logger(furniture_name)
 
-    #region initialize
     # Assembly manager    
     asm_manager = AssemblyManager(logger, furniture_name)
 
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
 
-    # initialize group info using part info
-    asm_manager.update_group_info()
-
-    # initialize pyrep scene
-    asm_manager.initialize_pyrep_scene()
-    #endregion
-
-    #region simulate assembly
-    # get instruction info
-    asm_manager.get_instruction_info()
-        
+    # using part info to initialize scene
+    asm_manager.initialize_part_to_scene()
+    
+    asm_manager.step()
     # assembly simulation
     while not asm_manager.is_end: # end sign from instruction_info
         # extract assembly info 
-        asm_manager.extract_assembly_info()
+        # asm_manager.extract_assembly_info()
         
-        asm_manager.test_search_sequence()
-
-        # search assembly sequence
-        # asm_manager.search_assemble_sequences()
-
+        asm_manager.search_assembly_sequence()
+        
         # assemble parts and calculate cost by distance taken during assembly
         asm_manager.simulate_instruction_step()
         
-        #TODO 설명서에서 나오지 않은 추가적인 결합 체크
-        asm_manager.check_hidden_assembly()
-
         asm_manager.step()
-
-        asm_manager.get_instruction_info()
+        
     #endregion
 
-    logger.info("SUCCESS!")
-    exit()
         
 
