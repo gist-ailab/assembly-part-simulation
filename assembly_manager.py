@@ -262,8 +262,10 @@ class AssemblyManager(object):
         instruction_connection_info = self.instruction_info['Connection']
         
         """extract used parts from using group"""
+        group_assembly = {}
         for group_info in instruction_group_info:
             group_id = group_info["group_id"]
+            group_assembly.setdefault(group_id, [])
             used_group_status = self.group_status[group_id]
             used_parts = used_group_status["composed_part"]
             for used_part in used_parts:
@@ -277,12 +279,53 @@ class AssemblyManager(object):
 
         """extract connection assembly_sequence from connection info"""
         
-        connection_assembly_sequence = self.connection_assembly_sequence
+        connection_assembly_sequence = []
 
         for connection_info in instruction_connection_info:
             connection_assembly = self._get_connection_assembly(connection_info)
             connection_assembly_sequence.append(connection_assembly)
+        # search assembly point for each group
+                
+        for connection_assembly in connection_assembly_sequence:
+            component_info = connection_assembly["component"]
+            group_list = component_info["group"]
+            connector_id = component_info["connector"]
+            for group_info in group_list:
+                group_id = group_info["id"]
+                connection_loc = group_info["assembly_point"]
+                group_assembly[group_id].append({
+                    "connection_loc": connection_loc,
+                    "connector_name": self.connector_parts[connector_id]
+                })
         
+        for group_id in group_assembly.keys():
+            connection_list = group_assembly[group_id]
+            connection_locs = []
+            connector_name = None
+            assembly_points = []
+            for connection in connection_list:
+                if not connection["connection_loc"]:
+                    continue
+                connection_locs.append(connection["connection_loc"])
+                connector_name = connection["connector_name"]
+            assembly_points = self._get_assembly_points(group_id, connection_locs, connector_name)
+            for connection_assembly in connection_assembly_sequence:
+                component_info = connection_assembly["component"]
+                group_list = component_info["group"]
+                for group_info in group_list:
+                    connection_loc = group_info["assembly_point"]
+                    if connection_loc in connection_locs:
+                        idx = connection_locs.index(connection_locs)
+                        group_info["assembly_point"] = assembly_points[idx]
+
+
+        self.connection_assembly_sequence = copy.deepcopy(connection_assembly_sequence)
+
+        # To save form
+        for connection_assembly in connection_assembly_sequence:
+            connection_assembly["assembly_type"] = connection_assembly["assembly_type"].name
+        save_dic_to_yaml(self.connection_assembly_sequence, "example_connection_sequence_{}.yaml".format(self.current_step))
+
         self.logger.info("Success to extrct assembly info")
             
     def _get_connection_assembly(self, connection_info):
@@ -292,11 +335,8 @@ class AssemblyManager(object):
                 "group": [
                     {
                         "id": 1,
-                        "assembly_point":{
-                            "part_name": "ikea_stefan_long",
-                            "instance_id": 0,
-                            "point_id": 0
-                        }
+                        "assembly_point": component loc(position or None)
+                    }
                     },
                 ],
                 "connector": 1,
@@ -316,28 +356,27 @@ class AssemblyManager(object):
             component_type = component["type"] # connector / group
             assembly_type[order] = component_type
 
-            component_id = component["id"] # connector_id / group_id
+            component_id = int(component["id"]) # connector_id / group_id
             connection_loc = component["loc"]
             if component_type == "connector":
                 component_info["connector"] = component_id
             elif component_type == "group":
-                assembly_point = self._get_assembly_point(group_id=component_id,
-                                                        connection_loc=connection_loc)
                 connection_group_info = {
                     "id": component_id,
-                    "assembly_point": assembly_point
+                    "assembly_point": connection_loc
                 }
                 component_info["group"].append(connection_group_info)
 
             else:
                 assert False                
+        
         connection_assembly["assembly_type"] = AssemblyType.find_type(assembly_type)
         
         return connection_assembly
     def _get_region_id(self, group_id, connection_loc):
         region_id = self.socket_module.get_region_id(group_id=group_id,
                                                     connection_loc=connection_loc)
-    def _get_assembly_point(self, group_id, connection_loc):
+    def _get_assembly_points(self, group_id, connection_locs, connector_name):
         """get assembly point from location
 
         Args:
@@ -351,11 +390,11 @@ class AssemblyManager(object):
                 assembly_point
             }
         """
-        if connection_loc:
-            assembly_point = self.socket_module.get_assembly_point(group_id, connection_loc)
+        if connector_name:
+            assembly_points = self.socket_module.get_assembly_point(group_id, connection_locs, connector_name)
         else:
-            assembly_point = None
-        return assembly_point
+            assembly_points = None
+        return assembly_points
 
     def search_assembly_sequence(self):
         self.assembly_info["assembly"] = []
@@ -365,10 +404,10 @@ class AssemblyManager(object):
         # for group_assembly in region_assembly_sequence:
         #     seq = self._extract_sequence_from_region_assembly(group_assembly)
         #     assembly_sequence += seq
-        connection_assembly_sequence = []
+        assembly_sequence = self.assembly_info["assembly_sequence"]
         for connection_assembly in self.connection_assembly_sequence:
             seq = self._extract_sequence_from_connection_assembly(connection_assembly)
-            connection_assembly_sequence += seq
+            assembly_sequence += seq
 
         temp_dict = {}
         for idx, v in enumerate(self.assembly_info["part"]):
@@ -379,7 +418,6 @@ class AssemblyManager(object):
             temp_dict[idx] = v
         self.assembly_info["assembly"] = temp_dict
         
-        self.assembly_info["assembly_sequence"] = connection_assembly_sequence
         save_dic_to_yaml(self.assembly_info, "test_{}.yaml".format(self.current_step))
 
     def _extract_sequence_from_region_assembly(self, region_assembly):
@@ -864,10 +902,18 @@ class AssemblyManager(object):
         impossible_sequence = []
         # check condition
         condition_used_point = []
+        
+        global_pairs = self.assembly_info["assembly"]
         global_condition = self.assembly_info["assembly_sequence"]
+        for pair_idx in global_condition:
+            target_assembly_pair = global_pairs[pair_idx]
+            target_pair = target_assembly_pair["target_pair"]
+            for idx in target_pair.keys():
+                point = target_pair[idx]
+                condition_used_point.append(point)
+        
         local_condition = group_condition
-        condition = global_condition + local_condition
-        for pair_idx in condition:
+        for pair_idx in local_condition:
             target_assembly_pair = assembly_pairs[pair_idx]
             target_pair = target_assembly_pair["target_pair"]
             for idx in target_pair.keys():
