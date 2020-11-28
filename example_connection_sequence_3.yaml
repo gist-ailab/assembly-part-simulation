@@ -1,0 +1,53 @@
+- assembly_type: &id001 !!python/object/apply:script.const.AssemblyType
+  - - 1: group
+      2: connector
+    - 1: connector
+      2: group
+  component:
+    connector: 2
+    group:
+    - assembly_point:
+        instance_id: 0
+        part_name: ikea_stefan_long
+        point_id: 0
+      id: 1
+- assembly_type: *id001
+  component:
+    connector: 2
+    group:
+    - assembly_point:
+        instance_id: 0
+        part_name: ikea_stefan_long
+        point_id: 2
+      id: 1
+- assembly_type: &id002 !!python/object/apply:script.const.AssemblyType
+  - - 1: group
+      2: connector
+      3: group
+  component:
+    connector: 2
+    group:
+    - assembly_point:
+        instance_id: 0
+        part_name: ikea_stefan_long
+        point_id: 5
+      id: 1
+    - assembly_point:
+        instance_id: 0
+        part_name: ikea_stefan_side_left
+        point_id: 2
+      id: 6
+- assembly_type: *id002
+  component:
+    connector: 2
+    group:
+    - assembly_point:
+        instance_id: 0
+        part_name: ikea_stefan_long
+        point_id: 3
+      id: 1
+    - assembly_point:
+        instance_id: 0
+        part_name: ikea_stefan_side_left
+        point_id: 1
+      id: 6

@@ -1,0 +1,166 @@
+assembly:
+  0:
+    method:
+      additional: &id001
+        direction: aligned
+        face_pair:
+        - 12
+        - 8
+        type: parallel
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 2
+  1:
+    method:
+      additional: &id002
+        direction: aligned
+        face_pair:
+        - 12
+        - 8
+        type: parallel
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 2
+  2:
+    method:
+      additional: *id001
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 3
+  3:
+    method:
+      additional: *id002
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 3
+  4:
+    method:
+      additional: &id003
+        direction: aligned
+        face_pair:
+        - 12
+        - 8
+        type: parallel
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 1
+      1:
+        assembly_point: 0
+        part_id: 4
+  5:
+    method:
+      additional: &id004
+        direction: aligned
+        face_pair:
+        - 12
+        - 8
+        type: parallel
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 1
+      1:
+        assembly_point: 0
+        part_id: 4
+  6:
+    method:
+      additional: *id003
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 1
+      1:
+        assembly_point: 0
+        part_id: 5
+  7:
+    method:
+      additional: *id004
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 1
+      1:
+        assembly_point: 0
+        part_id: 5
+assembly_sequence:
+- !!python/object/apply:numpy.core.multiarray.scalar
+  - &id005 !!python/object/apply:numpy.dtype
+    args:
+    - i8
+    - false
+    - true
+    state: !!python/tuple
+    - 3
+    - <
+    - null
+    - null
+    - null
+    - -1
+    - -1
+    - 0
+  - !!binary |
+    AQAAAAAAAAA=
+- !!python/object/apply:numpy.core.multiarray.scalar
+  - *id005
+  - !!binary |
+    AgAAAAAAAAA=
+- !!python/object/apply:numpy.core.multiarray.scalar
+  - *id005
+  - !!binary |
+    BQAAAAAAAAA=
+- !!python/object/apply:numpy.core.multiarray.scalar
+  - *id005
+  - !!binary |
+    BgAAAAAAAAA=
+part:
+  0:
+    instance_id: 0
+    part_name: ikea_stefan_long
+  1:
+    instance_id: 0
+    part_name: ikea_stefan_short
+  2:
+    instance_id: 0
+    part_name: ikea_stefan_bracket
+  3:
+    instance_id: 1
+    part_name: ikea_stefan_bracket
+  4:
+    instance_id: 2
+    part_name: ikea_stefan_bracket
+  5:
+    instance_id: 3
+    part_name: ikea_stefan_bracket
