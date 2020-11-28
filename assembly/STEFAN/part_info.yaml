@@ -21,6 +21,27 @@ ikea_stefan_bolt_side:
         - -0.7071067811865475
       radius: 5.65
       type: insertion
+    1:
+      depth: 0.03
+      direction:
+      - 1.0
+      - -0.0
+      - -0.0
+      edge_index:
+      - 13
+      - opposed
+      pose:
+        position:
+        - 0.03
+        - 0.0
+        - 0.0
+        quaternion:
+        - 0.0
+        - 0.7071067811865475
+        - 0.0
+        - -0.7071067811865475
+      radius: 7.9
+      type: insertion
   document: ./assembly/STEFAN/part_documents/ikea_stefan_bolt_side.FCStd
   obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_bolt_side.obj
   part_id: 0

@@ -76,19 +76,48 @@ class AssemblyManager(object):
         self._initialize_group_status()
     def _initialize_assembly_pair(self):
         """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
+        - radius_group => all possible groups
+        # radius info
+            0 2.499999999999989 # pin:1
+            1 2.499999999999995 # pin:0
+            2 2.5000000000000004 # long:1,4 middle:2,5 short:1,4
+            3 2.7499999999999747 # left:3,4, right:3,4
+            4 2.750000000000001 # left:0 right:0
+            5 3.000000000000001 # brcket:0
+            6 3.0000000000000027 # long:6,7 short:6,7
+            7 3.4999999999999996 # short:0,2,3,5
+            8 3.5 # bracket:1
+            9 4.0  #(9~13) # long,middle,left,right wiht pin
+            10 4.000000000000001
+            11 4.000000000000002
+            12 4.000000000000003
+            13 4.0000000000000036
+            14 5.65 # bolt:0
+            15 6.0 # pan_head_screw_iso(4ea):0
+            16 7.9 # bolt:1 
+        # offset heuristic rule(based on assemble direction == hole direction)
+        - pin assembly offset = -15
+        - flat offset = 30
+            # offset based on parent edge direction
+            if parent_edge dir == assemble dir
+                offset = offset
+            else:
+                offset *= -1
         """
         # assert False, "Not use this function! load refined file instead"
         radius_group = {
-            "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
-            "braket group": [5, 6, 8],
-            "flat_penet group": [2, 3, 4, 14],
-            "pan": [15]
+            "pin": [0, 1, 7, 9, 10, 11, 12, 13],
+            "braket": [5, 6],
+            "flat_penet": [2, 16], 
+            "flat": [3, 4, 14], # 5.65
+            "pan": [8, 15] # 6
         }
         def get_group(radius):
             idx = unique_radius.index(radius)
             for group in radius_group.keys():
                 if idx in radius_group[group]:
                     return group
+                
         assembly_pairs = {}
         
         unique_radius = []
@@ -101,6 +130,8 @@ class AssemblyManager(object):
                 else:
                     unique_radius.append(radius)
         unique_radius.sort()
+        for idx, r in enumerate(unique_radius):
+            print(idx, r)
         for part_name_1 in self.part_info.keys():
             assembly_pairs[part_name_1] = {}
             info1 = self.part_info[part_name_1]
@@ -118,12 +149,23 @@ class AssemblyManager(object):
                         if point_1["type"] == point_2["type"]:
                             continue
                         if get_group(point_1["radius"]) == get_group(point_2["radius"]):
-                            offset = 0
-                            if get_group(point_1["radius"]) == "pin group":
-                                offset = -15 # 0.015
+                            # direction condtion
                             edge_dir_1 = point_1["edge_index"][1]
                             edge_dir_2 = point_2["edge_index"][1]
                             direction = "aligned" if edge_dir_1==edge_dir_2 else "opposed"
+                            
+                            # offset rule
+                            offset = 0
+                            if get_group(point_1["radius"]) == "pin":
+                                offset = -15
+                                if part_name_1 =="ikea_stefan_pin":
+                                    offset *= -1
+                            if get_group(point_1["radius"]) == "flat_penet":
+                                offset = -30 
+                                if part_name_1 =="ikea_stefan_bolt_side":
+                                    offset *= -1
+                            if edge_dir_1 == "opposed":
+                                offset *= -1
                             target = {
                                 "part_name": part_name_2,
                                 "assembly_point": point_idx_2,

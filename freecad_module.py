@@ -170,6 +170,7 @@ class Circle(object):
                 else:
                     self.edge_index = [ind + 1, "opposed"]
                     find_edge = True
+        
         if not find_edge:
             print("ERROR no edge same with circle")
 
@@ -614,22 +615,34 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
         mid_circle1.position = position
         mid_circle2.position = position
         circles += [mid_circle1, mid_circle2]
+    
     #endregion
 
     # extract circle holes
     circle_holes = get_circle_holes(circles)
+
+    if "bolt_side" in step_name:
+        mid_circle = copy.deepcopy(circles[-1])
+        position = [val1/2 + val2/2 for val1, val2 in zip(circles[0].position, circles[-1].position)]
+        mid_circle.position = position
+        added_circles = [mid_circle, circles[-1]]
+        circle_holes += get_circle_holes(added_circles)
+        
+        
     for hole in circle_holes:
         hole.create_hole()
         hole.visualize_hole(doc)
         hole.set_hole_type(doc, obj)
         hole.remove_hole(doc) # TODO: if not to do this error occur when assembly
+        # hole.start_circle.visualize_circle(doc)
         # hole.visualize_frame(doc)
         if hole.radius in unique_radius:
             pass
         else:
             unique_radius.append(hole.radius)
             unique_radius.sort()
-
+    if "bolt_side" in step_name:
+        circle_holes[1].radius = 7.9
     # extract assembly point from circle holes
     assembly_points = {}
     for idx, hole in enumerate(circle_holes):
@@ -902,18 +915,17 @@ class FreeCADModule():
     #endregion
     @staticmethod
     def assembly_pair_test(all_part_info, assembly_pair):
+        unique_radius = []
         assembly_doc = AssemblyDocument()
         check_and_reset_dir("pairtest")
         
         for parent_part_name in assembly_pair.keys():
             assembly_doc.reset()
             parent_part_path = "./pairtest/" + parent_part_name + ".FCStd"
-            check_and_create_dir(parent_part_path)
-            
             parent_info = all_part_info[parent_part_name]
             parent_doc = parent_info["document"]
             parent_object = assembly_doc.import_part(parent_doc)
-
+            parent_object.fixedPosition = True
             parent_pair_info = assembly_pair[parent_part_name]
             for parent_point_id in parent_pair_info.keys():
                 child_list = parent_pair_info[parent_point_id]
@@ -940,12 +952,12 @@ class FreeCADModule():
                     child_edge = child_point["edge_index"][0]
                     child_object = assembly_doc.import_part(child_doc)
 
-                    assembly_doc.assemble(obj1=parent_object,
-                                          obj2=child_object,
-                                          edge_pair=(parent_edge, child_edge),
-                                          direction=direction,
-                                          offset=offset)
-
+                    assembly_doc.add_circle_constraint(obj1=parent_object,
+                                                       obj2=child_object,
+                                                       edge_pair=(parent_edge, child_edge),
+                                                       direction=direction,
+                                                       offset=offset)
+            assembly_doc.solve_system()
             assembly_doc.save_doc(parent_part_path)
                                                                                          
                     
@@ -954,14 +966,14 @@ if __name__ == "__main__":
     logger = get_logger("FreeCAD_Module")    
     freecad_module = FreeCADModule(logger)
     
-    extract_part_info("./cad_file/STEFAN")
-    all_part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
-    pair_path = "./assembly/STEFAN/assembly_pair.yaml"
-    refined = "assembly_pair_refined.yaml"
-    assembly_pair = load_yaml_to_dic(pair_path)
-    freecad_module.assembly_pair_test(all_part_info, assembly_pair)
-    assert False, "SUCCESS"
-    # freecad_module.initialize_server()
+    # extract_part_info("./cad_file/STEFAN")
+    # all_part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
+    # pair_path = "./assembly/STEFAN/assembly_pair.yaml"
+    # refined = "assembly_pair_refined.yaml"
+    # assembly_pair = load_yaml_to_dic(pair_path)
+    # freecad_module.assembly_pair_test(all_part_info, assembly_pair)
+    # assert False, "SUCCESS"
+    freecad_module.initialize_server()
     while True:
         try:
             request = recvall_pickle(freecad_module.connected_client)
