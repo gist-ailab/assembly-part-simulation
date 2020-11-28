@@ -15,7 +15,6 @@ from script.socket_utils import *
 from itertools import permutations
 
 #TODO
-ASSEMBLY_PAIR = load_yaml_to_dic("./assembly_pair_refined.yaml")
 def get_available_points(part_name, connector_name):
     available_points = []
     point_pair_info = ASSEMBLY_PAIR[part_name]
@@ -354,10 +353,12 @@ class PyRepModule(object):
 
     #region socket function
     def initialize_part_to_scene(self):
+        global ASSEMBLY_PAIR
         self.logger.info("ready to initialize part to scene")
         sendall_pickle(self.connected_client, True)
         request = recvall_pickle(self.connected_client)
         self.part_info = request["part_info"]
+        ASSEMBLY_PAIR = request["pair_info"]
         self.logger.info("...initializing pyrep scene")
         for part_name in self.part_info.keys():
             self._import_part_info(part_name)
@@ -405,6 +406,8 @@ class PyRepModule(object):
             region_shape.set_name("{}_region_{}".format(part_name, region_id))
             region_shape.set_parent(part_obj)
             region_shape.set_position(position)
+            for point_idx in point_list:
+                points[point_idx].set_parent(region_shape)
             region_info[region_id] = {
                 "shape": region_shape,
                 "points": point_list
@@ -486,11 +489,14 @@ class PyRepModule(object):
         connection_locs = request["connection_locs"]
         connector_name = request["connector_name"]
         #TODO:
-        self.logger.info("...get assembly points of {} from scene".format(group_id))
+        self.logger.info("...get assembly points of group {} from scene".format(group_id))
         target_group = self.group_obj[group_id]
-        assembly_points = target_group.get_assembly_points(locations=connection_locs, 
-                                                        connector_name=connector_name, 
-                                                        part_status=self.part_status)
+        try:
+            assembly_points = target_group.get_assembly_points(locations=connection_locs, 
+                                                            connector_name=connector_name, 
+                                                            part_status=self.part_status)
+        except:
+            self.save_scene("error_scene/error_scene_{}.ttt".format(get_time_stamp()))    
         self.logger.info("End to get assembly point from pyrep scene")
         
         sendall_pickle(self.connected_client, assembly_points)

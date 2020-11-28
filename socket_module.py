@@ -93,7 +93,7 @@ class SocketModule():
     #endregion
     
     #region pyrep module
-    def initialize_part_to_scene(self, part_info):
+    def initialize_part_to_scene(self, part_info, pair_info):
         request = PyRepRequestType.initialize_part_to_scene
         self.logger.info("Request {} to PyRep Module".format(request))
         sendall_pickle(self.c_pyrep, request)
@@ -102,6 +102,7 @@ class SocketModule():
         # send part info and initialize pyrep scene
         request = {
             "part_info": part_info,
+            "pair_info": pair_info
         }
         sendall_pickle(self.c_pyrep, request)
         is_success = recvall_pickle(self.c_pyrep)

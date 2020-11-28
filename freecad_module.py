@@ -296,6 +296,16 @@ class AssemblyDocument(object):
                                 parent_edge=edge_pair[0], child_edge=edge_pair[1],
                                 direction=direction, offset=offset)
     
+    def add_parallel_plane_constraint(self, obj1, obj2, face_pair: tuple, direction):
+        constraint_parallel_face(doc=self.doc, parent_obj=obj1, child_obj=obj2,
+                                parent_face=face_pair[0], child_face=face_pair[1],
+                                direction=direction)
+    
+    def add_coincident_plane_constraint(self, obj1, obj2, face_pair: tuple, direction, offset=0):
+        contraint_coinsident_face(doc=self.doc, parent_obj=obj1, child_obj=obj2,
+                                parent_edge=face_pair[0], child_edge=face_pair[1],
+                                direction=direction, offset=offset)
+    
     def assemble(self, obj1, obj2, edge_pair, direction, offset=0):
         self.add_circle_constraint(obj1, obj2, edge_pair, direction, offset=0)
         self.solve_system()
@@ -494,7 +504,25 @@ def constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, d
     s2 = a2plib.SelectionExObject(doc, child_obj, "Edge" + str(child_edge))
     cc = a2pconst.CircularEdgeConstraint([s1, s2])
     co = cc.constraintObject
-    
+    co.directionConstraint = direction
+    co.offset = offset
+
+def constraint_parallel_face(doc, parent_obj, child_obj, parent_face, child_face, direction):
+    parent_obj.fixedPosition = True
+    child_obj.fixedPosition = False
+    s1 = a2plib.SelectionExObject(doc, parent_obj, "Face" + str(parent_face))
+    s2 = a2plib.SelectionExObject(doc, child_obj, "Face" + str(child_face))
+    cc = a2pconst.PlanesParallelConstraint([s1, s2])
+    co = cc.constraintObject
+    co.directionConstraint = direction
+
+def contraint_coinsident_face(doc, parent_obj, child_obj, parent_face, child_face, direction, offset):
+    parent_obj.fixedPosition = True
+    child_obj.fixedPosition = False
+    s1 = a2plib.SelectionExObject(doc, parent_obj, "Face" + str(parent_face))
+    s2 = a2plib.SelectionExObject(doc, child_obj, "Face" + str(child_face))
+    cc = a2pconst.PlaneConstraint([s1, s2])
+    co = cc.constraintObject
     co.directionConstraint = direction
     co.offset = offset
 
@@ -703,6 +731,7 @@ class FreeCADModule():
         self.assembly_doc = None
         self.assembly_obj = {}
         self.assembly_pair = []
+        self.additional_assmbly_pair = []
         
     def get_callback(self, request):
         return self.callback[request]
@@ -774,7 +803,6 @@ class FreeCADModule():
         status = target_assembly_info["status"] # list
         
         target_pair = current_assembly_info["target_pair"]
-        method = current_assembly_info["method"]
         
         unique_instance = []
         # check unique instance part
@@ -788,7 +816,6 @@ class FreeCADModule():
                 unique_instance.append((part_name, instance_id))
         for past_assembly_info in status:
             past_pair = past_assembly_info["target_pair"]
-            past_method = past_assembly_info["method"]
             for key in past_pair.keys(): # key is 0, 1
                 part_info = past_pair[key]
                 part_name = part_info["part_name"]
@@ -806,12 +833,16 @@ class FreeCADModule():
             self.assembly_obj[(part_name, ins)] = obj
         
         self.assembly_pair = []
+        self.additional_assmbly_pair = []
         # create previous constraint
         for past_assembly_info in status:
             self._add_pair_constraint(past_assembly_info)
         self._add_pair_constraint(current_assembly_info)
 
         is_possible = self._solve_current_constraint()
+        # additional assembly
+        if len(self.additional_assmbly_pair) > 0:
+            is_possible = is_possible and self._additional_assembly()
         
         return is_possible
     
@@ -837,8 +868,12 @@ class FreeCADModule():
 
         direction = method["direction"]
         offset = method["offset"]
+        additional = method["additional"]
+        if additional:
+            self.additional_assmbly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1), additional))
 
         self.assembly_doc.add_circle_constraint(obj_0, obj_1, [edge_0, edge_1], direction, offset)
+        
         self.assembly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1)))
 
     def _solve_current_constraint(self):
@@ -865,11 +900,31 @@ class FreeCADModule():
         # assemble for max_ins
         self.assembly_obj[max_ins].fixedPosition = True
         is_possible = self.assembly_doc.solve_system()
-            
+        
         self.assembly_doc.save_doc("test/test_{}.FCStd".format(get_time_stamp()))
 
         return is_possible
 
+    def _additional_assembly(self):
+        for additional_assembly in self.additional_assmbly_pair:
+            instance_0 = additional_assembly[0]
+            instance_1 = additional_assembly[1]
+            additional = additional_assembly[2]
+            
+            obj_0 = self.assembly_obj[instance_0]
+            obj_1 = self.assembly_obj[instance_1]
+
+            constraint_type = additional["type"]
+            if constraint_type == "parallel":
+                face_pair = additional["face_pair"]
+                direction = additional["direction"]
+                self.assembly_doc.add_parallel_plane_constraint(obj_0, obj_1, face_pair, direction)
+            else:
+                assert False, "Not Implemented"
+        is_possible = self.assembly_doc.solve_system()
+        
+        return is_possible
+    
     def extract_group_obj(self):
         self.logger.info("ready to extract group obj")
         sendall_pickle(self.connected_client, True)
@@ -895,10 +950,14 @@ class FreeCADModule():
             self.assembly_obj[(part_name, ins)] = obj
         
         self.assembly_pair = []
+        self.additional_assmbly_pair = []
         # assemble to current state
         for assembly_info in status:
             self._add_pair_constraint(assembly_info)
         is_solved = self._solve_current_constraint()
+        # additional assembly
+        if len(self.additional_assmbly_pair) > 0:
+            is_solved = is_solved and self._additional_assembly()
         assert is_solved, "Fail to assemble group obj"
         
         base_obj = []
@@ -911,6 +970,46 @@ class FreeCADModule():
         Mesh.export(base_obj, join(obj_root, "base.obj"))
         
         return True
+
+    def assemble_bottom(self):
+        self.logger.info("ready to assemble bottom!")
+        sendall_pickle(self.connected_client, True)
+        request = recvall_pickle(self.connected_client) # may be current status
+        current_status = request["status"]
+        self.logger.info("Bottom assembly")
+        result = self._assemble_bottom(current_status)
+        self.logger.info("Success to assemble bottom")
+        sendall_pickle(self.connected_client, result)
+    
+    def _assemble_bottom(self, current_status):
+        self.assembly_doc = AssemblyDocument()
+        unique_instance = []
+        for past_assembly_info in current_status:
+            past_pair = past_assembly_info["target_pair"]
+            past_method = past_assembly_info["method"]
+            for key in past_pair.keys(): # key is 0, 1
+                part_info = past_pair[key]
+                part_name = part_info["part_name"]
+                instance_id = part_info["instance_id"]
+                if (part_name, instance_id) in unique_instance:
+                    continue
+                else:
+                    unique_instance.append((part_name, instance_id))
+        self.assembly_obj = {}
+        # import unique instance to scene
+        for part_name, ins in unique_instance:
+            part_path = self.part_info[part_name]["document"]
+            obj = self.assembly_doc.import_part(part_path)
+            self.assembly_obj[(part_name, ins)] = obj
+        
+        self.assembly_pair = []
+        # create previous constraint
+        for past_assembly_info in current_status:
+            self._add_pair_constraint(past_assembly_info)
+        
+        bottom_doc_path = self.part_info["ikea_stefan_bottom"]["document"]
+        bottom_obj = self.assembly_doc.import_part(bottom_doc_path)
+        self.assembly_doc.add_coincident_plane_constraint()
 
     #endregion
     @staticmethod
@@ -973,6 +1072,7 @@ if __name__ == "__main__":
     # assembly_pair = load_yaml_to_dic(pair_path)
     # freecad_module.assembly_pair_test(all_part_info, assembly_pair)
     # assert False, "SUCCESS"
+    
     freecad_module.initialize_server()
     while True:
         try:

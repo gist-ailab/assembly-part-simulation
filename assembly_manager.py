@@ -1,3 +1,4 @@
+from operator import add
 from script.const import PartType, AssemblyType
 from script.fileApi import *
 from enum import Enum
@@ -5,8 +6,6 @@ from socket_module import SocketModule
 
 import copy
 from itertools import combinations
-from example.sequence_example import *
-from region_assembly_sequence_example import region_assembly_sequence_ex
 import random
 
 import numpy as np
@@ -103,14 +102,24 @@ class AssemblyManager(object):
                 offset = offset
             else:
                 offset *= -1
+        # additional constraint for bottom and bracket
+        1. bracket + long(short) : planesParallel contraint, Face8, Face12, aligned
+        2. bottom
+            + short: (9, 12, aligned, 0), (4, 14, aligned, -9), (5, 36, aligned, 0)
+
         """
         # assert False, "Not use this function! load refined file instead"
         radius_group = {
             "pin": [0, 1, 7, 9, 10, 11, 12, 13],
-            "braket": [5, 6],
+            "bracket": [5, 6],
             "flat_penet": [2, 16], 
             "flat": [3, 4, 14], # 5.65
             "pan": [8, 15] # 6
+        }
+        bracket_additional = {
+            "type": "parallel",
+            "direction": "aligned",
+            "face_pair": [8, 12]
         }
         def get_group(radius):
             idx = unique_radius.index(radius)
@@ -166,11 +175,21 @@ class AssemblyManager(object):
                                     offset *= -1
                             if edge_dir_1 == "opposed":
                                 offset *= -1
+                            
+                            # additional option
+                            additional_option = None
+                            if get_group(point_1["radius"]) == "bracket":
+                                if part_name_1 =="ikea_stefan_bracket":
+                                    additional_option = copy.deepcopy(bracket_additional)
+                                else:
+                                    additional_option = copy.deepcopy(bracket_additional)
+                                    additional_option["face_pair"].reverse()
                             target = {
                                 "part_name": part_name_2,
                                 "assembly_point": point_idx_2,
                                 "direction": direction,
-                                "offset": offset
+                                "offset": offset,
+                                "additional": additional_option
                             }
                             assembly_pairs[part_name_1][point_idx_1].append(target)
         
@@ -218,7 +237,6 @@ class AssemblyManager(object):
                 }
 
         self.part_instance_status = part_instance_status
-        save_dic_to_yaml(self.part_instance_status, "example_part_instance_status.yaml")
     def _initialize_connector_info(self):
         connector_info = {}
         for connector_id, connector_name in enumerate(self.connector_parts):
@@ -226,7 +244,6 @@ class AssemblyManager(object):
                 "part_name": connector_name
             }
         self.connector_info = connector_info
-        # save_dic_to_yaml(self.connector_info, "example_connector_info.yaml")
     def _initialize_group_status(self):
         # furniture part 를 베이스로 하여 그룹을 생성
         for group_id, part_name in enumerate(self.furniture_parts):
@@ -242,7 +259,6 @@ class AssemblyManager(object):
             }
             self.part_instance_status[part_name][0]["group_id"] = group_id
             self.group_status[group_id] = group_status
-        # save_dic_to_yaml(self.group_status, "example_group_status.yaml")
     
     def step(self):
         # update by assembled state
@@ -250,7 +266,7 @@ class AssemblyManager(object):
         self._update_group_to_scene()
         self._update_part_status()
 
-        save_dic_to_yaml(self.assembly_info, "example_assembly_info_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(copy.deepcopy(self.assembly_info), "example_assembly_info_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.part_instance_status, "example_part_instance_status_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.group_status, "example_group_status_{}.yaml".format(self.current_step))
         save_dic_to_yaml(self.group_info, "example_group_info_{}.yaml".format(self.current_step))
@@ -297,7 +313,7 @@ class AssemblyManager(object):
 
     def initialize_part_to_scene(self):
         self.logger.info("...Waiting for initialize PyRep scene")
-        self.socket_module.initialize_part_to_scene(self.part_info)
+        self.socket_module.initialize_part_to_scene(self.part_info, self.assembly_pair)
         
     def extract_assembly_info(self):
         assert self.instruction_info
@@ -367,13 +383,12 @@ class AssemblyManager(object):
                         idx = connection_locs.index(connection_loc)
                         group_info["assembly_point"] = assembly_points[idx]
 
-
         self.connection_assembly_sequence = copy.deepcopy(connection_assembly_sequence)
 
         # To save form
         for connection_assembly in connection_assembly_sequence:
             connection_assembly["assembly_type"] = connection_assembly["assembly_type"].name
-        save_dic_to_yaml(self.connection_assembly_sequence, "example_connection_sequence_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(copy.deepcopy(self.connection_assembly_sequence), "example_connection_sequence_{}.yaml".format(self.current_step))
 
         self.logger.info("Success to extrct assembly info")
             
@@ -466,8 +481,6 @@ class AssemblyManager(object):
         for idx, v in enumerate(self.assembly_info["assembly"]):
             temp_dict[idx] = v
         self.assembly_info["assembly"] = temp_dict
-        
-        save_dic_to_yaml(self.assembly_info, "test_{}.yaml".format(self.current_step))
 
     def _extract_sequence_from_region_assembly(self, region_assembly):
         used_assembly_instance = self.assembly_info["part"]
@@ -918,7 +931,8 @@ class AssemblyManager(object):
                     assembly_pair_info = {
                         "method":{
                             "direction": pair_info["direction"],
-                            "offset": pair_info["offset"]
+                            "offset": pair_info["offset"],
+                            "additional": pair_info["additional"]
                         },
                         "target_pair": {
                             0:{
@@ -1013,7 +1027,7 @@ class AssemblyManager(object):
 
             target_pair = target_assembly_info["target"]["target_pair"]
             current_status = target_assembly_info["status"]
-            self.logger.info("""...Waiting for simulate assemble
+            self.logger.info("""...Waiting for simulate assemble:
                 {}_{} and {}_{}""".format(target_pair[0]["part_name"],
                                         target_pair[0]["instance_id"],
                                         target_pair[1]["part_name"],
