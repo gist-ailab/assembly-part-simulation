@@ -13,11 +13,11 @@
   available_assembly:
     ikea_stefan_bolt_side: 0
     ikea_stefan_bracket: 0
-    ikea_stefan_pin: 4
+    ikea_stefan_pin: 1
     pan_head_screw_iso(4ea): 0
   composed_group:
   - 1
-  is_exist: true
+  is_exist: false
   obj_file: ./assembly/STEFAN/group_obj/group_1/base.obj
   obj_root: ./assembly/STEFAN/group_obj/group_1
 2:
@@ -73,6 +73,19 @@
   composed_group:
   - 4
   - 3
-  is_exist: true
+  is_exist: false
   obj_file: ./assembly/STEFAN/group_obj/group_6/base.obj
   obj_root: ./assembly/STEFAN/group_obj/group_6
+7:
+  available_assembly:
+    ikea_stefan_bolt_side: 3
+    ikea_stefan_bracket: 0
+    ikea_stefan_pin: 3
+    pan_head_screw_iso(4ea): 0
+  composed_group:
+  - 4
+  - 3
+  - 1
+  is_exist: true
+  obj_file: ./assembly/STEFAN/group_obj/group_7/base.obj
+  obj_root: ./assembly/STEFAN/group_obj/group_7

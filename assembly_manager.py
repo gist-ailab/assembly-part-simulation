@@ -66,8 +66,8 @@ class AssemblyManager(object):
         self.part_info = self.socket_module.initialize_cad_info(self.cad_path)
         save_dic_to_yaml(self.part_info, self.part_info_path)
         # self.part_info = load_yaml_to_dic(self.part_info_path)
-        # self._initialize_assembly_pair()
-        # save_dic_to_yaml(self.assembly_pair, self.assembly_pair_path)
+        self._initialize_assembly_pair()
+        save_dic_to_yaml(self.assembly_pair, self.assembly_pair_path)
         self.assembly_pair = load_yaml_to_dic(self.refined_pair_path)
 
         self._initialize_each_parts()
@@ -77,7 +77,7 @@ class AssemblyManager(object):
     def _initialize_assembly_pair(self):
         """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
         """
-        assert False, "Not use this function! load refined file instead"
+        # assert False, "Not use this function! load refined file instead"
         radius_group = {
             "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
             "braket group": [5, 6, 8],
@@ -121,10 +121,13 @@ class AssemblyManager(object):
                             offset = 0
                             if get_group(point_1["radius"]) == "pin group":
                                 offset = -15 # 0.015
+                            edge_dir_1 = point_1["edge_index"][1]
+                            edge_dir_2 = point_2["edge_index"][1]
+                            direction = "aligned" if edge_dir_1==edge_dir_2 else "opposed"
                             target = {
                                 "part_name": part_name_2,
                                 "assembly_point": point_idx_2,
-                                "direction": "aligned",
+                                "direction": direction,
                                 "offset": offset
                             }
                             assembly_pairs[part_name_1][point_idx_1].append(target)
@@ -154,8 +157,11 @@ class AssemblyManager(object):
                 available_assembly[connector_name] = 0
             for point_id in self.assembly_pair[part_name].keys():
                 available_pairs = self.assembly_pair[part_name][point_id]
+                unique_pair = set()
                 for pair_info in available_pairs:
                     pair_name = pair_info["part_name"]
+                    unique_pair.add(pair_name)
+                for pair_name in unique_pair:
                     if pair_name in self.connector_parts:
                         available_assembly[pair_name] += 1
             try:
@@ -170,7 +176,7 @@ class AssemblyManager(object):
                 }
 
         self.part_instance_status = part_instance_status
-        # save_dic_to_yaml(self.part_instance_status, "example_part_instance_status.yaml")
+        save_dic_to_yaml(self.part_instance_status, "example_part_instance_status.yaml")
     def _initialize_connector_info(self):
         connector_info = {}
         for connector_id, connector_name in enumerate(self.connector_parts):
@@ -309,13 +315,14 @@ class AssemblyManager(object):
                 connection_locs.append(connection["connection_loc"])
                 connector_name = connection["connector_name"]
             assembly_points = self._get_assembly_points(group_id, connection_locs, connector_name)
+            
             for connection_assembly in connection_assembly_sequence:
                 component_info = connection_assembly["component"]
                 group_list = component_info["group"]
                 for group_info in group_list:
                     connection_loc = group_info["assembly_point"]
                     if connection_loc in connection_locs:
-                        idx = connection_locs.index(connection_locs)
+                        idx = connection_locs.index(connection_loc)
                         group_info["assembly_point"] = assembly_points[idx]
 
 
@@ -787,7 +794,6 @@ class AssemblyManager(object):
             group_info = group_info_list[1]
             group_id = group_info["id"]
             assembly_info = group_info["assembly_point"]
-            available_pair = []
             if assembly_info == None:
                 # find available part
                 available_parts = []
@@ -965,7 +971,7 @@ class AssemblyManager(object):
 
             target_pair = target_assembly_info["target"]["target_pair"]
             current_status = target_assembly_info["status"]
-            self.logger.info("""...Waiting for simulate assemble \
+            self.logger.info("""...Waiting for simulate assemble
                 {}_{} and {}_{}""".format(target_pair[0]["part_name"],
                                         target_pair[0]["instance_id"],
                                         target_pair[1]["part_name"],

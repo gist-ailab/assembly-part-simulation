@@ -1,3 +1,4 @@
+from os import stat
 from script import import_fcstd
 import FreeCAD
 import FreeCADGui
@@ -177,9 +178,10 @@ class Circle(object):
 
         return list(position)
 
-    def reverse(self):
+    def reverse(self): # rotate based on y axis
         self.direction = [-1 * val for val in self.direction]
         self.XAxis = [-1* val for val in self.XAxis]
+        self.quaternion = get_quat_from_dcm(self.XAxis, self.YAxis, self.direction)
 
 class Hole():
     def __init__(self, position, direction, circle):
@@ -355,7 +357,7 @@ def npfloat_to_float(np_float_list):
 #endregion
 
 #region custom functions
-def get_circles(obj):
+def get_circles(obj, reverse_condition):
     """get circle wires from obj<Part::PartFeature> which has Solid Shape
     """
     shape = obj.Shape
@@ -374,9 +376,12 @@ def get_circles(obj):
                 circle_wires.append(wire)
 
     circles = get_unique_circle(circle_wires)
+    for idx, circle in enumerate(circles):
+        if idx in reverse_condition:
+            circle.reverse()
+        circle.get_edge_index_from_shape(obj.Shape) # may be find aligned edge
+        circle.create_circle()
 
-    for circle in circles:
-        circle.get_edge_index_from_shape(obj.Shape)
 
     return circles
 def check_plane_wire(wire):
@@ -596,8 +601,11 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
     obj = doc.ActiveObject
     obj.Label = part_type.value
     Mesh.export([obj], obj_path)
-    # extract circles
-    circles = get_circles(obj)
+    
+    #region extract circles
+    reverse_condition = hole_condition[step_name]
+    
+    circles = get_circles(obj, reverse_condition)
 
     if "pin" in step_name:
         mid_circle1 = copy.deepcopy(circles[0])
@@ -606,12 +614,7 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
         mid_circle1.position = position
         mid_circle2.position = position
         circles += [mid_circle1, mid_circle2]
-
-    reverse_condition = hole_condition[step_name]
-    for idx, circle in enumerate(circles):
-        if idx in reverse_condition:
-            circle.reverse()
-        circle.create_circle()
+    #endregion
 
     # extract circle holes
     circle_holes = get_circle_holes(circles)
@@ -619,8 +622,7 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
         hole.create_hole()
         hole.visualize_hole(doc)
         hole.set_hole_type(doc, obj)
-        
-        hole.remove_hole(doc)
+        # hole.remove_hole(doc)
         # hole.visualize_frame(doc)
         if hole.radius in unique_radius:
             pass
@@ -898,14 +900,14 @@ class FreeCADModule():
         return True
 
     #endregion
-
-    def assembly_pair_test(self):
+    @staticmethod
+    def assembly_pair_test(all_part_info, assembly_pair):
         assembly_doc = AssemblyDocument()
         check_and_create_dir("pairtest")
-        for part_name in self.assembly_pair.keys():
+        for part_name in assembly_pair.keys():
             part_path = "./pairtest/" + part_name
             check_and_create_dir(part_path)
-            part_info = self.assembly_pair[part_name]
+            part_info = assembly_pair[part_name]
             for point_id in part_info.keys():
                 pair_list = part_info[point_id]
                 for pair_info in pair_list:
@@ -914,8 +916,8 @@ class FreeCADModule():
                     offset = pair_info["offset"]
                     assembly_point = pair_info["assembly_point"]
                     direction = pair_info["direction"]
-                    info_1 = self.part_info[part_name]
-                    info_2 = self.part_info[pair_name]
+                    info_1 = all_part_info[part_name]
+                    info_2 = all_part_info[pair_name]
                     doc_1 = info_1["document"]
                     doc_2 = info_2["document"]
                     point_1 = info_1["assembly_points"][point_id]
@@ -932,6 +934,14 @@ class FreeCADModule():
 if __name__ == "__main__":
     logger = get_logger("FreeCAD_Module")    
     freecad_module = FreeCADModule(logger)
+    
+    # extract_part_info("./cad_file/STEFAN")
+    # all_part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
+    # pair_path = "./assembly/STEFAN/assembly_pair.yaml"
+    # refined = "assembly_pair_refined.yaml"
+    # assembly_pair = load_yaml_to_dic(pair_path)
+    # exit()
+    # freecad_module.assembly_pair_test(all_part_info, assembly_pair)
     freecad_module.initialize_server()
     while True:
         try:

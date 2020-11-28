@@ -113,12 +113,12 @@ class GroupObject():
 
         Args:
             base_obj (ObjObject): [description]
-            composed_parts: (tuple of part_instance)
+            composed_parts: tuple of part_instance(dict)
                 part_instance = {
                     "part_name": part name(string)
                     "instance_id: id(int)
                 }
-            composed_objects: tuple of composed object
+            composed_objects: tuple of composed object(dict)
                 composed_object = {
                     "object": ObjObject
                     "primitive": PartObject
@@ -175,7 +175,7 @@ class GroupObject():
 
             part_instance = self.composed_parts[part_id]
             part_name = part_instance["part_name"]
-            instance_id = part_instance["istance_id"]
+            instance_id = part_instance["instance_id"]
             
             # 3.2.1 from PartObject get region assembly points
             primitive_object = self.composed_objects[part_id]["primitive"]
@@ -189,7 +189,7 @@ class GroupObject():
             assembly_point_list = list(available_points.intersection(region_asm_points))
 
             # 3.3 get best matching for each connection
-            assert len(assembly_point_list) > len(connection_list)
+            assert len(assembly_point_list) >= len(connection_list), "No available points in region {}_{}".format(part_name, region_id)
             candidates = list(permutations(assembly_point_list, len(connection_list)))
             min_dis = np.inf
             target_point_list = None
@@ -226,15 +226,13 @@ class GroupObject():
             # relative to bounding box center
             connection_point.set_position(location, relative_to=self.base_obj.instruction_frame)
             connection_point.set_parent(self.base_obj.shape)
-            connection_points[idx] = connection_point
+            connection_points.append(connection_point)
         
         return tuple(connection_points)
     def _get_region(self, target_position):
         """[summary]
-
         Args:
             target_position ([type]): [should be relative to world frame]
-
         Returns:
             region [dict]:
             {
@@ -262,7 +260,7 @@ class GroupObject():
                     min_distance = distance
                     target_part_id = part_idx
                     target_region_id = region_id
-        assert target_part_id and target_region_id, "Error search region"
+        assert target_part_id!=None and target_region_id!=None, "Error search region"
 
         region = {
             "part_id": target_part_id,
@@ -270,12 +268,11 @@ class GroupObject():
         }
 
         return region
-
     def remove(self):
         self.base_obj.remove()
         self.composed_parts = None
         for composed_object in self.composed_objects:
-            composed_object.remove()
+            composed_object["object"].remove()
         self.composed_objects = None
 
 class PartObject():
@@ -290,6 +287,9 @@ class PartObject():
         self.object = part_object
         self.assembly_points = assembly_points        
         self.region_info = region_info
+
+    def set_pose(self, pose, relative_to=None):
+        self.object.set_pose(pose, relative_to=relative_to)
 
 class PyRepModule(object):
     def __init__(self, logger, headless=False):
@@ -397,7 +397,7 @@ class PyRepModule(object):
             position = part_region_info[region_id]["position"]
             point_list = part_region_info[region_id]["points"]
             region_shape = Shape.create(PrimitiveShape.SPHERE,
-                                        size=0.05*3,
+                                        size=[0.05]*3,
                                         respondable=False,
                                         static=True,
                                         color=[0,1,0]
@@ -486,9 +486,11 @@ class PyRepModule(object):
         connection_locs = request["connection_locs"]
         connector_name = request["connector_name"]
         #TODO:
-        self.logger.info("...get assembly point from scene")
+        self.logger.info("...get assembly points of {} from scene".format(group_id))
         target_group = self.group_obj[group_id]
-        assembly_points = target_group.get_assembly_points(connection_locs, connector_name, self.primitive_parts, self.part_status)
+        assembly_points = target_group.get_assembly_points(locations=connection_locs, 
+                                                        connector_name=connector_name, 
+                                                        part_status=self.part_status)
         self.logger.info("End to get assembly point from pyrep scene")
         
         sendall_pickle(self.connected_client, assembly_points)
@@ -497,7 +499,7 @@ class PyRepModule(object):
     
 if __name__ == "__main__":
     logger = get_logger("PyRep_Module")
-    pyrep_module = PyRepModule(logger)
+    pyrep_module = PyRepModule(logger, headless=True)
     pyrep_module.initialize_server()
     while True:
         try:
