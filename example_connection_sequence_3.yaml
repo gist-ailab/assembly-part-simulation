@@ -9,7 +9,7 @@
     - assembly_point:
         instance_id: 0
         part_name: ikea_stefan_long
-        point_id: 0
+        point_id: 2
       id: 1
 - assembly_type: *id001
   component:
@@ -18,7 +18,7 @@
     - assembly_point:
         instance_id: 0
         part_name: ikea_stefan_long
-        point_id: 2
+        point_id: 0
       id: 1
 - assembly_type: &id002 !!python/object/apply:script.const.AssemblyType
   - - 1: group

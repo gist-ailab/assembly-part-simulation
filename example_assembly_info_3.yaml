@@ -6,7 +6,7 @@ assembly:
       offset: -15
     target_pair:
       0:
-        assembly_point: 0
+        assembly_point: 2
         part_id: 0
       1:
         assembly_point: 0
@@ -18,7 +18,7 @@ assembly:
       offset: -15
     target_pair:
       0:
-        assembly_point: 0
+        assembly_point: 2
         part_id: 0
       1:
         assembly_point: 1
@@ -30,7 +30,7 @@ assembly:
       offset: -15
     target_pair:
       0:
-        assembly_point: 2
+        assembly_point: 0
         part_id: 0
       1:
         assembly_point: 0
@@ -42,7 +42,7 @@ assembly:
       offset: -15
     target_pair:
       0:
-        assembly_point: 2
+        assembly_point: 0
         part_id: 0
       1:
         assembly_point: 1
@@ -160,7 +160,7 @@ assembly_sequence:
     - -1
     - 0
   - !!binary |
-    AQAAAAAAAAA=
+    AAAAAAAAAAA=
 - !!python/object/apply:numpy.core.multiarray.scalar
   - *id001
   - !!binary |
@@ -176,11 +176,11 @@ assembly_sequence:
 - !!python/object/apply:numpy.core.multiarray.scalar
   - *id001
   - !!binary |
-    CAAAAAAAAAA=
+    CQAAAAAAAAA=
 - !!python/object/apply:numpy.core.multiarray.scalar
   - *id001
   - !!binary |
-    CwAAAAAAAAA=
+    CgAAAAAAAAA=
 part:
   0:
     instance_id: 0

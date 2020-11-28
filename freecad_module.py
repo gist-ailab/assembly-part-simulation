@@ -966,7 +966,8 @@ class FreeCADModule():
             ins = obj_key[1]
             group_obj = self.assembly_obj[obj_key]
             Mesh.export([group_obj], join(obj_root, "{}_{}.obj".format(part_name, ins)))
-            base_obj.append(group_obj)
+            if part_name in self.furniture_parts:
+                base_obj.append(group_obj)
         Mesh.export(base_obj, join(obj_root, "base.obj"))
         
         return True

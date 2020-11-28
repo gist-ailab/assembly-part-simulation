@@ -41,11 +41,11 @@
         - 12
         - 8
         type: parallel
-      direction: opposed
+      direction: aligned
       offset: 0
     target_pair:
       0:
-        assembly_point: 7
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_long
       1:
@@ -59,11 +59,11 @@
         - 12
         - 8
         type: parallel
-      direction: aligned
+      direction: opposed
       offset: 0
     target_pair:
       0:
-        assembly_point: 6
+        assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_long
       1:
@@ -76,11 +76,11 @@
       offset: -15
     target_pair:
       0:
-        assembly_point: 0
+        assembly_point: 2
         instance_id: 0
         part_name: ikea_stefan_long
       1:
-        assembly_point: 1
+        assembly_point: 0
         instance_id: 4
         part_name: ikea_stefan_pin
   - method:
@@ -89,7 +89,7 @@
       offset: -15
     target_pair:
       0:
-        assembly_point: 2
+        assembly_point: 0
         instance_id: 0
         part_name: ikea_stefan_long
       1:
@@ -152,11 +152,11 @@
         - 12
         - 8
         type: parallel
-      direction: opposed
+      direction: aligned
       offset: 0
     target_pair:
       0:
-        assembly_point: 7
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_short
       1:
@@ -170,11 +170,11 @@
         - 12
         - 8
         type: parallel
-      direction: aligned
+      direction: opposed
       offset: 0
     target_pair:
       0:
-        assembly_point: 6
+        assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_short
       1:
@@ -204,7 +204,7 @@
         instance_id: 0
         part_name: ikea_stefan_short
       1:
-        assembly_point: 0
+        assembly_point: 1
         instance_id: 1
         part_name: ikea_stefan_pin
   - method:
@@ -217,7 +217,7 @@
         instance_id: 0
         part_name: ikea_stefan_short
       1:
-        assembly_point: 1
+        assembly_point: 0
         instance_id: 2
         part_name: ikea_stefan_pin
 4:
@@ -281,11 +281,11 @@
         - 12
         - 8
         type: parallel
-      direction: opposed
+      direction: aligned
       offset: 0
     target_pair:
       0:
-        assembly_point: 7
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_short
       1:
@@ -299,11 +299,11 @@
         - 12
         - 8
         type: parallel
-      direction: aligned
+      direction: opposed
       offset: 0
     target_pair:
       0:
-        assembly_point: 6
+        assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_short
       1:
@@ -333,7 +333,7 @@
         instance_id: 0
         part_name: ikea_stefan_short
       1:
-        assembly_point: 0
+        assembly_point: 1
         instance_id: 1
         part_name: ikea_stefan_pin
   - method:
@@ -346,7 +346,7 @@
         instance_id: 0
         part_name: ikea_stefan_short
       1:
-        assembly_point: 1
+        assembly_point: 0
         instance_id: 2
         part_name: ikea_stefan_pin
   - method:
@@ -359,7 +359,7 @@
         instance_id: 0
         part_name: ikea_stefan_side_left
       1:
-        assembly_point: 0
+        assembly_point: 1
         instance_id: 2
         part_name: ikea_stefan_pin
   - method:
@@ -438,11 +438,11 @@
         - 12
         - 8
         type: parallel
-      direction: opposed
+      direction: aligned
       offset: 0
     target_pair:
       0:
-        assembly_point: 7
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_short
       1:
@@ -456,11 +456,11 @@
         - 12
         - 8
         type: parallel
-      direction: aligned
+      direction: opposed
       offset: 0
     target_pair:
       0:
-        assembly_point: 6
+        assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_short
       1:
@@ -490,7 +490,7 @@
         instance_id: 0
         part_name: ikea_stefan_short
       1:
-        assembly_point: 0
+        assembly_point: 1
         instance_id: 1
         part_name: ikea_stefan_pin
   - method:
@@ -503,7 +503,7 @@
         instance_id: 0
         part_name: ikea_stefan_short
       1:
-        assembly_point: 1
+        assembly_point: 0
         instance_id: 2
         part_name: ikea_stefan_pin
   - method:
@@ -516,7 +516,7 @@
         instance_id: 0
         part_name: ikea_stefan_side_left
       1:
-        assembly_point: 0
+        assembly_point: 1
         instance_id: 2
         part_name: ikea_stefan_pin
   - method:
@@ -552,11 +552,11 @@
         - 12
         - 8
         type: parallel
-      direction: opposed
+      direction: aligned
       offset: 0
     target_pair:
       0:
-        assembly_point: 7
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_long
       1:
@@ -570,11 +570,11 @@
         - 12
         - 8
         type: parallel
-      direction: aligned
+      direction: opposed
       offset: 0
     target_pair:
       0:
-        assembly_point: 6
+        assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_long
       1:
@@ -587,11 +587,11 @@
       offset: -15
     target_pair:
       0:
-        assembly_point: 0
+        assembly_point: 2
         instance_id: 0
         part_name: ikea_stefan_long
       1:
-        assembly_point: 1
+        assembly_point: 0
         instance_id: 4
         part_name: ikea_stefan_pin
   - method:
@@ -600,7 +600,7 @@
       offset: -15
     target_pair:
       0:
-        assembly_point: 2
+        assembly_point: 0
         instance_id: 0
         part_name: ikea_stefan_long
       1:
@@ -643,7 +643,7 @@
         instance_id: 0
         part_name: ikea_stefan_long
       1:
-        assembly_point: 0
+        assembly_point: 1
         instance_id: 7
         part_name: ikea_stefan_pin
   - method:
@@ -656,6 +656,6 @@
         instance_id: 0
         part_name: ikea_stefan_side_left
       1:
-        assembly_point: 1
+        assembly_point: 0
         instance_id: 7
         part_name: ikea_stefan_pin

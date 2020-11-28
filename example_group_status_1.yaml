@@ -35,11 +35,11 @@
         - 12
         - 8
         type: parallel
-      direction: opposed
+      direction: aligned
       offset: 0
     target_pair:
       0:
-        assembly_point: 7
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_long
       1:
@@ -53,11 +53,11 @@
         - 12
         - 8
         type: parallel
-      direction: aligned
+      direction: opposed
       offset: 0
     target_pair:
       0:
-        assembly_point: 6
+        assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_long
       1:
@@ -101,11 +101,11 @@
         - 12
         - 8
         type: parallel
-      direction: opposed
+      direction: aligned
       offset: 0
     target_pair:
       0:
-        assembly_point: 7
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_short
       1:
@@ -119,11 +119,11 @@
         - 12
         - 8
         type: parallel
-      direction: aligned
+      direction: opposed
       offset: 0
     target_pair:
       0:
-        assembly_point: 6
+        assembly_point: 7
         instance_id: 0
         part_name: ikea_stefan_short
       1:
