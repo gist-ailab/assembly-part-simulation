@@ -290,7 +290,7 @@ class AssemblyDocument(object):
         obj.Placement.Rotation = FreeCAD.Rotation(ypr[0], ypr[1], ypr[2])
         return obj
     
-    def add_circle_constraint(self, obj1, obj2, edge_pair, direction, offset=0):
+    def add_circle_constraint(self, obj1, obj2, edge_pair: tuple, direction, offset=0):
         constraint_two_circle(doc=self.doc, parent_obj=obj1, child_obj=obj2,
                                 parent_edge=edge_pair[0], child_edge=edge_pair[1],
                                 direction=direction, offset=offset)
@@ -622,7 +622,7 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
         hole.create_hole()
         hole.visualize_hole(doc)
         hole.set_hole_type(doc, obj)
-        # hole.remove_hole(doc)
+        hole.remove_hole(doc) # TODO: if not to do this error occur when assembly
         # hole.visualize_frame(doc)
         if hole.radius in unique_radius:
             pass
@@ -903,46 +903,65 @@ class FreeCADModule():
     @staticmethod
     def assembly_pair_test(all_part_info, assembly_pair):
         assembly_doc = AssemblyDocument()
-        check_and_create_dir("pairtest")
-        for part_name in assembly_pair.keys():
-            part_path = "./pairtest/" + part_name
-            check_and_create_dir(part_path)
-            part_info = assembly_pair[part_name]
-            for point_id in part_info.keys():
-                pair_list = part_info[point_id]
-                for pair_info in pair_list:
-                    assembly_doc.reset()
-                    pair_name = pair_info["part_name"]
-                    offset = pair_info["offset"]
-                    assembly_point = pair_info["assembly_point"]
-                    direction = pair_info["direction"]
-                    info_1 = all_part_info[part_name]
-                    info_2 = all_part_info[pair_name]
-                    doc_1 = info_1["document"]
-                    doc_2 = info_2["document"]
-                    point_1 = info_1["assembly_points"][point_id]
-                    point_2 = info_2["assembly_points"][assembly_point]
-                    edge1 = point_1["edge_index"][0]
-                    edge2 = point_2["edge_index"][0]
+        check_and_reset_dir("pairtest")
+        
+        for parent_part_name in assembly_pair.keys():
+            assembly_doc.reset()
+            parent_part_path = "./pairtest/" + parent_part_name + ".FCStd"
+            check_and_create_dir(parent_part_path)
+            
+            parent_info = all_part_info[parent_part_name]
+            parent_doc = parent_info["document"]
+            parent_object = assembly_doc.import_part(parent_doc)
 
-                    obj1 = assembly_doc.import_part(doc_1)
-                    obj2 = assembly_doc.import_part(doc_2)
-                    assembly_doc.assemble(obj1, obj2, [edge1, edge2], direction, offset=offset)
-                    assembly_doc.save_doc(join(part_path, "{}_{}_{}".format(point_id, pair_name, assembly_point) + ".FCStd"))
+            parent_pair_info = assembly_pair[parent_part_name]
+            for parent_point_id in parent_pair_info.keys():
+                child_list = parent_pair_info[parent_point_id]
+                unique_child = []
+                for child_info in child_list:
+                    
+                    child_part_name = child_info["part_name"]
+                    if child_part_name in unique_child:
+                        continue
+                    else:
+                        unique_child.append(child_part_name)
+                    child_point_id = child_info["assembly_point"]
+                    # method
+                    offset = child_info["offset"]
+                    direction = child_info["direction"]
+
+                    parent_point = parent_info["assembly_points"][parent_point_id]
+                    parent_edge = parent_point["edge_index"][0]
+                    
+                    
+                    child_info = all_part_info[child_part_name]
+                    child_doc = child_info["document"]
+                    child_point = child_info["assembly_points"][child_point_id]
+                    child_edge = child_point["edge_index"][0]
+                    child_object = assembly_doc.import_part(child_doc)
+
+                    assembly_doc.assemble(obj1=parent_object,
+                                          obj2=child_object,
+                                          edge_pair=(parent_edge, child_edge),
+                                          direction=direction,
+                                          offset=offset)
+
+            assembly_doc.save_doc(parent_part_path)
+                                                                                         
                     
 
 if __name__ == "__main__":
     logger = get_logger("FreeCAD_Module")    
     freecad_module = FreeCADModule(logger)
     
-    # extract_part_info("./cad_file/STEFAN")
-    # all_part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
-    # pair_path = "./assembly/STEFAN/assembly_pair.yaml"
-    # refined = "assembly_pair_refined.yaml"
-    # assembly_pair = load_yaml_to_dic(pair_path)
-    # exit()
-    # freecad_module.assembly_pair_test(all_part_info, assembly_pair)
-    freecad_module.initialize_server()
+    extract_part_info("./cad_file/STEFAN")
+    all_part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
+    pair_path = "./assembly/STEFAN/assembly_pair.yaml"
+    refined = "assembly_pair_refined.yaml"
+    assembly_pair = load_yaml_to_dic(pair_path)
+    freecad_module.assembly_pair_test(all_part_info, assembly_pair)
+    assert False, "SUCCESS"
+    # freecad_module.initialize_server()
     while True:
         try:
             request = recvall_pickle(freecad_module.connected_client)
