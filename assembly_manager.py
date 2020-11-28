@@ -68,7 +68,7 @@ class AssemblyManager(object):
         # self.part_info = load_yaml_to_dic(self.part_info_path)
         self._initialize_assembly_pair()
         save_dic_to_yaml(self.assembly_pair, self.assembly_pair_path)
-        self.assembly_pair = load_yaml_to_dic(self.refined_pair_path)
+        # self.assembly_pair = load_yaml_to_dic(self.refined_pair_path)
 
         self._initialize_each_parts()
         self._initialize_part_instance_status()

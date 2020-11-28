@@ -54,7 +54,7 @@ ikea_stefan_bottom:
       ikea_stefan_bracket: 0
       ikea_stefan_pin: 0
       pan_head_screw_iso(4ea): 0
-    group_id: null
+    group_id: 0
     used_assembly_points: {}
 ikea_stefan_bracket:
   0:
@@ -96,7 +96,7 @@ ikea_stefan_long:
       ikea_stefan_bracket: 2
       ikea_stefan_pin: 4
       pan_head_screw_iso(4ea): 0
-    group_id: null
+    group_id: 1
     used_assembly_points: {}
 ikea_stefan_middle:
   0:
@@ -105,7 +105,7 @@ ikea_stefan_middle:
       ikea_stefan_bracket: 0
       ikea_stefan_pin: 6
       pan_head_screw_iso(4ea): 0
-    group_id: null
+    group_id: 2
     used_assembly_points: {}
 ikea_stefan_pin:
   0:
@@ -227,7 +227,7 @@ ikea_stefan_short:
       ikea_stefan_bracket: 2
       ikea_stefan_pin: 4
       pan_head_screw_iso(4ea): 0
-    group_id: null
+    group_id: 3
     used_assembly_points: {}
 ikea_stefan_side_left:
   0:
@@ -236,7 +236,7 @@ ikea_stefan_side_left:
       ikea_stefan_bracket: 0
       ikea_stefan_pin: 7
       pan_head_screw_iso(4ea): 0
-    group_id: null
+    group_id: 4
     used_assembly_points: {}
 ikea_stefan_side_right:
   0:
@@ -245,7 +245,7 @@ ikea_stefan_side_right:
       ikea_stefan_bracket: 0
       ikea_stefan_pin: 7
       pan_head_screw_iso(4ea): 0
-    group_id: null
+    group_id: 5
     used_assembly_points: {}
 pan_head_screw_iso(4ea):
   0:

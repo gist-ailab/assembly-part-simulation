@@ -1,0 +1,58 @@
+Connection:
+- components:
+  - id: 1
+    loc: null
+    order: 1
+    type: connector
+  - id: 1
+    loc: null
+    order: 2
+    type: group
+  connection_id: 1
+  num_component: 2
+- components:
+  - id: 1
+    loc: null
+    order: 1
+    type: connector
+  - id: 1
+    loc: null
+    order: 2
+    type: group
+  connection_id: 2
+  num_component: 2
+- components:
+  - id: 1
+    loc: null
+    order: 1
+    type: connector
+  - id: 3
+    loc: null
+    order: 2
+    type: group
+  connection_id: 3
+  num_component: 2
+- components:
+  - id: 1
+    loc: null
+    order: 1
+    type: connector
+  - id: 3
+    loc: null
+    order: 2
+    type: group
+  connection_id: 4
+  num_component: 2
+Connector:
+- connector_id: 1
+  number_of_connector: 4
+  part_name: ikea_stefan_bracket
+Group:
+- group_id: 1
+  model_name: ./obj_imp/01.obj
+- group_id: 3
+  model_name: ./obj_imp/03.obj
+connector_info: assembly/STEFAN/connector_info.yaml
+file_name: stefan-chair__AA-21977-9_pub_1.png
+group_info: assembly/STEFAN/group_info/group_info_0.yaml
+sequence_id: 1

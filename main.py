@@ -28,7 +28,6 @@ if __name__ == "__main__":
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
 
-    assert False, "SUCCESS"
     # using part info to initialize scene
     asm_manager.initialize_part_to_scene()
     
