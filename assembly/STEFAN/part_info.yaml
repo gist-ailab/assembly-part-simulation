@@ -49,12 +49,96 @@ ikea_stefan_bolt_side:
   step_file: ./cad_file/STEFAN/connector_part/ikea_stefan_bolt_side.STEP
   type: connector_part
 ikea_stefan_bottom:
-  assembly_points: {}
+  assembly_points:
+    0:
+      depth: 0.001
+      direction:
+      - 0.0
+      - 0.0
+      - 1.0
+      edge_index:
+      - 28
+      - aligned
+      pose:
+        position:
+        - 0.112
+        - -0.163685
+        - 0.0
+        quaternion:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+      radius: 6.1
+      type: hole
+    1:
+      depth: 0.001
+      direction:
+      - 0.0
+      - 0.0
+      - 1.0
+      edge_index:
+      - 29
+      - aligned
+      pose:
+        position:
+        - -0.08
+        - 0.163685
+        - 0.0
+        quaternion:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+      radius: 6.1
+      type: hole
+    2:
+      depth: 0.001
+      direction:
+      - 0.0
+      - 0.0
+      - 1.0
+      edge_index:
+      - 30
+      - aligned
+      pose:
+        position:
+        - 0.08
+        - 0.163685
+        - 0.0
+        quaternion:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+      radius: 6.1
+      type: hole
+    3:
+      depth: 0.001
+      direction:
+      - 0.0
+      - 0.0
+      - 1.0
+      edge_index:
+      - 31
+      - aligned
+      pose:
+        position:
+        - -0.112
+        - -0.163685
+        - 0.0
+        quaternion:
+        - 0.0
+        - 0.0
+        - 0.0
+        - 1.0
+      radius: 6.1
+      type: hole
   document: ./assembly/STEFAN/part_documents/ikea_stefan_bottom.FCStd
   obj_file: ./assembly/STEFAN/part_obj/ikea_stefan_bottom.obj
   part_id: 4
   region_info: {}
-  step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_bottom.STEP
+  step_file: ./cad_file/STEFAN/furniture_part/ikea_stefan_bottom.step
   type: furniture_part
 ikea_stefan_bracket:
   assembly_points:

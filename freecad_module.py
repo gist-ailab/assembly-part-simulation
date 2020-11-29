@@ -121,6 +121,35 @@ region_condition = {
         3: [7]
     },
 }
+bottom_condition = [
+    # hole for short
+    {
+        "radius": 6.1,
+        "depth": 1,
+        "position": Base.Vector(80, 163.685, 0),
+        "direction": Base.Vector(0, 0, 1)
+    },
+    {
+        "radius": 6.1,
+        "depth": 1,
+        "position": Base.Vector(-80, 163.685, 0),
+        "direction": Base.Vector(0, 0, 1)
+    },
+    # hole for long
+    {
+        "radius": 6.1,
+        "depth": 1,
+        "position": Base.Vector(112, -163.685, 0),
+        "direction": Base.Vector(0, 0, 1)
+    },
+    {
+        "radius": 6.1,
+        "depth": 1,
+        "position": Base.Vector(-112, -163.685, 0),
+        "direction": Base.Vector(0, 0, 1)
+    },
+]
+
 class AssembleDirection(Enum):
     aligned = "aligned"
     opposed = "opposed"
@@ -631,6 +660,16 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
     obj.Label = part_type.value
     Mesh.export([obj], obj_path)
     
+    # if "ikea_stefan_bottom" in step_name:
+    #     # create hole
+    #     for bottom_hole in bottom_condition:
+    #         radius = bottom_hole["radius"]
+    #         depth = bottom_hole["depth"]
+    #         position = bottom_hole["position"]
+    #         direction = bottom_hole["direction"]
+    #         sh = Part.makeCylinder(radius, depth, position, direction, 360)
+    #         Part.show(sh)
+
     #region extract circles
     reverse_condition = hole_condition[step_name]
     
@@ -671,6 +710,8 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
             unique_radius.sort()
     if "bolt_side" in step_name:
         circle_holes[1].radius = 7.9
+    
+    
     # extract assembly point from circle holes
     assembly_points = {}
     for idx, hole in enumerate(circle_holes):

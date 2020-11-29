@@ -61,7 +61,11 @@ ikea_stefan_bolt_side:
     direction: aligned
     offset: -30
     part_name: ikea_stefan_short
-ikea_stefan_bottom: {}
+ikea_stefan_bottom:
+  0: []
+  1: []
+  2: []
+  3: []
 ikea_stefan_bracket:
   0:
   - additional:

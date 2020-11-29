@@ -93,7 +93,8 @@ class AssemblyManager(object):
             13 4.0000000000000036
             14 5.65 # bolt:0
             15 6.0 # pan_head_screw_iso(4ea):0
-            16 7.9 # bolt:1 
+            16 6.1 # bottom
+            17 7.9 # bolt:1 
         # offset heuristic rule(based on assemble direction == hole direction)
         - pin assembly offset = -15
         - flat offset = 30
@@ -112,9 +113,10 @@ class AssemblyManager(object):
         radius_group = {
             "pin": [0, 1, 7, 9, 10, 11, 12, 13],
             "bracket": [5, 6],
-            "flat_penet": [2, 16], 
-            "flat": [3, 4, 14], # 5.65
-            "pan": [8, 15] # 6
+            "flat_penet": [2, 17], 
+            "flat": [3, 4, 14],
+            "pan": [8, 15],
+            "bottom": [17]
         }
         bracket_additional = {
             "type": "parallel",
@@ -266,15 +268,15 @@ class AssemblyManager(object):
         self._update_group_to_scene()
         self._update_part_status()
 
-        save_dic_to_yaml(copy.deepcopy(self.assembly_info), "example_assembly_info_{}.yaml".format(self.current_step))
-        save_dic_to_yaml(self.part_instance_status, "example_part_instance_status_{}.yaml".format(self.current_step))
-        save_dic_to_yaml(self.group_status, "example_group_status_{}.yaml".format(self.current_step))
-        save_dic_to_yaml(self.group_info, "example_group_info_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(copy.deepcopy(self.assembly_info), "test_assembly_info_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(self.part_instance_status, "test_part_instance_status_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(self.group_status, "test_group_status_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(self.group_info, "test_group_info_{}.yaml".format(self.current_step))
 
         self.current_step += 1
         # update instruction info
         self._get_instruction_info()
-        save_dic_to_yaml(self.instruction_info, "example_instruction_info_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(self.instruction_info, "test_instruction_info_{}.yaml".format(self.current_step))
     def _update_group_info(self):
         # update group info using group status
         group_info = {}
@@ -323,7 +325,7 @@ class AssemblyManager(object):
         self.connection_assembly_sequence = []
         """extract instruction info"""
         instruction_group_info = self.instruction_info["Group"]
-        instruction_connection_info = self.instruction_info['Connection']
+        instruction_connection_info = self.instruction_info['connection']
         
         """extract used parts from using group"""
         group_assembly = {}
@@ -388,7 +390,7 @@ class AssemblyManager(object):
         # To save form
         for connection_assembly in connection_assembly_sequence:
             connection_assembly["assembly_type"] = connection_assembly["assembly_type"].name
-        save_dic_to_yaml(copy.deepcopy(self.connection_assembly_sequence), "example_connection_sequence_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(copy.deepcopy(self.connection_assembly_sequence), "test_connection_sequence_{}.yaml".format(self.current_step))
 
         self.logger.info("Success to extrct assembly info")
             
@@ -780,7 +782,7 @@ class AssemblyManager(object):
             one_possible_sequence = list(random.choice(possible_sequences))
             group_assembly_sequence += one_possible_sequence
 
-        elif len(group_info_list) == 2 and assembly_type == AssemblyType.group_connector_group:
+        elif len(group_info_list) == 2:
             #region group + connector
             group_info = group_info_list[0]
             group_id = group_info["id"]
@@ -1223,7 +1225,46 @@ class AssemblyManager(object):
 
         return target_assembly_info
     
-
+    def simulate_hidden_assembly(self):
+        # 1. check available assembly for current used parts
+        current_group_parts = self.assembly_info["part"] # dict of part_instance
+        part_idx_list = list(current_group_parts.keys())
+        available_part_pair = list(combinations(part_idx_list, 2))
+        available_assembly_pair = {pair_idx: [] for pair_idx in range(len(available_part_pair))}
+        for pair_idx, part_pair in enumerate(available_part_pair):
+            # extract available_assembly_pair for each part pair 
+            part_id_0 = part_pair[0]
+            part_instance_0 = current_group_parts[part_id_0]
+            part_name_0 = part_instance_0["part_name"]
+            instance_id_0 = part_instance_0["instance_id"]
+            part_status_0 = self.part_instance_status[part_name_0][instance_id_0]
+            used_point_0 = set(part_status_0["used_assembly_points"].keys())
+            all_points_0 = set(self.part_info[part_name_0]["assembly_points"].keys())
+            assembly_points_0 = list(all_points_0 - used_point_0) 
+            
+            part_id_1 = part_pair[0]
+            part_instance_1 = current_group_parts[part_id_1]
+            part_name_1 = part_instance_1["part_name"]
+            instance_id_1 = part_instance_1["instance_id"]
+            part_status_1 = self.part_instance_status[part_name_1][instance_id_1]
+            used_point_1 = set(part_status_1["used_assembly_points"].keys())
+            all_points_1 = set(self.part_info[part_name_1]["assembly_points"].keys())
+            assembly_points_1 = list(all_points_1 - used_point_1) 
+            
+            if len(assembly_points_0) > 0 and len(assembly_points_1) > 0:
+                assembly_pair = self._get_available_assembly_pairs(part_id_0=part_id_0,
+                                                                part_name_0=part_name_0,
+                                                                assembly_points_0=assembly_points_0,
+                                                                part_id_1=part_id_1,
+                                                                part_name_1=part_name_1,
+                                                                assembly_points_1=assembly_points_1) 
+            else:
+                assembly_pair = []
+            available_assembly_pair[pair_idx] = assembly_pair
+        # 2. check possibility of each pair
+        save_dic_to_yaml(dic=copy.deepcopy(available_assembly_pair),
+                         yaml_path="test_hidden_assembly_{}.yaml".format(self.current_step))
+        pass
 
     #region test function
     def test_search_sequence(self):

@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
-
+    
     # using part info to initialize scene
     asm_manager.initialize_part_to_scene()
     
@@ -40,6 +40,8 @@ if __name__ == "__main__":
         asm_manager.search_assembly_sequence()
         # assemble parts and calculate cost by distance taken during assembly
         asm_manager.simulate_instruction_step()
+
+        asm_manager.simulate_hidden_assembly()
         
         asm_manager.step()
         
