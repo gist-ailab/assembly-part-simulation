@@ -1391,6 +1391,27 @@ pan_head_screw_iso(4ea):
         - -0.7071067811865475
       radius: 6.0
       type: insertion
+    1:
+      depth: 0.009999999999999995
+      direction:
+      - 1.0
+      - -0.0
+      - -0.0
+      edge_index:
+      - 77
+      - opposed
+      pose:
+        position:
+        - 0.0046
+        - 0.0
+        - 0.0
+        quaternion:
+        - 0.0
+        - 0.7071067811865475
+        - 0.0
+        - -0.7071067811865475
+      radius: 6.2
+      type: insertion
   document: ./assembly/STEFAN/part_documents/pan_head_screw_iso(4ea).FCStd
   obj_file: ./assembly/STEFAN/part_obj/pan_head_screw_iso(4ea).obj
   part_id: 3

@@ -40,6 +40,7 @@ class AssemblyManager(object):
         
         # 내부에서 사용하는 데이터(저장은 선택)
         self.part_info_path = join(self.assembly_path, "part_info.yaml")
+        self.connector_info_path = join(self.assembly_path, "connector_info.yaml")
         self.assembly_pair_path = join(self.assembly_path, "assembly_pair.yaml")
         self.refined_pair_path = "./assembly_pair_refined.yaml"
         
@@ -94,7 +95,8 @@ class AssemblyManager(object):
             14 5.65 # bolt:0
             15 6.0 # pan_head_screw_iso(4ea):0
             16 6.1 # bottom
-            17 7.9 # bolt:1 
+            17 6.2 # pan_head
+            18 7.9 # bolt:1 
         # offset heuristic rule(based on assemble direction == hole direction)
         - pin assembly offset = -15
         - flat offset = 30
@@ -113,10 +115,10 @@ class AssemblyManager(object):
         radius_group = {
             "pin": [0, 1, 7, 9, 10, 11, 12, 13],
             "bracket": [5, 6],
-            "flat_penet": [2, 17], 
+            "flat_penet": [2, 18], 
             "flat": [3, 4, 14],
             "pan": [8, 15],
-            "bottom": [17]
+            "bottom": [16, 17]
         }
         bracket_additional = {
             "type": "parallel",
@@ -174,6 +176,10 @@ class AssemblyManager(object):
                             if get_group(point_1["radius"]) == "flat_penet":
                                 offset = -30 
                                 if part_name_1 =="ikea_stefan_bolt_side":
+                                    offset *= -1
+                            if get_group(point_1["radius"]) == "bottom":
+                                offset = 1
+                                if part_name_1 =="pan_head_screw_iso(4ea)":
                                     offset *= -1
                             if edge_dir_1 == "opposed":
                                 offset *= -1
@@ -246,6 +252,7 @@ class AssemblyManager(object):
                 "part_name": connector_name
             }
         self.connector_info = connector_info
+        save_dic_to_yaml(self.connector_info, self.connector_info_path)
     def _initialize_group_status(self):
         # furniture part 를 베이스로 하여 그룹을 생성
         for group_id, part_name in enumerate(self.furniture_parts):
@@ -1264,7 +1271,11 @@ class AssemblyManager(object):
         # 2. check possibility of each pair
         save_dic_to_yaml(dic=copy.deepcopy(available_assembly_pair),
                          yaml_path="test_hidden_assembly_{}.yaml".format(self.current_step))
-        pass
+        for pair_idx in available_assembly_pair.keys():
+            part_pair_idx = available_part_pair[pair_idx]
+            assembly_pair = available_assembly_pair[pair_idx]
+
+
 
     #region test function
     def test_search_sequence(self):

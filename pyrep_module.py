@@ -15,7 +15,7 @@ from script.socket_utils import *
 from itertools import permutations
 
 #TODO
-def get_available_points(part_name, connector_name):
+def get_available_points(part_name, instance_id, connector_name, part_status=None):
     available_points = []
     point_pair_info = ASSEMBLY_PAIR[part_name]
     for point_idx in point_pair_info.keys():
@@ -23,7 +23,14 @@ def get_available_points(part_name, connector_name):
         for pair_info in pair_list:
             if pair_info["part_name"] == connector_name:
                 available_points.append(point_idx)
-    return available_points
+    available_points = set(available_points)
+    # 3.2.2 remove used points
+    if part_status:
+        part_intance_status = part_status[part_name][instance_id]
+        used_point = part_intance_status["used_assembly_points"].keys()
+        available_points = available_points - set(used_point)
+
+    return list(available_points)
 
 class ObjObject():
     def __init__(self, obj: Shape, frame: Dummy, instruction_frame: Dummy):
@@ -153,7 +160,7 @@ class GroupObject():
         region_connection = {}
         for connection_point in connection_points:
             connection_position = connection_point.get_position()
-            region = self._get_region(connection_position)
+            region = self._get_region(connection_position, connector_name)
             if not region in used_region:
                 used_region.append(region)
             region_idx = used_region.index(region)
@@ -179,12 +186,7 @@ class GroupObject():
             # 3.2.1 from PartObject get region assembly points
             primitive_object = self.composed_objects[part_id]["primitive"]
             region_asm_points = primitive_object.region_info[region_id]["points"]
-            # 3.2.2 remove used points
-            part_intance_status = part_status[part_name][instance_id]
-            used_point = part_intance_status["used_assembly_points"].keys()
-            region_asm_points = set(region_asm_points) - set(used_point)
-            # 3.2.3 only available point to assemble with connector 
-            available_points = set(get_available_points(part_name, connector_name))
+            available_points = set(get_available_points(part_name, instance_id, connector_name, part_status))
             assembly_point_list = list(available_points.intersection(region_asm_points))
 
             # 3.3 get best matching for each connection
@@ -224,11 +226,11 @@ class GroupObject():
             connection_point.set_name(dummy_name)
             # relative to bounding box center
             connection_point.set_position(location, relative_to=self.base_obj.instruction_frame)
-            connection_point.set_parent(self.base_obj.shape)
+            connection_point.set_parent(self.base_obj.instruction_frame)
             connection_points.append(connection_point)
         
         return tuple(connection_points)
-    def _get_region(self, target_position):
+    def _get_region(self, target_position, connector_name):
         """[summary]
         Args:
             target_position ([type]): [should be relative to world frame]
@@ -245,13 +247,22 @@ class GroupObject():
         min_distance = np.inf
         # search target region for each part each region
         for part_idx , object_dict in enumerate(self.composed_objects):
+            part_name = self.composed_parts[part_idx]["part_name"]
+            instance_id = self.composed_parts[part_idx]["instance_id"]
+
+            available_points = set(get_available_points(part_name, instance_id, connector_name))
             composed_object = object_dict["object"]
             primitive_object = object_dict["primitive"]
             region_info = primitive_object.region_info
 
             primitive_object.set_pose(composed_object.shape.get_pose())
             for region_id in region_info.keys():
+                region_points = set(region_info[region_id]["points"])
+                if not len(region_points.intersection(available_points)) > 0:
+                    continue
+
                 region_shape = region_info[region_id]["shape"]
+                
                 pos = np.array(region_shape.get_position())
 
                 distance = np.linalg.norm(target_position - pos)
@@ -300,7 +311,7 @@ class PyRepModule(object):
             PyRepRequestType.update_part_status: self.update_part_status
         }
         self.pr = PyRep()
-        self.pr.launch("scene/demo.ttt", headless=headless)
+        self.pr.launch(headless=headless)
         self.pr.start()
         # self.scene_th = threading.Thread(target=self.scene_binding)
         # self.scene_th.start()
@@ -491,12 +502,9 @@ class PyRepModule(object):
         #TODO:
         self.logger.info("...get assembly points of group {} from scene".format(group_id))
         target_group = self.group_obj[group_id]
-        try:
-            assembly_points = target_group.get_assembly_points(locations=connection_locs, 
-                                                            connector_name=connector_name, 
-                                                            part_status=self.part_status)
-        except:
-            self.save_scene("error_scene/error_scene_{}.ttt".format(get_time_stamp()))    
+        assembly_points = target_group.get_assembly_points(locations=connection_locs, 
+                                                        connector_name=connector_name, 
+                                                        part_status=self.part_status)
         self.logger.info("End to get assembly point from pyrep scene")
         
         sendall_pickle(self.connected_client, assembly_points)

@@ -694,7 +694,7 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
         mid_circle.position = position
         added_circles = [mid_circle, circles[-1]]
         circle_holes += get_circle_holes(added_circles)
-        
+    
         
     for hole in circle_holes:
         hole.create_hole()
@@ -708,9 +708,9 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
         else:
             unique_radius.append(hole.radius)
             unique_radius.sort()
+    
     if "bolt_side" in step_name:
         circle_holes[1].radius = 7.9
-    
     
     # extract assembly point from circle holes
     assembly_points = {}
@@ -727,6 +727,9 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
             },
         }
         assembly_points[idx] = assembly_point
+    if "pan_head" in step_name:
+        assembly_points[1] = copy.deepcopy(assembly_points[0])
+        assembly_points[1]["radius"] = 6.2
     doc.saveAs(doc_path)
     FreeCAD.closeDocument(doc.Name)
     return assembly_points
