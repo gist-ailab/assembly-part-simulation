@@ -375,6 +375,13 @@ def get_dcm_from_quat(quat):
 
     return r
 
+def get_quat_from_euler(x ,y, z):
+    r = R.from_euler("xyz",[x, y, z], degrees=True)
+    r = r.as_quat()
+    r = list(r)
+    
+    return r
+
 def check_parallel(vec1, vec2):
     epsilon = 0.001
     inner_product = np.inner(vec1, vec2)
@@ -711,7 +718,9 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
     
     if "bolt_side" in step_name:
         circle_holes[1].radius = 7.9
-    
+    if "bracket" in step_name:
+        circle_holes[1].radius = 8.0
+
     # extract assembly point from circle holes
     assembly_points = {}
     for idx, hole in enumerate(circle_holes):
@@ -888,6 +897,11 @@ class FreeCADModule():
         if len(self.additional_assmbly_pair) > 0:
             is_possible = is_possible and self._additional_assembly()
         
+        if is_possible:
+            self.assembly_doc.save_doc("test_success/test_{}.FCStd".format(get_time_stamp()))
+        else:
+            self.assembly_doc.save_doc("test_fail/test_{}.FCStd".format(get_time_stamp()))
+        
         return is_possible
     
     def _add_pair_constraint(self, pair_assembly_info):
@@ -945,8 +959,6 @@ class FreeCADModule():
         self.assembly_obj[max_ins].fixedPosition = True
         is_possible = self.assembly_doc.solve_system()
         
-        self.assembly_doc.save_doc("test/test_{}.FCStd".format(get_time_stamp()))
-
         return is_possible
 
     def _additional_assembly(self):
@@ -1005,15 +1017,26 @@ class FreeCADModule():
         assert is_solved, "Fail to assemble group obj"
         
         base_obj = []
+        group_object_pose = {}
         for obj_key in self.assembly_obj.keys():
             part_name = obj_key[0]
             ins = obj_key[1]
+            part_instacne = "{}_{}".format(part_name, ins)
             group_obj = self.assembly_obj[obj_key]
+            # if part_name in self.additional_constraint_parts:
+            #     group_obj.Placement = FreeCAD.Placement(FreeCAD.Vector(0,0,0),FreeCAD.Rotation(FreeCAD.Vector(0,1,0),90))
+            #     FreeCAD.ActiveDocument.recompute()
+            pos = list(np.array(group_obj.Placement.Base) * 0.001)
+            quat = list(group_obj.Placement.Rotation.Q)
             Mesh.export([group_obj], join(obj_root, "{}_{}.obj".format(part_name, ins)))
+            pose = pos + quat
+            pose = npfloat_to_float(pose)
+            group_object_pose[part_instacne] = pose
+            
             if part_name in self.furniture_parts:
                 base_obj.append(group_obj)
         Mesh.export(base_obj, join(obj_root, "base.obj"))
-        
+        save_dic_to_yaml(group_object_pose, join(obj_root, "group_pose.yaml"))
         return True
 
     def assemble_bottom(self):
@@ -1061,11 +1084,11 @@ class FreeCADModule():
     def assembly_pair_test(all_part_info, assembly_pair):
         unique_radius = []
         assembly_doc = AssemblyDocument()
-        check_and_reset_dir("pairtest")
+        check_and_reset_dir("pair_test")
         
         for parent_part_name in assembly_pair.keys():
             assembly_doc.reset()
-            parent_part_path = "./pairtest/" + parent_part_name + ".FCStd"
+            parent_part_path = "./pair_test/" + parent_part_name + ".FCStd"
             parent_info = all_part_info[parent_part_name]
             parent_doc = parent_info["document"]
             parent_object = assembly_doc.import_part(parent_doc)
@@ -1103,8 +1126,6 @@ class FreeCADModule():
                                                        offset=offset)
             assembly_doc.solve_system()
             assembly_doc.save_doc(parent_part_path)
-                                                                                         
-                    
 
 if __name__ == "__main__":
     logger = get_logger("FreeCAD_Module")    
@@ -1113,7 +1134,6 @@ if __name__ == "__main__":
     # extract_part_info("./cad_file/STEFAN")
     # all_part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
     # pair_path = "./assembly/STEFAN/assembly_pair.yaml"
-    # refined = "assembly_pair_refined.yaml"
     # assembly_pair = load_yaml_to_dic(pair_path)
     # freecad_module.assembly_pair_test(all_part_info, assembly_pair)
     # assert False, "SUCCESS"
