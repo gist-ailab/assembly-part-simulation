@@ -26,7 +26,7 @@ class AssemblyManager(object):
 
         # 조립 폴더 생성
         self.assembly_root = "./assembly"
-        check_and_create_dir("./assembly")
+        check_and_reset_dir("./assembly")
         self.assembly_path = join("./assembly", self.furniture_name)
         check_and_create_dir(self.assembly_path)
         # Group(*.obj) 폴더 생성
@@ -36,6 +36,9 @@ class AssemblyManager(object):
         self.group_info_root = join(self.assembly_path, "group_info")
         check_and_create_dir(self.group_info_root)
         
+        self.test_info_path = join(self.assembly_path, "test_result")
+        check_and_create_dir(self.test_info_path)
+
         self.socket_module = SocketModule(self.logger)
         
         # 내부에서 사용하는 데이터(저장은 선택)
@@ -55,6 +58,7 @@ class AssemblyManager(object):
         self.group_info = None
         self.group_info_path = join(self.group_info_root, "group_info_{}.yaml".format(self.current_step))
         self.instruction_info = None
+        self.instruction_assembly_info = None
         self.connection_assembly_sequence = None
         
         # 조립 마다 바뀌는 정보
@@ -78,25 +82,23 @@ class AssemblyManager(object):
         """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
         - radius_group => all possible groups
         # radius info
-            0 2.499999999999989 # pin:1
-            1 2.499999999999995 # pin:0
-            2 2.5000000000000004 # long:1,4 middle:2,5 short:1,4
-            3 2.7499999999999747 # left:3,4, right:3,4
-            4 2.750000000000001 # left:0 right:0
-            5 3.000000000000001 # brcket:0
-            6 3.0000000000000027 # long:6,7 short:6,7
-            7 3.4999999999999996 # short:0,2,3,5
-            8 3.5 # bracket:1
-            9 4.0  #(9~13) # long,middle,left,right wiht pin
-            10 4.000000000000001
-            11 4.000000000000002
-            12 4.000000000000003
-            13 4.0000000000000036
-            14 5.65 # bolt:0
-            15 6.0 # pan_head_screw_iso(4ea):0
-            16 6.1 # bottom
-            17 6.2 # pan_head
-            18 7.9 # bolt:1 
+            00 2.499999999999989 # pin:1
+            01 2.499999999999995 # pin:0
+            02 2.5 # long:1,4 middle:2,5 short:1,4
+            03 2.7499999999999747 # left:3,4, right:3,4
+            04 2.750000000000001 # left:0 right:0
+            05 3.0 # brcket:0
+            06 3.000000000000001 # long:6,7 short:6,7
+            07 3.5 # short:0,2,3,5
+            08 4.0 #(8~10) # long,middle,left,right wiht pin
+            09 4.000000000000003  
+            10 4.0000000000000036
+            11 5.65 # bolt:0
+            12 6.0 # pan_head_screw_iso(4ea):0
+            13 6.1 # bottom
+            14 6.2 # pan_head
+            15 7.9 # bolt:1 
+            16 8.0 # bracket:1
         # offset heuristic rule(based on assemble direction == hole direction)
         - pin assembly offset = -15
         - flat offset = 30
@@ -113,12 +115,12 @@ class AssemblyManager(object):
         """
         # assert False, "Not use this function! load refined file instead"
         radius_group = {
-            "pin": [0, 1, 7, 9, 10, 11, 12, 13],
+            "pin": [0, 1, 7, 8, 9, 10],
             "bracket": [5, 6],
-            "flat_penet": [2, 18], 
-            "flat": [3, 4, 14],
-            "pan": [8, 15],
-            "bottom": [16, 17]
+            "flat_penet": [2, 15], 
+            "flat": [3, 4, 11],
+            "pan": [12, 16],
+            "bottom": [13, 14]
         }
         bracket_additional = {
             "type": "parallel",
@@ -275,15 +277,15 @@ class AssemblyManager(object):
         self._update_group_to_scene()
         self._update_part_status()
 
-        save_dic_to_yaml(copy.deepcopy(self.assembly_info), "test_assembly_info_{}.yaml".format(self.current_step))
-        save_dic_to_yaml(self.part_instance_status, "test_part_instance_status_{}.yaml".format(self.current_step))
-        save_dic_to_yaml(self.group_status, "test_group_status_{}.yaml".format(self.current_step))
-        save_dic_to_yaml(self.group_info, "test_group_info_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(copy.deepcopy(self.assembly_info), join(self.test_info_path, "assembly_info_{}.yaml".format(self.current_step)))
+        save_dic_to_yaml(self.part_instance_status, join(self.test_info_path, "part_instance_status_{}.yaml".format(self.current_step)))
+        save_dic_to_yaml(self.group_status, join(self.test_info_path, "group_status_{}.yaml".format(self.current_step)))
+        save_dic_to_yaml(self.group_info, join(self.test_info_path, "group_info_{}.yaml".format(self.current_step)))
 
         self.current_step += 1
         # update instruction info
         self._get_instruction_info()
-        save_dic_to_yaml(self.instruction_info, "test_instruction_info_{}.yaml".format(self.current_step))
+        save_dic_to_yaml(self.instruction_info, join(self.test_info_path, "instruction_info_{}.yaml".format(self.current_step)))
     def _update_group_info(self):
         # update group info using group status
         group_info = {}
@@ -324,41 +326,81 @@ class AssemblyManager(object):
         self.logger.info("...Waiting for initialize PyRep scene")
         self.socket_module.initialize_part_to_scene(self.part_info, self.assembly_pair)
         
-    def extract_assembly_info(self):
+    def compile_instruction_assembly_info(self):
         assert self.instruction_info
-        self.assembly_info = {}
-        self.assembly_info["part"] = []
-        used_part_instances = self.assembly_info["part"]
-        self.connection_assembly_sequence = []
-        """extract instruction info"""
-        instruction_group_info = self.instruction_info["Group"]
-        instruction_connection_info = self.instruction_info['connection']
         
-        """extract used parts from using group"""
-        group_assembly = {}
+        """initialize compiled assembly info"""
+        self.instruction_assembly_info = {
+            "group_part_instance": {}, # all part instances in current stage
+            "connector_instance": {}, # may be added connector instance in current stage
+            "checker": {} # used to check is assembly satisfy instruction info
+        }
+        
+        """extract instruction info"""
+        instruction_group_info = self.instruction_info["Group"] # list
+        instruction_connector_info = self.instruction_info["Connector"] # list
+        instruction_connection_info = self.instruction_info['connection'] # list
+        
+        """instruction checker"""
+        instruction_checker = {
+            "group": {}, # check each group is used?
+            "connector": {}, # check each connector is used?
+            "connection": {}, # check each connection is used?
+        }
+
+        """compile instruction group info
+        - extract all composed part
+        - update checker
+        """
+        group_part_instances = []
         for group_info in instruction_group_info:
             group_id = group_info["group_id"]
-            group_assembly.setdefault(group_id, [])
-            used_group_status = self.group_status[group_id]
-            used_parts = used_group_status["composed_part"]
-            for used_part in used_parts:
+            
+            instruction_checker["group"].setdefault(group_id, False)
+            
+            current_group_status = self.group_status[group_id]
+            current_used_parts = current_group_status["composed_part"]
+            for used_part in current_used_parts:
                 part_name = used_part["part_name"]
                 instance_id = used_part["instance_id"]
                 used_part_info = {
                     "part_name": part_name,
                     "instance_id": instance_id,
                 }
-                used_part_instances.append(used_part_info)
-
-        """extract connection assembly_sequence from connection info"""
+                group_part_instances.append(used_part_info)
+        self.instruction_assembly_info["group_part_instance"] = group_part_instances
         
-        connection_assembly_sequence = []
+        """compile instruction connector info
+        - update checker
+        """
+        for connector_info in instruction_connector_info:
+            connector_id = connector_info["connector_id"]
+            connector_name = connector_info["part_name"]
+            assert self.connector_info[connector_id]["part_name"] == connector_name
+            
+            connector_num = connector_info["number_of_connector"]
+            instruction_checker["connector"][connector_name] = connector_num
 
+        """compile instruction connection info
+        - define each connection's assembly type
+        """
+        connection_list = []
         for connection_info in instruction_connection_info:
-            connection_assembly = self._get_connection_assembly(connection_info)
-            connection_assembly_sequence.append(connection_assembly)
-        # search assembly point for each group
-                
+            connection = self._compile_connection_info(connection_info)
+            connection_list.append(connection)
+
+        """compile connection loc to region and points
+        - search best matching for connection loc => region
+        - search all matching for connection loc => assembly point
+        """
+
+
+
+
+
+
+
+
         for connection_assembly in connection_assembly_sequence:
             component_info = connection_assembly["component"]
             group_list = component_info["group"]
@@ -394,31 +436,33 @@ class AssemblyManager(object):
 
         self.connection_assembly_sequence = copy.deepcopy(connection_assembly_sequence)
 
+        
         # To save form
         for connection_assembly in connection_assembly_sequence:
-            connection_assembly["assembly_type"] = connection_assembly["assembly_type"].name
-        save_dic_to_yaml(copy.deepcopy(self.connection_assembly_sequence), "test_connection_sequence_{}.yaml".format(self.current_step))
+            connection_assembly["assembly_type"] = copy.deepcopy(connection_assembly["assembly_type"].name)
+        save_dic_to_yaml(copy.deepcopy(self.connection_assembly_sequence), join(self.test_info_path, \
+            "connection_sequence_{}.yaml".format(self.current_step)))
 
         self.logger.info("Success to extrct assembly info")
-            
-    def _get_connection_assembly(self, connection_info):
-        """connection_assembly = {
+    @staticmethod            
+    def _compile_connection_info(connection_info):
+        """connection = {
             "assembly_type": AssemblyType.group_connector,
             "component": {
                 "group": [
                     {
                         "id": 1,
-                        "assembly_point": component loc(position or None)
+                        "connection_loc": connection location(position or None)
                     }
                     },
                 ],
                 "connector": 1,
             }
         }"""
-        connection_assembly = {}
-        connection_assembly.setdefault("assembly_type", None)
-        connection_assembly.setdefault("component", {})
-        component_info = connection_assembly["component"]
+        connection = {}
+        connection.setdefault("assembly_type", None)
+        connection.setdefault("component", {})
+        component_info = connection["component"]
         component_info.setdefault("group", [])
         component_info.setdefault("connector", None)
         
@@ -436,19 +480,17 @@ class AssemblyManager(object):
             elif component_type == "group":
                 connection_group_info = {
                     "id": component_id,
-                    "assembly_point": connection_loc
+                    "connection_loc": connection_loc
                 }
                 component_info["group"].append(connection_group_info)
 
             else:
                 assert False                
         
-        connection_assembly["assembly_type"] = AssemblyType.find_type(assembly_type)
+        connection["assembly_type"] = AssemblyType.find_type(assembly_type)
         
-        return connection_assembly
-    def _get_region_id(self, group_id, connection_loc):
-        region_id = self.socket_module.get_region_id(group_id=group_id,
-                                                    connection_loc=connection_loc)
+        return connection
+    
     def _get_assembly_points(self, group_id, connection_locs, connector_name):
         """get assembly point from location
 
@@ -472,15 +514,11 @@ class AssemblyManager(object):
     def search_assembly_sequence(self):
         self.assembly_info["assembly"] = []
         self.assembly_info["assembly_sequence"] = []
-        # region_assembly_sequence = region_assembly_sequence_ex["sequence_{}".format(self.current_step)]
-        # assembly_sequence = self.assembly_info["assembly_sequence"]
-        # for group_assembly in region_assembly_sequence:
-        #     seq = self._extract_sequence_from_region_assembly(group_assembly)
-        #     assembly_sequence += seq
+        
         assembly_sequence = self.assembly_info["assembly_sequence"]
         for connection_assembly in self.connection_assembly_sequence:
             seq = self._extract_sequence_from_connection_assembly(connection_assembly)
-            assembly_sequence += seq
+            assembly_sequence += [int(val) for val in seq]
 
         temp_dict = {}
         for idx, v in enumerate(self.assembly_info["part"]):
@@ -488,7 +526,7 @@ class AssemblyManager(object):
         self.assembly_info["part"] = temp_dict
         temp_dict = {}
         for idx, v in enumerate(self.assembly_info["assembly"]):
-            temp_dict[idx] = v
+            temp_dict[idx] = copy.deepcopy(v)
         self.assembly_info["assembly"] = temp_dict
 
     def _extract_sequence_from_region_assembly(self, region_assembly):
@@ -702,7 +740,7 @@ class AssemblyManager(object):
         assembly_component = connection_assembly["component"]
         assembly_type = connection_assembly["assembly_type"]
         
-        # connector instance
+        #region find unused connector instance
         connctor_id = assembly_component["connector"]
         connector_name = self.connector_info[connctor_id]["part_name"]
 
@@ -720,11 +758,12 @@ class AssemblyManager(object):
             used_connector_instance = connector_instance
             used_assembly_instance.append(connector_instance)
             break
-        assert used_connector_instance
-        
+        #endregion
+        assert used_connector_instance, "No available {} instance".format(connector_name)
+
         group_info_list = assembly_component["group"] # list of used_group info
-        
-        group_assembly_sequence = []
+        assembly_sequence = []
+
         if len(group_info_list) == 1:
             """group + connector
             """
@@ -733,7 +772,7 @@ class AssemblyManager(object):
             assembly_info = group_info["assembly_point"]
             available_pair = []
             if assembly_info == None:
-                # find available part
+                # find available part inside group
                 available_parts = []
                 composed_parts = self.group_status[group_id]["composed_part"]
                 for part_instance in composed_parts:
@@ -741,12 +780,12 @@ class AssemblyManager(object):
                     instance_id = part_instance["instance_id"]
                     part_status = self.part_instance_status[part_name][instance_id]
                     if part_status["available_assembly"][connector_name] > 0:
-                        used_point = set(part_status["used_assembly_points"].keys())
-                        all_points = set(self.part_info[part_name]["assembly_points"].keys())
+                        available_points = self._get_available_points(part_name, part_status)
                         available_parts.append({
                             "part_instance": part_instance,
-                            "available_points": list(all_points - used_point)
+                            "available_points": available_points
                         })
+                # find available points
                 for available_part in available_parts:
                     target_part_instance = available_part["part_instance"]
                     part_id_0 = used_assembly_instance.index(target_part_instance)
@@ -757,11 +796,11 @@ class AssemblyManager(object):
                     part_name_1 = used_connector_instance["part_name"]
                     assembly_points_1 = list(self.part_info[part_name_1]["assembly_points"].keys())
                     available_pair += self._get_available_assembly_pairs(part_id_0=part_id_0,
-                                                                    part_name_0=part_name_0,
-                                                                    assembly_points_0=assembly_points_0,
-                                                                    part_id_1=part_id_1,
-                                                                    part_name_1=part_name_1,
-                                                                    assembly_points_1=assembly_points_1)
+                                                                         part_name_0=part_name_0,
+                                                                         assembly_points_0=assembly_points_0,
+                                                                         part_id_1=part_id_1,
+                                                                         part_name_1=part_name_1,
+                                                                         assembly_points_1=assembly_points_1)
                 
             else:
                 target_part_name = assembly_info["part_name"]
@@ -771,6 +810,7 @@ class AssemblyManager(object):
                     "part_name": target_part_name,
                     "instance_id": target_part_instance_id
                 }
+
                 part_id_0 = used_assembly_instance.index(target_part_instance)
                 part_name_0 = target_part_instance["part_name"]
                 assembly_points_0 = [assembly_info["point_id"]]
@@ -778,16 +818,17 @@ class AssemblyManager(object):
                 part_id_1 = used_assembly_instance.index(used_connector_instance)
                 part_name_1 = used_connector_instance["part_name"]
                 assembly_points_1 = list(self.part_info[part_name_1]["assembly_points"].keys())
+                
                 available_pair += self._get_available_assembly_pairs(part_id_0=part_id_0,
-                                                                    part_name_0=part_name_0,
-                                                                    assembly_points_0=assembly_points_0,
-                                                                    part_id_1=part_id_1,
-                                                                    part_name_1=part_name_1,
-                                                                    assembly_points_1=assembly_points_1)
+                                                                     part_name_0=part_name_0,
+                                                                     assembly_points_0=assembly_points_0,
+                                                                     part_id_1=part_id_1,
+                                                                     part_name_1=part_name_1,
+                                                                     assembly_points_1=assembly_points_1)
             
             possible_sequences = self._get_available_sequence(available_pair, assembly_num=1)
             one_possible_sequence = list(random.choice(possible_sequences))
-            group_assembly_sequence += one_possible_sequence
+            assembly_sequence += one_possible_sequence
 
         elif len(group_info_list) == 2:
             #region group + connector
@@ -795,62 +836,61 @@ class AssemblyManager(object):
             group_id = group_info["id"]
             assembly_info = group_info["assembly_point"]
             available_pair = []
-            if assembly_info == None:
-                # find available part
-                available_parts = []
-                composed_parts = self.group_status[group_id]["composed_part"]
-                for part_instance in composed_parts:
-                    part_name = part_instance["part_name"]
-                    instance_id = part_instance["instance_id"]
-                    part_status = self.part_instance_status[part_name][instance_id]
-                    if part_status["available_assembly"][connector_name] > 0:
-                        used_point = set(part_status["used_assembly_points"].keys())
-                        all_points = set(self.part_info[part_name]["assembly_points"].keys())
-                        available_parts.append({
-                            "part_instance": part_instance,
-                            "available_points": list(all_points - used_point)
-                        })
-                for available_part in available_parts:
-                    target_part_instance = available_part["part_instance"]
-                    part_id_0 = used_assembly_instance.index(target_part_instance)
-                    part_name_0 = target_part_instance["part_name"]
-                    assembly_points_0 = available_part["available_points"]
+            # if assembly_info == None:
+            #     # find available part
+            #     available_parts = []
+            #     composed_parts = self.group_status[group_id]["composed_part"]
+            #     for part_instance in composed_parts:
+            #         part_name = part_instance["part_name"]
+            #         instance_id = part_instance["instance_id"]
+            #         part_status = self.part_instance_status[part_name][instance_id]
+            #         if part_status["available_assembly"][connector_name] > 0:
+            #             used_point = set(part_status["used_assembly_points"].keys())
+            #             all_points = set(self.part_info[part_name]["assembly_points"].keys())
+            #             available_parts.append({
+            #                 "part_instance": part_instance,
+            #                 "available_points": list(all_points - used_point)
+            #             })
+            #     for available_part in available_parts:
+            #         target_part_instance = available_part["part_instance"]
+            #         part_id_0 = used_assembly_instance.index(target_part_instance)
+            #         part_name_0 = target_part_instance["part_name"]
+            #         assembly_points_0 = available_part["available_points"]
 
-                    part_id_1 = used_assembly_instance.index(used_connector_instance)
-                    part_name_1 = used_connector_instance["part_name"]
-                    assembly_points_1 = list(self.part_info[part_name_1]["assembly_points"].keys())
-                    available_pair += self._get_available_assembly_pairs(part_id_0=part_id_0,
-                                                                    part_name_0=part_name_0,
-                                                                    assembly_points_0=assembly_points_0,
-                                                                    part_id_1=part_id_1,
-                                                                    part_name_1=part_name_1,
-                                                                    assembly_points_1=assembly_points_1)
+            #         part_id_1 = used_assembly_instance.index(used_connector_instance)
+            #         part_name_1 = used_connector_instance["part_name"]
+            #         assembly_points_1 = list(self.part_info[part_name_1]["assembly_points"].keys())
+            #         available_pair += self._get_available_assembly_pairs(part_id_0=part_id_0,
+            #                                                         part_name_0=part_name_0,
+            #                                                         assembly_points_0=assembly_points_0,
+            #                                                         part_id_1=part_id_1,
+            #                                                         part_name_1=part_name_1,
+            #                                                         assembly_points_1=assembly_points_1)
                 
-            else:
-                target_part_name = assembly_info["part_name"]
-                target_part_instance_id = assembly_info["instance_id"]
+            target_part_name = assembly_info["part_name"]
+            target_part_instance_id = assembly_info["instance_id"]
 
-                target_part_instance = {
-                    "part_name": target_part_name,
-                    "instance_id": target_part_instance_id
-                }
-                part_id_0 = used_assembly_instance.index(target_part_instance)
-                part_name_0 = target_part_instance["part_name"]
-                assembly_points_0 = [assembly_info["point_id"]]
+            target_part_instance = {
+                "part_name": target_part_name,
+                "instance_id": target_part_instance_id
+            }
+            part_id_0 = used_assembly_instance.index(target_part_instance)
+            part_name_0 = target_part_instance["part_name"]
+            assembly_points_0 = [assembly_info["point_id"]]
 
-                part_id_1 = used_assembly_instance.index(used_connector_instance)
-                part_name_1 = used_connector_instance["part_name"]
-                assembly_points_1 = list(self.part_info[part_name_1]["assembly_points"].keys())
-                available_pair += self._get_available_assembly_pairs(part_id_0=part_id_0,
-                                                                    part_name_0=part_name_0,
-                                                                    assembly_points_0=assembly_points_0,
-                                                                    part_id_1=part_id_1,
-                                                                    part_name_1=part_name_1,
-                                                                    assembly_points_1=assembly_points_1)
-            
+            part_id_1 = used_assembly_instance.index(used_connector_instance)
+            part_name_1 = used_connector_instance["part_name"]
+            assembly_points_1 = list(self.part_info[part_name_1]["assembly_points"].keys())
+            available_pair += self._get_available_assembly_pairs(part_id_0=part_id_0,
+                                                                part_name_0=part_name_0,
+                                                                assembly_points_0=assembly_points_0,
+                                                                part_id_1=part_id_1,
+                                                                part_name_1=part_name_1,
+                                                                assembly_points_1=assembly_points_1)
+        
             possible_sequences = self._get_available_sequence(available_pair, assembly_num=1)
             one_possible_sequence = list(random.choice(possible_sequences))
-            group_assembly_sequence += one_possible_sequence
+            assembly_sequence += one_possible_sequence
 
             #endregion
             
@@ -867,11 +907,11 @@ class AssemblyManager(object):
                     instance_id = part_instance["instance_id"]
                     part_status = self.part_instance_status[part_name][instance_id]
                     if part_status["available_assembly"][connector_name] > 0:
-                        used_point = set(part_status["used_assembly_points"].keys())
-                        all_points = set(self.part_info[part_name]["assembly_points"].keys())
+                        available_points = self._get_available_points(part_name, part_status) 
+
                         available_parts.append({
                             "part_instance": part_instance,
-                            "available_points": list(all_points - used_point)
+                            "available_points": available_points
                         })
                 for available_part in available_parts:
                     target_part_instance = available_part["part_instance"]
@@ -912,9 +952,9 @@ class AssemblyManager(object):
                                                                     assembly_points_1=assembly_points_1)
             
             possible_sequences = self._get_available_sequence(available_pair, assembly_num=1,
-                                                            group_condition=group_assembly_sequence)
+                                                            group_condition=assembly_sequence)
             one_possible_sequence = list(random.choice(possible_sequences))
-            group_assembly_sequence += one_possible_sequence
+            assembly_sequence += one_possible_sequence
             
             #endregion
 
@@ -924,42 +964,18 @@ class AssemblyManager(object):
         previous_pair_list = self.assembly_info["assembly"]
         previous_idx = len(previous_pair_list)
         previous_pair_list += available_pair
-        group_assembly_sequence = list(np.array(group_assembly_sequence) + previous_idx)
+        assembly_sequence = list(np.array(assembly_sequence) + previous_idx)
 
-        return group_assembly_sequence
-    def _get_available_assembly_pairs(self, part_id_0, part_name_0, assembly_points_0, 
-                                            part_id_1, part_name_1, assembly_points_1):
-        assert self.assembly_pair
-        available_assembly = []
-        part_0_info = self.assembly_pair[part_name_0]
-        for assembly_point_idx_0 in assembly_points_0:
-            availabe_pair_list = part_0_info[assembly_point_idx_0]
-            for pair_info in availabe_pair_list:
-                if pair_info["part_name"]==part_name_1\
-                    and pair_info["assembly_point"] in assembly_points_1:
-                    assembly_pair_info = {
-                        "method":{
-                            "direction": pair_info["direction"],
-                            "offset": pair_info["offset"],
-                            "additional": pair_info["additional"]
-                        },
-                        "target_pair": {
-                            0:{
-                                "part_id": part_id_0,
-                                "assembly_point": assembly_point_idx_0
-                            },
-                            1:{
-                                "part_id": part_id_1,
-                                "assembly_point": pair_info["assembly_point"]
-                            }
-                        }
-                    }
-                    available_assembly.append(assembly_pair_info)
-                
-        return available_assembly
+        return assembly_sequence
+    
+    def _extract_assembly_pair_connection():
+        pass
+
+    
     def _get_available_sequence(self, assembly_pairs, assembly_num, group_condition=[]):
-        """get all possible sequence from current part and pair
+        """get all possible sequence from assembly_pairs
         - using rule is one point is used once
+        - condition means 
         Args:
             assembly_pairs (list): [description]
             assembly_num (int)
@@ -1037,10 +1053,12 @@ class AssemblyManager(object):
             target_pair = target_assembly_info["target"]["target_pair"]
             current_status = target_assembly_info["status"]
             self.logger.info("""...Waiting for simulate assemble:
-                {}_{} and {}_{}""".format(target_pair[0]["part_name"],
-                                        target_pair[0]["instance_id"],
-                                        target_pair[1]["part_name"],
-                                        target_pair[1]["instance_id"]))
+            ===>  {}_{}_{} and {}_{}_{}""".format(target_pair[0]["part_name"],
+                                                  target_pair[0]["instance_id"],
+                                                  target_pair[0]["assembly_point"],
+                                                  target_pair[1]["part_name"],
+                                                  target_pair[1]["instance_id"],
+                                                  target_pair[1]["assembly_point"]))
             is_possible = False
             try:
                 is_possible = self.socket_module.check_assembly_possibility(target_assembly_info)
@@ -1048,7 +1066,8 @@ class AssemblyManager(object):
                 self.logger.info("ERROR!")
 
             if not is_possible:
-                return False
+                continue
+                # return False
 
             # update local status
             """extract assembly info"""
@@ -1237,7 +1256,8 @@ class AssemblyManager(object):
         current_group_parts = self.assembly_info["part"] # dict of part_instance
         part_idx_list = list(current_group_parts.keys())
         available_part_pair = list(combinations(part_idx_list, 2))
-        available_assembly_pair = {pair_idx: [] for pair_idx in range(len(available_part_pair))}
+    
+        available_assembly_pair = {}
         for pair_idx, part_pair in enumerate(available_part_pair):
             # extract available_assembly_pair for each part pair 
             part_id_0 = part_pair[0]
@@ -1245,18 +1265,14 @@ class AssemblyManager(object):
             part_name_0 = part_instance_0["part_name"]
             instance_id_0 = part_instance_0["instance_id"]
             part_status_0 = self.part_instance_status[part_name_0][instance_id_0]
-            used_point_0 = set(part_status_0["used_assembly_points"].keys())
-            all_points_0 = set(self.part_info[part_name_0]["assembly_points"].keys())
-            assembly_points_0 = list(all_points_0 - used_point_0) 
+            assembly_points_0 = self._get_available_points(part_name_0, part_status_0)
             
             part_id_1 = part_pair[0]
             part_instance_1 = current_group_parts[part_id_1]
             part_name_1 = part_instance_1["part_name"]
             instance_id_1 = part_instance_1["instance_id"]
             part_status_1 = self.part_instance_status[part_name_1][instance_id_1]
-            used_point_1 = set(part_status_1["used_assembly_points"].keys())
-            all_points_1 = set(self.part_info[part_name_1]["assembly_points"].keys())
-            assembly_points_1 = list(all_points_1 - used_point_1) 
+            assembly_points_1 = self._get_available_points(part_name_1, part_status_1)
             
             if len(assembly_points_0) > 0 and len(assembly_points_1) > 0:
                 assembly_pair = self._get_available_assembly_pairs(part_id_0=part_id_0,
@@ -1265,51 +1281,88 @@ class AssemblyManager(object):
                                                                 part_id_1=part_id_1,
                                                                 part_name_1=part_name_1,
                                                                 assembly_points_1=assembly_points_1) 
-            else:
-                assembly_pair = []
-            available_assembly_pair[pair_idx] = assembly_pair
+                available_assembly_pair[pair_idx] = assembly_pair
+                
         # 2. check possibility of each pair
         save_dic_to_yaml(dic=copy.deepcopy(available_assembly_pair),
-                         yaml_path="test_hidden_assembly_{}.yaml".format(self.current_step))
+                         yaml_path=join(self.test_info_path, "hidden_assembly_{}.yaml".format(self.current_step)))
         for pair_idx in available_assembly_pair.keys():
             part_pair_idx = available_part_pair[pair_idx]
             assembly_pair = available_assembly_pair[pair_idx]
-
-
-
-    #region test function
-    def test_search_sequence(self):
-        new_seq = []
-        sequence = seq["sequence_{}".format(self.current_step)]
-        if self.current_step == 5:
-            print()
-        for pair in sequence:
-            target_pair = {}
-            for pair_idx in pair.keys():
-                part_info = pair[pair_idx]
-                part_name = part_info["part_name"]
-                instance_id = part_info["instance_id"]
-                point_idx = part_info["assembly_point"]
-                part_key = {
-                    "part_name": part_name,
-                    "instance_id": instance_id
-                }
-                part_id = None
-                for idx in self.assembly_info["part"].keys():
-                    if self.assembly_info["part"][idx] == part_key:
-                        part_id = idx
-                        break
-                target_pair[pair_idx] = {
-                    "assembly_point": point_idx,
-                    "part_id": part_id
-                }
-            asm_idx = None
-            for idx in self.assembly_info["assembly"].keys():
-                if self.assembly_info["assembly"][idx]["target_pair"] == target_pair:
-                    asm_idx = idx
-                    break
-            new_seq.append(asm_idx)
-        assert new_seq
-        self.assembly_info["assembly_sequence"].append(new_seq)
     
+
+    #region utils
+    def _get_available_points(self, part_name, part_status):
+        assert self.part_info
+        all_points = set(self.part_info[part_name]["assembly_points"].keys())
+        used_point = set(part_status["used_assembly_points"].keys())
+        return list(all_points - used_point)
+    def _get_available_assembly_pairs(self, part_id_0, part_name_0, assembly_points_0, 
+                                            part_id_1, part_name_1, assembly_points_1):
+        assert self.assembly_pair
+        available_assembly = []
+        part_0_info = self.assembly_pair[part_name_0]
+        for assembly_point_idx_0 in assembly_points_0:
+            availabe_pair_list = part_0_info[assembly_point_idx_0]
+            for pair_info in availabe_pair_list:
+                if pair_info["part_name"]==part_name_1\
+                    and pair_info["assembly_point"] in assembly_points_1:
+                    assembly_pair_info = {
+                        "method":{
+                            "direction": pair_info["direction"],
+                            "offset": pair_info["offset"],
+                            "additional": copy.deepcopy(pair_info["additional"])
+                        },
+                        "target_pair": {
+                            0:{
+                                "part_id": part_id_0,
+                                "assembly_point": assembly_point_idx_0
+                            },
+                            1:{
+                                "part_id": part_id_1,
+                                "assembly_point": pair_info["assembly_point"]
+                            }
+                        }
+                    }
+                    available_assembly.append(assembly_pair_info)
+                
+        return available_assembly
+    @staticmethod
+    def _get_available_sequence(assembly_pairs, assembly_num):
+        """get all possible sequence from assembly_pairs
+        - using rule is one point is used once
+        Args:
+            assembly_pairs (list): [description]
+            assembly_num (int)
+        return: 
+            possible_sequence (list of tuple):
+        """
+        pair_idx_list = range(len(assembly_pairs))
+        all_possible_sequence = set(combinations(pair_idx_list, assembly_num)) # list of tuple
+        impossible_sequence = []
+        # check sequence
+        for sequence in all_possible_sequence:
+            used_point = []
+            is_possible = True
+            for pair_idx in sequence:
+                target_assembly_pair = assembly_pairs[pair_idx]
+                target_pair = target_assembly_pair["target_pair"]
+                for idx in target_pair.keys():
+                    point = target_pair[idx]
+                    if point in used_point:
+                        is_possible = False
+                        break
+                    else:
+                        used_point.append(point)
+                if not is_possible:
+                    break
+            if not is_possible:
+                impossible_sequence.append(sequence)
+        possible_sequence = list(all_possible_sequence - set(impossible_sequence))
+
+        return possible_sequence
+
     #endregion
+
+if __name__ == "__main__":
+    pass
