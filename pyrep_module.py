@@ -12,10 +12,15 @@ from pyrep.objects.camera import Camera
 from script.fileApi import *
 from script.const import SocketType, PyRepRequestType
 from script.socket_utils import *
-from itertools import permutations
+from itertools import combinations, permutations, product
+
+import numpy as np
+import copy
 
 #TODO
+ASSEMBLY_PAIR = None
 def get_available_points(part_name, instance_id, connector_name, part_status=None):
+    assert ASSEMBLY_PAIR
     available_points = []
     point_pair_info = ASSEMBLY_PAIR[part_name]
     for point_idx in point_pair_info.keys():
@@ -58,7 +63,6 @@ class ObjObject():
         return self.shape.get_pose(relative_to=relative_to)
     
     def set_pose(self, pose, relative_to=None):
-        assert False, "Not Implemented"
         """
         :param pose: An array containing the (X,Y,Z,Qx,Qy,Qz,Qw) pose of
             the object.
@@ -116,7 +120,6 @@ class ObjObject():
 class GroupObject():
     def __init__(self, base_obj: ObjObject, composed_parts, composed_objects):
         """Group
-
         Args:
             base_obj (ObjObject): [description]
             composed_parts: tuple of part_instance(dict)
@@ -126,7 +129,7 @@ class GroupObject():
                 }
             composed_objects: tuple of composed object(dict)
                 composed_object = {
-                    "object": ObjObject
+                    "group_object": ObjObject
                     "primitive": PartObject
                 }
             }
@@ -137,83 +140,121 @@ class GroupObject():
 
     def get_assembly_points(self, locations, connector_name, part_status):
         target_assembly_points = {idx: None for idx in range(len(locations))}
-        #region 1. import connection locs to scene
+        # 1. import connection locs to scene
         """
         connection_points = tuple of Connection_point(Dummy)
             => idx is same as locations
         """
         connection_points = self._create_connection_points(locations)
-        #endregion
-        #region 2. get region of each locations
+        # 2. get available region and points in group
         """
-        "used_region": list(or tuple) of region
-        "region_connection": dict
-            {
-                region_idx: [] list of connection_point
+        - used connector name to available region, points
+        - remove used points and regions
+        - get region, points_list for each parts
+        
+        available_region = tuple of region_info
+            region_info = {
+                "part_id": part_idx(matched with self.composed_parts)
+                "shape": Shape
+                "points": [] (list of available_points)
             }
-        region = {
-            "part_id" self.composed_part
-            "region_id"
-        }
+            ...
         """
-        used_region = []
-        region_connection = {}
-        for connection_point in connection_points:
-            connection_position = connection_point.get_position()
-            region = self._get_region(connection_position, connector_name)
-            if not region in used_region:
-                used_region.append(region)
-            region_idx = used_region.index(region)
-            region_connection.setdefault(region_idx, [])
-            region_connection[region_idx].append(connection_point)
+        available_regions = self._get_available_regions(connector_name, part_status)
+        #region 3. search best region to use
+        """
+        - use distance cost to decide best region for each connection point
+            - move each primitive(which parent of region shape) to group composed parts
+            - calculate distance
+        - consider each regions' available point num
+        """
+        connection_2_region_cost = np.zeros((len(connection_points), len(available_regions)))
+        for connection_idx, connection_dummy in enumerate(connection_points):
+            target_position = np.array(connection_dummy.get_position())
+            
+            for region_idx, region_info in enumerate(available_regions):
+                part_idx = region_info["part_id"]
+                object_info = self.composed_objects[part_idx]
+                group_object = object_info["group_object"]
+                primitive_object = object_info["primitive"]
+                composed_part_pose = self.composed_parts[part_idx]["pose"]
+                primitive_object.set_pose(composed_part_pose, relative_to=self.base_obj.frame)
+                primitive_object.object.set_parent(self.base_obj.shape)
+                region_shape = region_info["shape"]
+                region_position = np.array(region_shape.get_position())
+                distance = np.linalg.norm(target_position - region_position)
+                
+                connection_2_region_cost[connection_idx][region_idx] = distance
+        connection_idx_list = range(len(connection_points))
+        region_idx_list = range(len(available_regions))
+        all_possible_matching = product(region_idx_list, repeat=len(connection_points))
+        
+        min_cost = np.inf
+        connection_2_region = None
+        for candidate in all_possible_matching:
+            cost = 0
+            for connection_idx, region_idx in zip(connection_idx_list, candidate):
+                cost += connection_2_region_cost[connection_idx, region_idx]
+
+            if cost < min_cost:
+                is_possible = True
+                candidate = np.array(candidate)
+                unique_region_idx = np.unique(candidate)
+                for unique_region in unique_region_idx:
+                    candidate_num = np.count_nonzero(candidate == unique_region)
+                    available_num = len(available_regions[unique_region]["points"])
+                    if candidate_num > available_num:
+                        is_possible = False
+                        break
+                if is_possible:
+                    min_cost = cost
+                    connection_2_region = candidate
+
+        assert len(connection_2_region) > 0, "Fail to search region for connections"
         #endregion
-        #region 3. search best matching for each region 
-        """matching means connection point - assembly point
-        """
-        for region_idx, region in enumerate(used_region):
-            # 3.1 connection_list : list of connection dummy's idx
-            region_con_points = region_connection[region_idx] # list of dummy
-            connection_list = [connection_points.index(dummy) for dummy in region_con_points]
-            
-            # 3.2 assembly_point_list : list of candiate point's idx
-            part_id = region["part_id"]
-            region_id = region["region_id"]
 
-            part_instance = self.composed_parts[part_id]
-            part_name = part_instance["part_name"]
-            instance_id = part_instance["instance_id"]
-            
-            # 3.2.1 from PartObject get region assembly points
-            primitive_object = self.composed_objects[part_id]["primitive"]
-            region_asm_points = primitive_object.region_info[region_id]["points"]
-            available_points = set(get_available_points(part_name, instance_id, connector_name, part_status))
-            assembly_point_list = list(available_points.intersection(region_asm_points))
+        #region 4. calculate cost for each used region
+        # 4.1 region_2_connection_list
+        used_region = np.unique(np.array(connection_2_region))
+        region_2_connection = {region_idx: [] for region_idx in used_region}
+        for connection_idx, region_idx in enumerate(connection_2_region):
+            connection_dummy = connection_points[connection_idx]
+            region_2_connection[region_idx].append(connection_idx)
 
-            # 3.3 get best matching for each connection
-            assert len(assembly_point_list) >= len(connection_list), "No available points in region {}_{}".format(part_name, region_id)
-            candidates = list(permutations(assembly_point_list, len(connection_list)))
-            min_dis = np.inf
-            target_point_list = None
-            for candidate_list in candidates:
-                candidate_dis = 0
-                for connection_idx, point_idx in zip(connection_list, candidate_list):
-                    target_connection = connection_points[connection_idx]
-                    target_connection_pos = np.array(target_connection.get_position())
-                    target_asm_point = primitive_object.assembly_points[point_idx]
-                    target_asm_point_pos = np.array(target_asm_point.get_position())
-                    target_dis = np.linalg.norm(target_connection_pos - target_asm_point_pos)
-                    candidate_dis += target_dis
-                if candidate_dis < min_dis:
-                    min_dis = candidate_dis
-                    target_point_list = candidate_list
+        connection_2_point = {connection_idx: {} for connection_idx in range(len(connection_points))}
+        # 4.2 searching points matching for each region
+        for region_idx in region_2_connection.keys():
+            region_info = available_regions[region_idx]
+            connection_idx_list = region_2_connection[region_idx]    
+            part_id = region_info["part_id"]
+            available_points_idx_list = region_info["points"]
+            candidate_point_matching_list = permutations(available_points_idx_list, len(connection_idx_list))
 
-            for connection_id, point_id in zip(connection_list, target_point_list):
-                target_assembly_points[connection_id] = {
-                    "part_name": part_name,
-                    "instance_id": instance_id,
-                    "point_id": point_id,
+            connection_2_point_cost = {connection_idx: {} for connection_idx in connection_idx_list}
+
+            for candidate_point_matching in candidate_point_matching_list:
+                
+                for connection_idx, point_idx in zip(connection_idx_list, candidate_point_matching):
+                    connection_dummy = connection_points[connection_idx]
+                    connection_position = np.array(connection_dummy.get_position())
+                    
+                    primitive_object = self.composed_objects[part_id]["primitive"]
+                    target_point = primitive_object.assembly_points[point_idx]
+                    target_position = np.array(target_point.get_position())
+
+                    cost = np.linalg.norm(connection_position - target_position)
+                    connection_2_point_cost[connection_idx][point_idx] = float(cost)
+                
+            for connection_idx in connection_idx_list:
+                part_info = self.composed_parts[part_id]
+                connection_2_point[connection_idx] = {
+                    "part_name": part_info["part_name"],
+                    "instance_id": part_info["instance_id"],
+                    "region_id": region_idx,
+                    "point_cost": connection_2_point_cost[connection_idx]
                 }
-        #endregion
+
+        target_assembly_points = copy.deepcopy(connection_2_point)                
 
         return target_assembly_points
 
@@ -222,67 +263,44 @@ class GroupObject():
         for idx, location in enumerate(connection_locations):
             connection_point = Dummy.create()
             rand = float(np.random.rand())
-            dummy_name = "connection_point_{0:04f}".format(rand).replace("0.","")
+            dummy_name = "connection_point_{0:04f}_".format(rand).replace(".", "")
+            dummy_name += str(idx)
             connection_point.set_name(dummy_name)
             # relative to bounding box center
-            connection_point.set_position(location, relative_to=self.base_obj.instruction_frame)
-            connection_point.set_parent(self.base_obj.instruction_frame)
+            #TODO: connection frame
+            connection_point.set_position(location, relative_to=self.base_obj.frame)
+            connection_point.set_parent(self.base_obj.frame)
             connection_points.append(connection_point)
         
         return tuple(connection_points)
-    def _get_region(self, target_position, connector_name):
-        """[summary]
-        Args:
-            target_position ([type]): [should be relative to world frame]
-        Returns:
-            region [dict]:
-            {
-                "part_idx": idx of part_instance in self.composed_parts
-                "region_id": idx of region of primitive
-            }
-        """
-        target_position = np.array(target_position)
-        target_part_id = None
-        target_region_id = None
-        min_distance = np.inf
-        # search target region for each part each region
+    def _get_available_regions(self, connector_name, part_status):
+        available_regions = []
         for part_idx , object_dict in enumerate(self.composed_objects):
             part_name = self.composed_parts[part_idx]["part_name"]
             instance_id = self.composed_parts[part_idx]["instance_id"]
+            available_points = set(get_available_points(part_name, instance_id, connector_name, part_status))
 
-            available_points = set(get_available_points(part_name, instance_id, connector_name))
-            composed_object = object_dict["object"]
             primitive_object = object_dict["primitive"]
             region_info = primitive_object.region_info
-
-            primitive_object.set_pose(composed_object.shape.get_pose())
             for region_id in region_info.keys():
                 region_points = set(region_info[region_id]["points"])
-                if not len(region_points.intersection(available_points)) > 0:
+                region_available_points = list(region_points.intersection(available_points))
+                if not len(available_points) > 0:
                     continue
-
                 region_shape = region_info[region_id]["shape"]
-                
-                pos = np.array(region_shape.get_position())
+                available_regions.append({
+                    "part_id": part_idx,
+                    "shape": region_shape,
+                    "points": region_available_points
+                })
 
-                distance = np.linalg.norm(target_position - pos)
-                if distance < min_distance:
-                    min_distance = distance
-                    target_part_id = part_idx
-                    target_region_id = region_id
-        assert target_part_id!=None and target_region_id!=None, "Error search region"
-
-        region = {
-            "part_id": target_part_id,
-            "region_id": target_region_id
-        }
-
-        return region
+        return tuple(available_regions)
+    
     def remove(self):
         self.base_obj.remove()
         self.composed_parts = None
         for composed_object in self.composed_objects:
-            composed_object["object"].remove()
+            composed_object["group_object"].remove()
         self.composed_objects = None
 
 class PartObject():
@@ -380,7 +398,8 @@ class PyRepModule(object):
         assert self.part_info
         self.logger.info("import part info of {}".format(part_name))
         obj_path = self.part_info[part_name]["obj_file"]
-        part_obj = Shape.import_mesh(obj_path, scaling_factor=0.001)
+        # part_obj = Shape.import_mesh(obj_path, scaling_factor=0.001)
+        part_obj = ObjObject.create_object(obj_path=obj_path)
         part_obj.set_name(part_name)
         # import each assembly points to scene
         assembly_points = self.part_info[part_name]["assembly_points"]
@@ -401,7 +420,7 @@ class PyRepModule(object):
             pose = position + quaternion         
             assembly_point.set_pose(pose)
             assembly_point.set_name("{}_AP_{}".format(part_name, idx))
-            assembly_point.set_parent(part_obj)
+            assembly_point.set_parent(part_obj.shape)
             points[idx] = assembly_point
         part_region_info = self.part_info[part_name]["region_info"]
         region_info = {}
@@ -415,7 +434,7 @@ class PyRepModule(object):
                                         color=[0,1,0]
                                         )
             region_shape.set_name("{}_region_{}".format(part_name, region_id))
-            region_shape.set_parent(part_obj)
+            region_shape.set_parent(part_obj.shape)
             region_shape.set_position(position)
             for point_idx in point_list:
                 points[point_idx].set_parent(region_shape)
@@ -430,10 +449,13 @@ class PyRepModule(object):
     def update_group_to_scene(self):
         self.logger.info("ready to update group to scene")
         sendall_pickle(self.connected_client, True)
+
         request = recvall_pickle(self.connected_client)
         new_group_info = request["group_info"]
+        
         self.logger.info("...updating group to scene")
         self._update_group_obj(new_group_info)
+        
         self.logger.info("End to update group to scene")
         sendall_pickle(self.connected_client, True)
 
@@ -452,6 +474,7 @@ class PyRepModule(object):
             composed_parts = []
             composed_objects = []
             composed_part_idx = 0
+            group_pose = load_yaml_to_dic(join(obj_root, "group_pose.yaml"))
             for file_path in file_list:
                 obj_name, ext = get_file_name(file_path)
                 if not ext == ".obj":
@@ -467,10 +490,11 @@ class PyRepModule(object):
                     part_instance = {
                         "part_name": part_name,
                         "instance_id": int(instance_id),
+                        "pose": group_pose[obj_name]
                     }
                     composed_parts.append(part_instance)
                     object_dict = {
-                        "object": obj,
+                        "group_object": obj,
                         "primitive": self.primitive_parts[part_name]
                     }
                     composed_objects.append(object_dict)
@@ -479,7 +503,7 @@ class PyRepModule(object):
             composed_parts = tuple(composed_parts)
             composed_objects = tuple(composed_objects)
             for object_dict in composed_objects:
-                obj = object_dict["object"]
+                obj = object_dict["group_object"]
                 obj.set_parent(base_obj.shape)
             self.group_obj[group_id] = GroupObject(base_obj, composed_parts, composed_objects)
 
@@ -502,11 +526,16 @@ class PyRepModule(object):
         #TODO:
         self.logger.info("...get assembly points of group {} from scene".format(group_id))
         target_group = self.group_obj[group_id]
-        assembly_points = target_group.get_assembly_points(locations=connection_locs, 
-                                                        connector_name=connector_name, 
-                                                        part_status=self.part_status)
+        assembly_points = None        
+        try:
+            assembly_points = target_group.get_assembly_points(locations=connection_locs, 
+                                                            connector_name=connector_name, 
+                                                            part_status=self.part_status)
+            
+        except Exception as e:
+            self.logger.info("Error occur {}".format(e))
+            self.save_scene("test_error_scene/error_scene_{}.ttt".format(get_time_stamp()))    
         self.logger.info("End to get assembly point from pyrep scene")
-        
         sendall_pickle(self.connected_client, assembly_points)
         self.save_scene("test_scene/test_scene_{}.ttt".format(get_time_stamp()))
     #endregion
