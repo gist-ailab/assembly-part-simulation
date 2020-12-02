@@ -898,9 +898,9 @@ class FreeCADModule():
             is_possible = is_possible and self._additional_assembly()
         
         if is_possible:
-            self.assembly_doc.save_doc("test_success/test_{}.FCStd".format(get_time_stamp()))
+            self.assembly_doc.save_doc("test_success_doc/test_{}.FCStd".format(get_time_stamp()))
         else:
-            self.assembly_doc.save_doc("test_fail/test_{}.FCStd".format(get_time_stamp()))
+            self.assembly_doc.save_doc("test_fail_doc/test_{}.FCStd".format(get_time_stamp()))
         
         return is_possible
     

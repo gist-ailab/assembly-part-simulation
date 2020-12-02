@@ -175,10 +175,14 @@ class SocketModule():
         response = recvall_pickle(self.c_instruction)
         assert response, "Not ready to get instruction info"
         # send group_info and get instruction info
+        for group_id in group_info.keys():
+            obj_path = group_info[group_id]["obj_file"]
+            with open(obj_path, "r") as f:
+                group_info[group_id]["obj_raw"] = f.readlines()
         request = {
             "current_step": current_step,
             "group_info": group_info,
-            "connector_info": connector_info
+            "connector_info": connector_info,
         }
         sendall_pickle(self.c_instruction, request)
         instruction_info = recvall_pickle(self.c_instruction)

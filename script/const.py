@@ -31,6 +31,7 @@ class AssemblyType(Enum):
         else:
             assert False
 
+
 class AssemblyPoint(object):
     def __init__(self, idx, hole_type, radius, edge_index, depth, direction, position, quaternion):
         self.id = idx
@@ -45,7 +46,6 @@ class AssemblyPoint(object):
 class PyRepRequestType():
     initialize_part_to_scene = "initialize_part_to_scene"
     update_group_to_scene = "update_group_to_scene"
-    get_region_id = "get_region_id"
     get_assembly_point = "get_assembly_point"
     update_part_status = "update_part_status"
 
@@ -73,3 +73,4 @@ class SocketType(Enum):
         "port": 7777,
         "reqeust_type": InstructionRequestType,
     }
+

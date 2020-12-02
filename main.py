@@ -28,24 +28,26 @@ if __name__ == "__main__":
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
     
-    assert False, "SUCCESS"
+    
     # using part info to initialize scene
     asm_manager.initialize_part_to_scene()
     
     asm_manager.step()
+    
     # assembly simulation
     while not asm_manager.is_end: # end sign from instruction_info
+        assert asm_manager.current_step < 5, "SUCCESS"
+        
         # extract assembly info 
-        asm_manager.extract_assembly_info()
+        asm_manager.compile_instruction_assembly_info()
         
         asm_manager.search_assembly_sequence()
         # assemble parts and calculate cost by distance taken during assembly
-        asm_manager.simulate_instruction_step()
+        asm_manager.simulate_instruction_assembly()
 
         asm_manager.simulate_hidden_assembly()
         
         asm_manager.step()
-        
     #endregion
 
         
