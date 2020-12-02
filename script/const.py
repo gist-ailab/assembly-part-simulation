@@ -60,17 +60,18 @@ class InstructionRequestType():
 
 class SocketType(Enum):
     pyrep = {
-        "host": '127.0.0.1',
+        "host": '172.27.183.179',
         "port": 8282,
         "request_type": PyRepRequestType,
     }
     freecad = {
-        "host": '127.0.0.1',
+        "host": '172.27.183.179',
         "port": 9293,
         "reqeust_type": FreeCADRequestType,
     }
     instruction = {
-        "host": '127.0.0.1',
+        # "host": '127.0.0.1',
+        "host": '172.27.183.179',
         "port": 7777,
         "reqeust_type": InstructionRequestType,
     }

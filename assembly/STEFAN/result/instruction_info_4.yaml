@@ -1,0 +1,132 @@
+Connector:
+- connector_id: 2
+  number_of_connector: 6
+  part_name: ikea_stefan_pin
+Group:
+- group_id: 7
+  rotation:
+  - 195.23887634277344
+  - 48.905513763427734
+  - 87.7380599975586
+  translation:
+  - 0.0407087467610836
+  - 0.04322262853384018
+  - 0.12276896834373474
+- group_id: 2
+  rotation:
+  - 0.0
+  - 450.0
+  - 90.0
+  translation:
+  - 0.0
+  - 0.0
+  - 0.0
+connection:
+- components:
+  - id: 2
+    loc: null
+    order: 1
+    type: connector
+  - id: 2
+    loc:
+    - -0.00032558850944042206
+    - 0.024736076593399048
+    - 0.13106778264045715
+    order: 2
+    type: group
+  connection_id: 0
+  num_component: 2
+- components:
+  - id: 2
+    loc: null
+    order: 1
+    type: connector
+  - id: 2
+    loc:
+    - 0.001012191642075777
+    - 0.014118313789367676
+    - 0.13500000536441803
+    order: 2
+    type: group
+  connection_id: 1
+  num_component: 2
+- components:
+  - id: 2
+    loc: null
+    order: 1
+    type: connector
+  - id: 2
+    loc:
+    - 0.015000000596046448
+    - -0.305867075920105
+    - 0.1321631819009781
+    order: 2
+    type: group
+  connection_id: 2
+  num_component: 2
+- components:
+  - id: 2
+    loc: null
+    order: 2
+    type: connector
+  - id: 2
+    loc:
+    - 0.0031291265040636063
+    - -0.30436718463897705
+    - -0.13500000536441803
+    order: 1
+    type: group
+  - id: 7
+    loc:
+    - 0.00814799964427948
+    - -0.2460336834192276
+    - 0.13559770584106445
+    order: 3
+    type: group
+  connection_id: 3
+  num_component: 3
+- components:
+  - id: 2
+    loc: null
+    order: 2
+    type: connector
+  - id: 2
+    loc:
+    - -0.0007594446651637554
+    - -0.019084349274635315
+    - -0.12582799792289734
+    order: 1
+    type: group
+  - id: 7
+    loc:
+    - -0.013665199279785156
+    - -0.4953598380088806
+    - 0.1410408914089203
+    order: 3
+    type: group
+  connection_id: 4
+  num_component: 3
+- components:
+  - id: 2
+    loc: null
+    order: 2
+    type: connector
+  - id: 2
+    loc:
+    - 0.008768306113779545
+    - 0.012213900685310364
+    - -0.1253291219472885
+    order: 1
+    type: group
+  - id: 7
+    loc:
+    - -0.024007141590118408
+    - -0.5103460550308228
+    - 0.14212380349636078
+    order: 3
+    type: group
+  connection_id: 5
+  num_component: 3
+file_name: /data/sung/src/furniture/manual-parser/data/image/mission1/7.png
+group_info: ./data/group_info/group_info_3.yaml
+sequence_id: 4

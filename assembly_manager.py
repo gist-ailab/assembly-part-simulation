@@ -834,7 +834,6 @@ class AssemblyManager(object):
         
         return assembly_sequence_info_list, available_pair
     
-    
     def simulate_instruction_assembly(self):
         assert len(self.assembly_info["assembly_sequence"]) > 0
 
@@ -852,7 +851,7 @@ class AssemblyManager(object):
                 break
             self.logger.info("############RETRY FIND ASSEMBLY SEQUENCE############")
         
-        self.instruction_assembly_info["target"] = target_sequence
+        self.assembly_info["instruction_sequence"] = target_sequence
         self.logger.info("End to simulate instruction assembly")
 
     def _simulate_assembly_sequecne(self, assembly_sequence):
@@ -1070,58 +1069,57 @@ class AssemblyManager(object):
         return target_assembly_info
     
     def simulate_hidden_assembly(self):
-        # 1. check available assembly for current used parts
-        current_group_parts = self.assembly_info["part"] # dict of part_instance
-        part_idx_list = list(current_group_parts.keys())
-        available_part_pair = list(combinations(part_idx_list, 2))
-    
-        available_assembly_pair = {}
-        for pair_idx, part_pair in enumerate(available_part_pair):
-            # extract available_assembly_pair for each part pair 
-            part_id_0 = part_pair[0]
-            part_instance_0 = current_group_parts[part_id_0]
-            part_name_0 = part_instance_0["part_name"]
-            instance_id_0 = part_instance_0["instance_id"]
-            part_status_0 = self.part_instance_status[part_name_0][instance_id_0]
-            assembly_points_0 = self._get_available_points(part_name_0, part_status_0)
+        # # 1. check available assembly for current used parts
+        # current_group_parts = self.assembly_info["part"] # dict of part_instance
+        
+        # available_points = []
+        # for pair_idx, part_pair in enumerate(available_part_pair):
+        #     # extract available_assembly_pair for each part pair 
+        #     part_id_0 = part_pair[0]
+        #     part_instance_0 = current_group_parts[part_id_0]
+        #     part_name_0 = part_instance_0["part_name"]
+        #     instance_id_0 = part_instance_0["instance_id"]
+        #     part_status_0 = self.part_instance_status[part_name_0][instance_id_0]
+        #     assembly_points_0 = self._get_available_points(part_name_0, part_status_0)
             
-            part_id_1 = part_pair[1]
-            part_instance_1 = current_group_parts[part_id_1]
-            part_name_1 = part_instance_1["part_name"]
-            instance_id_1 = part_instance_1["instance_id"]
-            part_status_1 = self.part_instance_status[part_name_1][instance_id_1]
-            assembly_points_1 = self._get_available_points(part_name_1, part_status_1)
+        #     part_id_1 = part_pair[1]
+        #     part_instance_1 = current_group_parts[part_id_1]
+        #     part_name_1 = part_instance_1["part_name"]
+        #     instance_id_1 = part_instance_1["instance_id"]
+        #     part_status_1 = self.part_instance_status[part_name_1][instance_id_1]
+        #     assembly_points_1 = self._get_available_points(part_name_1, part_status_1)
             
-            if (len(assembly_points_0) > 0) and (len(assembly_points_1) > 0):
-                assembly_pair = self._get_available_assembly_pairs(part_id_0=part_id_0,
-                                                                part_name_0=part_name_0,
-                                                                assembly_points_0=assembly_points_0,
-                                                                part_id_1=part_id_1,
-                                                                part_name_1=part_name_1,
-                                                                assembly_points_1=assembly_points_1) 
-                if len(assembly_pair) > 0:
-                    available_assembly_pair[pair_idx] = assembly_pair
+        #     if (len(assembly_points_0) > 0) and (len(assembly_points_1) > 0):
+        #         assembly_pair = self._get_available_assembly_pairs(part_id_0=part_id_0,
+        #                                                         part_name_0=part_name_0,
+        #                                                         assembly_points_0=assembly_points_0,
+        #                                                         part_id_1=part_id_1,
+        #                                                         part_name_1=part_name_1,
+        #                                                         assembly_points_1=assembly_points_1) 
+        #         if len(assembly_pair) > 0:
+        #             available_assembly_pair.append(assembly_pair)
                 
-        # 2. get cost of each pair
-        save_dic_to_yaml(dic=copy.deepcopy(available_assembly_pair),
-                         yaml_path=join(self.test_info_path, "hidden_assembly_{}.yaml".format(self.current_step)))
+        # # 2. get cost of each pair
+        # save_dic_to_yaml(dic=copy.deepcopy(available_assembly_pair),
+        #                  yaml_path=join(self.test_info_path, "hidden_assembly_{}.yaml".format(self.current_step)))
         
-        for pair_idx in available_assembly_pair.keys():
-            part_pair_idx = available_part_pair[pair_idx]
-            assembly_pair = available_assembly_pair[pair_idx]
-    
-    def compile_2_SNU_format(self):
+        
+        # for pair_assembly_info in available_assembly_pair:
+        #     pass
         pass
-        # self.SNU_assembly_info["part"] = copy.deepcopy(self.assembly_info["part"])
-        # assembly_pair_dict = self.assembly_info["assembly"]
-        # assembly_dict = {}
-        # for assembly_id in assembly_pair_dict.keys():
-        #     assembly_pair = assembly_pair_dict[assembly_id]
-        #     assembly_dict[assembly_id] = copy.deepcopy(assembly_pair["target_pair"])
-        # self.SNU_assembly_info["assembly"] = assembly_dict
-        
-        # #TODO: check instruction checker
-        # save_dic_to_yaml(self.SNU_assembly_info, join(self.test_info_path, "example_snu_{}.yaml".format(self.current_step)))
+            
+    def compile_2_SNU_format(self):
+        self.SNU_assembly_info = {}
+        self.SNU_assembly_info["part"] = copy.deepcopy(self.assembly_info["part"])
+        assembly_pair_dict = self.assembly_info["assembly"]
+        assembly_dict = {}
+        for assembly_id in assembly_pair_dict.keys():
+            assembly_pair = assembly_pair_dict[assembly_id]
+            target_pair = assembly_pair["target_pair"]
+            assembly_dict[assembly_id] = copy.deepcopy(target_pair)
+        self.SNU_assembly_info["assembly"] = assembly_dict
+        self.SNU_assembly_info["sequence"] = self.assembly_info["instruction_sequence"]
+        save_dic_to_yaml(self.SNU_assembly_info, join(self.test_info_path, "example_snu_{}.yaml".format(self.current_step)))
 
     #region utils
     def _get_available_points(self, part_name, part_status):

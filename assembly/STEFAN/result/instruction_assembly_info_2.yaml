@@ -1,0 +1,80 @@
+checker:
+  Connector:
+    ikea_stefan_pin: 4
+  Group:
+    3: false
+    4: false
+  connection:
+    0: false
+    1: false
+    2: false
+    3: false
+connection:
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          0: 0.01000086249513848
+          2: 0.033423304098629834
+        region_id: 0
+      id: 3
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          0: 0.04127055942155468
+          2: 0.011148900043101522
+        region_id: 0
+      id: 3
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          3: 0.010653452452615363
+          5: 0.029666924969004634
+        region_id: 1
+      id: 3
+    - connection_loc:
+        part_id: 3
+        point_cost:
+          8: 0.053582894653939526
+          9: 0.07946128030173248
+        region_id: 2
+      id: 4
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          3: 0.03986891267777889
+          5: 0.00906309806884249
+        region_id: 1
+      id: 3
+    - connection_loc:
+        part_id: 3
+        point_cost:
+          8: 0.03480074703834655
+          9: 0.046029549137038266
+        region_id: 2
+      id: 4
+connector_instance: {}
+group_part_instance:
+- instance_id: 0
+  part_name: ikea_stefan_short
+- instance_id: 2
+  part_name: ikea_stefan_bracket
+- instance_id: 3
+  part_name: ikea_stefan_bracket
+- instance_id: 0
+  part_name: ikea_stefan_side_left
