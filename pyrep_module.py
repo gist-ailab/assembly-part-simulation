@@ -185,6 +185,7 @@ class GroupObject():
                 distance = np.linalg.norm(target_position - region_position)
                 
                 connection_2_region_cost[connection_idx][region_idx] = distance
+        
         connection_idx_list = range(len(connection_points))
         region_idx_list = range(len(available_regions))
         all_possible_matching = product(region_idx_list, repeat=len(connection_points))
@@ -253,7 +254,7 @@ class GroupObject():
                     "region_id": region_idx,
                     "point_cost": connection_2_point_cost[connection_idx]
                 }
-
+            print(connection_2_point_cost)
         target_assembly_points = copy.deepcopy(connection_2_point)                
 
         return target_assembly_points

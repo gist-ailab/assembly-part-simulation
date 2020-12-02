@@ -36,7 +36,7 @@ if __name__ == "__main__":
     
     # assembly simulation
     while not asm_manager.is_end: # end sign from instruction_info
-        assert asm_manager.current_step < 5, "SUCCESS"
+        # assert asm_manager.current_step < 3, "SUCCESS"
         
         # extract assembly info 
         asm_manager.compile_instruction_assembly_info()

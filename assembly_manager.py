@@ -566,7 +566,7 @@ class AssemblyManager(object):
             "sequence": [],
             "cost": 0
         }]
-        unique_sequence = set()
+        unique_cost = set()
         for connection_assembly in connection_assembly_list:
             target_sequence_info_list, target_pair_list = self._extract_sequence_from_connection_assembly(connection_assembly)
             
@@ -598,14 +598,15 @@ class AssemblyManager(object):
                     if not is_possible:
                         continue
                     current_cost += target_cost
-                    sequence_set = set(current_sequence)
-                    if sequence_set in unique_sequence:
+                    if current_cost in unique_cost and current_cost > 0:
                         continue
+                    unique_cost.add(current_cost)
                     sequence_info = {
                         "sequence": copy.deepcopy(current_sequence),
                         "cost": current_cost
                     }
                     new_assembly_sequence_info_list.append(sequence_info)
+            
             assert new_assembly_sequence_info_list, "No available sequence for connection"
             assembly_sequence_info_list = copy.deepcopy(new_assembly_sequence_info_list)
 
@@ -756,13 +757,24 @@ class AssemblyManager(object):
                                                                   assembly_points_1=assembly_points_1)
         
             possible_sequences = self._get_available_sequence(available_pair_0, assembly_num=1)
+
+            point_cost = assembly_info["point_cost"]
+            
             for sequence in possible_sequences:
+                cost = 0
+                for pair_idx in sequence:
+                    target_pair = available_pair_0[pair_idx]["target_pair"]
+                    if target_pair[0]["part_id"] == part_id_0:
+                        point_id = target_pair[0]["assembly_point"]
+                        cost += point_cost[point_id]
+                    else:
+                        point_id = target_pair[1]["assembly_point"]
+                        cost += point_cost[point_id]
                 sequence_info = {
                     "sequence": list(sequence),
-                    "cost": 0
+                    "cost": cost
                 }
                 assembly_sequence_info_list.append(sequence_info)
-            
             #endregion
             
             #region assemble group + group(connector)
@@ -838,13 +850,9 @@ class AssemblyManager(object):
             if is_possible:
                 target_sequence = assembly_sequence
                 break
-        self.SNU_assembly_info = {
-            "part": copy.deepcopy(self.assembly_info["part"]),
-            "assembly": copy.deepcopy(self.assembly_info["assembly"]),
-            "assembly_sequence": target_sequence
-        }
-        #TODO: check instruction checker
-        save_dic_to_yaml(self.SNU_assembly_info, join(self.test_info_path, "example_snu_{}.yaml".format(self.current_step)))
+            self.logger.info("############RETRY FIND ASSEMBLY SEQUENCE############")
+        
+        self.instruction_assembly_info["target"] = target_sequence
         self.logger.info("End to simulate instruction assembly")
 
     def _simulate_assembly_sequecne(self, assembly_sequence):
@@ -862,12 +870,14 @@ class AssemblyManager(object):
             target_pair = target_assembly_info["target"]["target_pair"]
             current_status = target_assembly_info["status"]
             self.logger.info("""...Waiting for simulate assemble:
-            ===>  {}_{}_{} and {}_{}_{}""".format(target_pair[0]["part_name"],
-                                                  target_pair[0]["instance_id"],
-                                                  target_pair[0]["assembly_point"],
-                                                  target_pair[1]["part_name"],
-                                                  target_pair[1]["instance_id"],
-                                                  target_pair[1]["assembly_point"]))
+
+                    ===>  {}_{}_{} and {}_{}_{}
+            """.format(target_pair[0]["part_name"],
+                       target_pair[0]["instance_id"],
+                       target_pair[0]["assembly_point"],
+                       target_pair[1]["part_name"],
+                       target_pair[1]["instance_id"],
+                       target_pair[1]["assembly_point"]))
             is_possible = False
             try:
                 is_possible = self.socket_module.check_assembly_possibility(target_assembly_info)
@@ -1098,6 +1108,18 @@ class AssemblyManager(object):
             part_pair_idx = available_part_pair[pair_idx]
             assembly_pair = available_assembly_pair[pair_idx]
     
+    def compile_2_SNU_format(self):
+        pass
+        # self.SNU_assembly_info["part"] = copy.deepcopy(self.assembly_info["part"])
+        # assembly_pair_dict = self.assembly_info["assembly"]
+        # assembly_dict = {}
+        # for assembly_id in assembly_pair_dict.keys():
+        #     assembly_pair = assembly_pair_dict[assembly_id]
+        #     assembly_dict[assembly_id] = copy.deepcopy(assembly_pair["target_pair"])
+        # self.SNU_assembly_info["assembly"] = assembly_dict
+        
+        # #TODO: check instruction checker
+        # save_dic_to_yaml(self.SNU_assembly_info, join(self.test_info_path, "example_snu_{}.yaml".format(self.current_step)))
 
     #region utils
     def _get_available_points(self, part_name, part_status):

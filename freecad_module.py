@@ -892,7 +892,13 @@ class FreeCADModule():
             self._add_pair_constraint(past_assembly_info)
         self._add_pair_constraint(current_assembly_info)
 
-        is_possible = self._solve_current_constraint()
+        count = 0
+        is_possible = False
+        while count < 5:
+            is_possible = self._solve_current_constraint()
+            if is_possible:
+                break
+            count += 1
         # additional assembly
         if len(self.additional_assmbly_pair) > 0:
             is_possible = is_possible and self._additional_assembly()

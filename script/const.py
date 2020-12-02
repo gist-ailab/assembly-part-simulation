@@ -18,7 +18,8 @@ class AssemblyType(Enum):
         {1:"connector", 2:"group"}
     ]
     group_group_connector = [
-        {1:"group", 2:"group", 3:"connector"}
+        {1:"group", 2:"group", 3:"connector"},
+        {3:"group", 2:"group", 1:"connector"},
     ]
     @classmethod
     def find_type(cls, assemblyType):
