@@ -1085,25 +1085,27 @@ class AssemblyManager(object):
             part_status_0 = self.part_instance_status[part_name_0][instance_id_0]
             assembly_points_0 = self._get_available_points(part_name_0, part_status_0)
             
-            part_id_1 = part_pair[0]
+            part_id_1 = part_pair[1]
             part_instance_1 = current_group_parts[part_id_1]
             part_name_1 = part_instance_1["part_name"]
             instance_id_1 = part_instance_1["instance_id"]
             part_status_1 = self.part_instance_status[part_name_1][instance_id_1]
             assembly_points_1 = self._get_available_points(part_name_1, part_status_1)
             
-            if len(assembly_points_0) > 0 and len(assembly_points_1) > 0:
+            if (len(assembly_points_0) > 0) and (len(assembly_points_1) > 0):
                 assembly_pair = self._get_available_assembly_pairs(part_id_0=part_id_0,
                                                                 part_name_0=part_name_0,
                                                                 assembly_points_0=assembly_points_0,
                                                                 part_id_1=part_id_1,
                                                                 part_name_1=part_name_1,
                                                                 assembly_points_1=assembly_points_1) 
-                available_assembly_pair[pair_idx] = assembly_pair
+                if len(assembly_pair) > 0:
+                    available_assembly_pair[pair_idx] = assembly_pair
                 
-        # 2. check possibility of each pair
+        # 2. get cost of each pair
         save_dic_to_yaml(dic=copy.deepcopy(available_assembly_pair),
                          yaml_path=join(self.test_info_path, "hidden_assembly_{}.yaml".format(self.current_step)))
+        
         for pair_idx in available_assembly_pair.keys():
             part_pair_idx = available_part_pair[pair_idx]
             assembly_pair = available_assembly_pair[pair_idx]

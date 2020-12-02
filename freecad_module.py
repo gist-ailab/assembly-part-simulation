@@ -890,6 +890,8 @@ class FreeCADModule():
         # create previous constraint
         for past_assembly_info in status:
             self._add_pair_constraint(past_assembly_info)
+        
+        _ = self._solve_current_constraint()
         self._add_pair_constraint(current_assembly_info)
 
         count = 0
