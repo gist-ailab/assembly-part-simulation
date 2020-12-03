@@ -1,0 +1,94 @@
+checker:
+  Connector:
+    ikea_stefan_pin: 4
+  Group:
+    1: false
+    6: false
+  connection:
+    0: false
+    1: false
+    2: false
+    3: false
+connection:
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          3: 0.0072936452083699746
+          5: 0.03251120566797187
+        region_id: 1
+      id: 1
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          3: 0.025324522356927608
+          5: 0.013051101756997129
+        region_id: 1
+      id: 1
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          0: 0.006218705069021864
+          2: 0.028710721466771782
+        region_id: 0
+      id: 1
+    - connection_loc:
+        part_id: 3
+        point_cost:
+          1: 0.15204387595391133
+          2: 0.1840332974043347
+        region_id: 0
+      id: 6
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          0: 0.034971239081471435
+          2: 0.004246134433246427
+        region_id: 0
+      id: 1
+    - connection_loc:
+        part_id: 3
+        point_cost:
+          1: 0.12749442057554328
+          2: 0.15949262638737455
+        region_id: 0
+      id: 6
+connector_instance: {}
+group_part_instance:
+- instance_id: 0
+  part_name: ikea_stefan_long
+- instance_id: 0
+  part_name: ikea_stefan_bracket
+- instance_id: 1
+  part_name: ikea_stefan_bracket
+- instance_id: 0
+  part_name: ikea_stefan_side_left
+- instance_id: 0
+  part_name: ikea_stefan_short
+- instance_id: 2
+  part_name: ikea_stefan_bracket
+- instance_id: 3
+  part_name: ikea_stefan_bracket
+- instance_id: 0
+  part_name: ikea_stefan_pin
+- instance_id: 1
+  part_name: ikea_stefan_pin
+- instance_id: 2
+  part_name: ikea_stefan_pin
+- instance_id: 3
+  part_name: ikea_stefan_pin

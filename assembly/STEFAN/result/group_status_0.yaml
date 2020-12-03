@@ -10,7 +10,10 @@
   - instance_id: 0
     part_name: ikea_stefan_bottom
   is_exist: true
-  status: []
+  status:
+    assembly: []
+    document: null
+    object_info: {}
 1:
   available_assembly:
     ikea_stefan_bolt_side: 2
@@ -23,7 +26,10 @@
   - instance_id: 0
     part_name: ikea_stefan_long
   is_exist: true
-  status: []
+  status:
+    assembly: []
+    document: null
+    object_info: {}
 2:
   available_assembly:
     ikea_stefan_bolt_side: 2
@@ -36,7 +42,10 @@
   - instance_id: 0
     part_name: ikea_stefan_middle
   is_exist: true
-  status: []
+  status:
+    assembly: []
+    document: null
+    object_info: {}
 3:
   available_assembly:
     ikea_stefan_bolt_side: 2
@@ -49,7 +58,10 @@
   - instance_id: 0
     part_name: ikea_stefan_short
   is_exist: true
-  status: []
+  status:
+    assembly: []
+    document: null
+    object_info: {}
 4:
   available_assembly:
     ikea_stefan_bolt_side: 3
@@ -62,7 +74,10 @@
   - instance_id: 0
     part_name: ikea_stefan_side_left
   is_exist: true
-  status: []
+  status:
+    assembly: []
+    document: null
+    object_info: {}
 5:
   available_assembly:
     ikea_stefan_bolt_side: 3
@@ -75,4 +90,7 @@
   - instance_id: 0
     part_name: ikea_stefan_side_right
   is_exist: true
-  status: []
+  status:
+    assembly: []
+    document: null
+    object_info: {}

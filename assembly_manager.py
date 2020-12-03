@@ -1,5 +1,5 @@
 import enum
-from operator import add
+from operator import add, pos
 
 from script.const import PartType, AssemblyType
 from script.fileApi import *
@@ -7,7 +7,7 @@ from enum import Enum
 from socket_module import SocketModule
 
 import copy
-from itertools import combinations
+from itertools import combinations, product
 import random
 
 import numpy as np
@@ -69,6 +69,12 @@ class AssemblyManager(object):
         # 조립 마다 바뀌는 정보
         self.part_instance_status = {}
         self.group_status = {}
+        self.second_solution = {
+            "group_status": {},
+            "part_instance_status": {},
+            "target_sequence": []
+        }
+        
 
     def initialize_CAD_info(self):
         self.logger.info("...Waiting for cad info from FreeCAD Module")
@@ -268,7 +274,11 @@ class AssemblyManager(object):
                     "part_name": part_name,
                     "instance_id": 0
                 }],
-                "status": [],
+                "status": {
+                    "document": None,
+                    "object_info": {},
+                    "assembly": [],
+                },
                 "composed_group": [group_id],
                 "is_exist": True,
                 "available_assembly": self.part_instance_status[part_name][0]["available_assembly"]
@@ -281,7 +291,11 @@ class AssemblyManager(object):
         self._update_group_info()
         self._update_group_to_scene()
         self._update_part_status()
-
+        self.second_solution = {
+            "group_status": {},
+            "part_instance_status": {},
+            "target_sequence": []
+        }
         save_dic_to_yaml(copy.deepcopy(self.assembly_info), join(self.result_path, "assembly_info_{}.yaml".format(self.current_step)))
         save_dic_to_yaml(self.part_instance_status, join(self.result_path, "part_instance_status_{}.yaml".format(self.current_step)))
         save_dic_to_yaml(self.group_status, join(self.result_path, "group_status_{}.yaml".format(self.current_step)))
@@ -447,6 +461,7 @@ class AssemblyManager(object):
                 part_name = compiled_loc["part_name"]
                 instance_id = compiled_loc["instance_id"]
                 region_id = compiled_loc["region_id"]
+                region_cost = compiled_loc["region_cost"]
                 point_cost = compiled_loc["point_cost"]
 
                 part_instance = {
@@ -459,6 +474,7 @@ class AssemblyManager(object):
                 target_connection["component"]["group"][com_idx]["connection_loc"] = {
                     "part_id": part_id,
                     "region_id": int(region_id),
+                    "region_cost": copy.deepcopy(region_cost),
                     "point_cost": copy.deepcopy(point_cost)
                 }
         
@@ -553,7 +569,7 @@ class AssemblyManager(object):
         self.assembly_info["part"] = self.instruction_assembly_info["group_part_instance"]
         self.assembly_info["assembly"] = []
         self.assembly_info["assembly_sequence"] = []
-        
+        self.assembly_info["target_sequence"] = []
         # assembly_sequence = self.assembly_info["assembly_sequence"]
         """assembly_sequence
         list of sequence info
@@ -641,6 +657,7 @@ class AssemblyManager(object):
                         "connection_loc":{
                             "part_id":
                             "point_cost": 0,
+                            "region_id": int(),
                         },
                     },
                     ...
@@ -846,6 +863,7 @@ class AssemblyManager(object):
         # assert len(assembly_sequences) == 1, "Not Implemented for multi case"
         assembly_sequences = [sequence_info[1]["sequence"] for sequence_info in sorted_sequence_info]
         target_sequence = None
+        is_possible = False
         for assembly_sequence in assembly_sequences:
             is_possible = self._simulate_assembly_sequecne(assembly_sequence)
             
@@ -854,15 +872,24 @@ class AssemblyManager(object):
                 break
             self.logger.info("############RETRY FIND ASSEMBLY SEQUENCE############")
         
-        self.assembly_info["target_sequence"] = copy.deepcopy(target_sequence)
-        self.logger.info("End to simulate instruction assembly")
+        if not is_possible:
+            self.logger.info("No available sequence => Try other region matching...")
+            #TODO: retry process
+            second_solution = self.second_solution
+            self.assembly_info["target_sequence"] = copy.deepcopy(second_solution["target_sequence"])
+            self.group_status = copy.deepcopy(second_solution["group_status"])
+            self.part_instance_status = copy.deepcopy(second_solution["part_instance_status"])
+            # self.retry_instruction_assembly()
+        else:
+            self.assembly_info["target_sequence"] = copy.deepcopy(target_sequence)
+            self.logger.info("End to simulate instruction assembly")
 
     def _simulate_assembly_sequecne(self, assembly_sequence):
         assembly_pairs = self.assembly_info["assembly"]
 
         sequence_part_status = copy.deepcopy(self.part_instance_status)
         sequence_group_status = copy.deepcopy(self.group_status)
-
+        possible_sequence = []
         for pair_id in assembly_sequence:
             pair_assembly_info = assembly_pairs[pair_id]
             target_assembly_info = self._get_target_assembly_info(pair_assembly_info=pair_assembly_info,
@@ -883,14 +910,18 @@ class AssemblyManager(object):
                        target_pair[1]["assembly_point"]))
             is_possible = False
             try:
-                is_possible = self.socket_module.check_assembly_possibility(target_assembly_info)
+                # is_possible = self.socket_module.check_assembly_possibility(target_assembly_info)
+                response = self.socket_module.check_assembly_possibility(target_assembly_info)
+                is_possible = response["is_possible"]
+                self.logger.info("is possible? {}".format(is_possible))
             except:
                 self.logger.info("ERROR!")
 
             if not is_possible:
-                return False
-
+                continue
             # update local status
+            new_status = response["status"]
+            possible_sequence.append(pair_id)
             """extract assembly info"""
             target_part_info_0 = target_pair[0]
             target_part_name_0 = target_part_info_0["part_name"]
@@ -992,7 +1023,8 @@ class AssemblyManager(object):
                 sequence_group_status[current_group_id_1]["is_exist"] = False
 
             # add new assembly to status => new_status
-            new_status = current_status + [target_assembly_info["target"]]
+            new_assembly = current_status["assembly"] + [target_assembly_info["target"]]
+            new_status["assembly"] = new_assembly
 
             # update composed group => new_composed_group
             if new_group_id in sequence_group_status.keys():
@@ -1011,6 +1043,14 @@ class AssemblyManager(object):
                 "available_assembly": copy.deepcopy(new_available_assembly)
             }
 
+        if len(possible_sequence) < len(assembly_sequence):
+            if len(self.second_solution["target_sequence"]) < len(possible_sequence):
+                self.second_solution = {
+                    "part_instance_status": sequence_part_status,
+                    "group_status": sequence_group_status,
+                    "target_sequence": possible_sequence
+                }
+            return False
         # update global status
         self.part_instance_status = sequence_part_status
         self.group_status = sequence_group_status
@@ -1042,14 +1082,31 @@ class AssemblyManager(object):
         group_id_1 = part_status_1["group_id"]
         
         current_assembly_status = []
+        target_document = None
+        target_object_info = {}
         if not group_id_0 == group_id_1:
+            if (not group_id_0 == None) and (not group_id_1 == None):
+                group_status_0 = current_group_status[group_id_0]["status"]
+                group_status_1 = current_group_status[group_id_1]["status"]
+
+                object_info_0 = group_status_0["object_info"]
+                object_info_1 = group_status_0["object_info"]
+                if len(object_info_0) < len(object_info_1):
+                    target_document = group_status_1["document"]
+                    target_object_info = group_status_1["object_info"]
+                else:
+                    target_document = group_status_0["document"]
+                    target_object_info = group_status_0["object_info"]
+
             if not group_id_0 == None:
-                current_assembly_status += current_group_status[group_id_0]["status"]
+                current_assembly_status += current_group_status[group_id_0]["status"]["assembly"]
             if not group_id_1 == None:
-                current_assembly_status += current_group_status[group_id_1]["status"]
+                current_assembly_status += current_group_status[group_id_1]["status"]["assembly"]
         else:
             assert group_id_0 and group_id_1, "connector + connector?"
-            current_assembly_status = current_group_status[group_id_0]["status"]
+            target_document = current_group_status[group_id_0]["status"]["document"]
+            target_object_info = current_group_status[group_id_0]["status"]["object_info"]
+            current_assembly_status = current_group_status[group_id_0]["status"]["assembly"]
 
         target_assembly_info = {
             "target": {
@@ -1067,11 +1124,68 @@ class AssemblyManager(object):
                 },  
                 "method": method
             },
-            "status": current_assembly_status
+            "status": {
+                "document": target_document,
+                "object_info": target_object_info,
+                "assembly": current_assembly_status
+            }
+            
         }
 
         return target_assembly_info
     
+    def retry_instruction_assembly(self):
+        # for each group calculate point_2_region_cost
+        connection_point_key = []
+        point_2_region_cost = []
+        point_2_region_idx = []
+        current_region_matching = []
+        connection_list = self.instruction_assembly_info["connection"]
+        for connection_idx, connection in enumerate(connection_list):
+            used_group_list = connection["component"]["group"]
+            
+            for component_idx, group_connection in enumerate(used_group_list):
+                
+                connection_info = group_connection["connection_loc"]
+                region_cost = connection_info["region_cost"]
+                current_region = connection_info["region_id"]
+
+                key = (connection_idx, component_idx)
+                connection_point_key.append(key)
+                point_2_region_cost.append(region_cost)
+                point_2_region_idx.append(list(region_cost.keys()))
+                current_region_matching.append(current_region)
+        self.current_region_matching = tuple(current_region_matching)
+        
+        all_possible_region_matching = list(product(*point_2_region_idx))
+        
+        matching_2_cost = {}
+        for matching_idx, region_matching in enumerate(all_possible_region_matching):
+            cost = 0
+            for region_id, region_cost in zip(region_matching, point_2_region_cost):
+                cost += region_cost[region_id]
+            matching_2_cost[matching_idx] = cost
+        sorted_matching = sorted(matching_2_cost.items(), key=(lambda x:x[1]))
+        
+        is_possible = False
+        for region_matching_idx, _ in sorted_matching:
+            region_matching = all_possible_region_matching[region_matching_idx]
+            for region_id, point_key in zip(region_matching, connection_point_key):
+                connection_id = point_key[0]
+                component_id = point_key[1]
+                connection = connection_list[connection_id]
+                component_info = connection["component"]["group"][component_id]
+                component_info["region_id"] = region_id
+
+            new_sequence = []
+
+            is_possible = self._simulate_assembly_sequecne(new_sequence)
+            if is_possible:
+                target_sequence = new_sequence
+                break
+        if not is_possible:
+            self.logger.info("No available sequence!!!!!!!!")
+
     def simulate_hidden_assembly(self):
         # 1. check available assembly for each part in group
         current_group_parts = self.assembly_info["part"] # dict of part_instance
@@ -1082,16 +1196,26 @@ class AssemblyManager(object):
         part_instance_idx_list = range(len(current_group_parts))
         all_possible_part_pair = combinations(part_instance_idx_list, 2)
         
+        already_exist_part_pair = []
+        for pair_idx in self.assembly_info["target_sequence"]:
+            pair_info = self.assembly_info["assembly"][pair_idx]["target_pair"]
+            part_id_0 = pair_info[0]["part_id"]
+            part_id_1 = pair_info[1]["part_id"]
+            already_exist_part_pair.append(set([part_id_0, part_id_1]))
+
         available_assembly_pair = []
         for part_pair in all_possible_part_pair:
             part_id_0 = part_pair[0]
+            part_id_1 = part_pair[1]
+            checker = set([part_id_0, part_id_1])
+            if checker in already_exist_part_pair:
+                continue
             part_instance_0 = current_group_parts[part_id_0]
             part_name_0 = part_instance_0["part_name"]
             instance_id_0 = part_instance_0["instance_id"]
             part_status_0 = self.part_instance_status[part_name_0][instance_id_0]
             assembly_points_0 = self._get_available_points(part_name_0, part_status_0)
             
-            part_id_1 = part_pair[1]
             part_instance_1 = current_group_parts[part_id_1]
             part_name_1 = part_instance_1["part_name"]
             instance_id_1 = part_instance_1["instance_id"]
@@ -1138,7 +1262,10 @@ class AssemblyManager(object):
                        target_pair[1]["assembly_point"]))
             is_possible = False
             try:
-                is_possible = self.socket_module.check_assembly_possibility(target_assembly_info)
+                # is_possible = self.socket_module.check_assembly_possibility(target_assembly_info)
+                response = self.socket_module.check_assembly_possibility(target_assembly_info)
+                is_possible = response["is_possible"]
+                self.logger.info("is possible? {}".format(is_possible))
             except:
                 self.logger.info("ERROR!")
 
@@ -1146,6 +1273,8 @@ class AssemblyManager(object):
                 continue
             # update local status
             """extract assembly info"""
+            new_status = response["status"]
+
             target_part_info_0 = target_pair[0]
             target_part_name_0 = target_part_info_0["part_name"]
             target_part_instance_id_0 = target_part_info_0["instance_id"]
@@ -1156,15 +1285,16 @@ class AssemblyManager(object):
             target_part_instance_id_1 = target_part_info_1["instance_id"]
             target_assembly_point_1 = target_part_info_1["assembly_point"]
 
-            used_assembly_pair.append(pair_assembly_info)
-            used_point.append(target_part_info_0)
-            used_point.append(target_part_info_1)
             
-
             """update part instance status"""
             current_part_status_0 = hidden_part_status[target_part_name_0][target_part_instance_id_0]
             current_part_status_1 = hidden_part_status[target_part_name_1][target_part_instance_id_1]
             
+            group_id_0 = current_part_status_0["group_id"]
+            group_id_1 = current_part_status_1["group_id"]
+            if not group_id_0 == group_id_1:
+                continue
+            group_id = group_id_0
             #region update used assembly points
             current_part_status_0["used_assembly_points"][target_assembly_point_0] = {
                 "part_name": target_part_name_1,
@@ -1191,22 +1321,25 @@ class AssemblyManager(object):
                 part_instance = current_group_parts[part_instance_key]
                 part_name = part_instance["part_name"]
                 instance_id = part_instance["instance_id"]
-                part_instance_status = hidden_group_status[part_name][instance_id]
+                part_instance_status = hidden_part_status[part_name][instance_id]
                 available_assembly = part_instance_status["available_assembly"]
                 for connector_name in available_assembly.keys():
                     new_available_assembly[connector_name] += available_assembly[connector_name]
             
             """update group status"""
-            group_id_0 = hidden_part_status[target_part_name_0]["group_id"]
-            group_id_1 = hidden_part_status[target_part_name_1]["group_id"]
-            assert group_id_0 == group_id_1, "Hidden Assembly in different group???"
-            group_id = group_id_0
-
             # add new assembly to status => new_status
-            new_status = current_status + [target_assembly_info["target"]]
+            new_assembly = current_status["assembly"] + [target_assembly_info["target"]]
+            new_status = response["status"]
+            new_status["assembly"] = new_assembly
 
             hidden_group_status[group_id]["status"] = copy.deepcopy(new_status)
             hidden_group_status[group_id]["available_assembly"] = copy.deepcopy(new_available_assembly)
+
+            """update hidden pair"""
+            used_assembly_pair.append(pair_assembly_info)
+            used_point.append(target_part_info_0)
+            used_point.append(target_part_info_1)
+
 
         start_idx = len(self.assembly_info["assembly"])
         self.assembly_info["assembly"] 
@@ -1326,7 +1459,7 @@ class AssemblyManager(object):
     @staticmethod
     def compile_whole_sequence(sequence_root):
         """compile whole step sequence to SNU format
-
+        - long / short
         Returns:
         compiled_assembly_info = {
             "part": {},
@@ -1401,7 +1534,7 @@ class AssemblyManager(object):
         - connector assembly index to 0
         - sort each connector sequence to furniture name
         """
-        ## connector_sequence: connector -> furniture
+        # sequence: connector -> furniture => furniture(connector) -> furniture
         connector_2_sequence = {connector_name: [] for connector_name in connector_2_part_id.keys()}
 
         for assembly_idx in whole_sequence:
@@ -1447,14 +1580,11 @@ class AssemblyManager(object):
                     continue
 
                 sorted_whole_sequence.append(assembly_idx)
-                
-        for connector_name in connector_2_sequence.keys():
-            connector_sequence = connector_2_sequence[connector_name]
-        
             for remain_sequence in connector_sequence:
                 if remain_sequence in sorted_whole_sequence:
                     continue
                 sorted_whole_sequence.append(remain_sequence)
+            
         """save compiled info"""
         compiled_assembly_info = {}
         
@@ -1474,4 +1604,4 @@ class AssemblyManager(object):
 
 if __name__ == "__main__":
     doc = AssemblyManager.compile_whole_sequence("./SNU_example")
-    save_dic_to_yaml(doc, "test_1.yaml")
+    save_dic_to_yaml(doc, "test_sequence.yaml")

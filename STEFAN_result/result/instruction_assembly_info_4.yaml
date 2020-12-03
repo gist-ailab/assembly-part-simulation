@@ -1,0 +1,132 @@
+checker:
+  Connector:
+    ikea_stefan_pin: 6
+  Group:
+    2: false
+    7: false
+  connection:
+    0: false
+    1: false
+    2: false
+    3: false
+    4: false
+    5: false
+connection:
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 15
+        point_cost:
+          3: 0.04217673304322198
+          4: 0.013374413895145171
+        region_id: 1
+      id: 2
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 15
+        point_cost:
+          3: 0.03359096167091316
+          4: 0.008839394387946333
+        region_id: 1
+      id: 2
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 15
+        point_cost:
+          7: 0.017135022877758633
+        region_id: 3
+      id: 2
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 15
+        point_cost:
+          6: 0.015011979804057256
+        region_id: 2
+      id: 2
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          7: 0.0221781720368531
+        region_id: 3
+      id: 7
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 15
+        point_cost:
+          0: 0.009832833951764491
+          1: 0.036224830249140035
+        region_id: 0
+      id: 2
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          5: 0.06550997607006097
+          6: 0.03503892614854707
+        region_id: 1
+      id: 7
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 15
+        point_cost:
+          0: 0.0300930260627932
+          1: 0.010678006887282229
+        region_id: 0
+      id: 2
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          5: 0.03593386375567758
+          6: 0.014067993472969135
+        region_id: 1
+      id: 7
+connector_instance: {}
+group_part_instance:
+- instance_id: 0
+  part_name: ikea_stefan_side_left
+- instance_id: 0
+  part_name: ikea_stefan_short
+- instance_id: 2
+  part_name: ikea_stefan_bracket
+- instance_id: 3
+  part_name: ikea_stefan_bracket
+- instance_id: 0
+  part_name: ikea_stefan_pin
+- instance_id: 1
+  part_name: ikea_stefan_pin
+- instance_id: 2
+  part_name: ikea_stefan_pin
+- instance_id: 3
+  part_name: ikea_stefan_pin
+- instance_id: 0
+  part_name: ikea_stefan_long
+- instance_id: 0
+  part_name: ikea_stefan_bracket
+- instance_id: 1
+  part_name: ikea_stefan_bracket
+- instance_id: 4
+  part_name: ikea_stefan_pin
+- instance_id: 5
+  part_name: ikea_stefan_pin
+- instance_id: 6
+  part_name: ikea_stefan_pin
+- instance_id: 7
+  part_name: ikea_stefan_pin
+- instance_id: 0
+  part_name: ikea_stefan_middle

@@ -68,10 +68,10 @@ class SocketModule():
         # send assembly_info and get true false
         request = target_assembly_info
         sendall_pickle(self.c_freecad, request)
-        is_possible = recvall_pickle(self.c_freecad)
-        self.logger.info("is possible? {}".format(is_possible))
-
-        return is_possible
+        # is_possible = recvall_pickle(self.c_freecad)
+        response = recvall_pickle(self.c_freecad)
+        
+        return response
 
     def extract_group_obj(self, group_status, obj_root):
         request = FreeCADRequestType.extract_group_obj

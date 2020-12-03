@@ -289,7 +289,7 @@ assembly:
         part_id: 14
 assembly_sequence:
   0:
-    cost: 0.1236670707415734
+    cost: 0.3622778557837356
     sequence:
     - 2
     - 6
@@ -298,7 +298,7 @@ assembly_sequence:
     - 18
     - 23
   1:
-    cost: 0.09077546150384269
+    cost: 0.36227115434181584
     sequence:
     - 2
     - 6
@@ -307,7 +307,7 @@ assembly_sequence:
     - 18
     - 21
   2:
-    cost: 0.0758188251998677
+    cost: 0.313681928836786
     sequence:
     - 2
     - 6
@@ -316,15 +316,14 @@ assembly_sequence:
     - 16
     - 23
   3:
-    cost: 0.042927215962137
-    sequence: &id001
+    cost: 0.3136752273948662
+    sequence:
     - 2
     - 6
     - 8
     - 13
     - 16
     - 21
-instruction_sequence: *id001
 part:
   0:
     instance_id: 0
@@ -371,3 +370,10 @@ part:
   14:
     instance_id: 7
     part_name: ikea_stefan_pin
+target_sequence:
+- 2
+- 6
+- 8
+- 15
+- 16
+- 23

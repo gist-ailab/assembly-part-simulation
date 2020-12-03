@@ -1,4 +1,7 @@
 from os import stat
+from yaml import compose
+
+from yaml.events import DocumentEndEvent
 from script import import_fcstd
 import FreeCAD
 import FreeCADGui
@@ -308,11 +311,15 @@ class Hole():
 
 class AssemblyDocument(object):
     def __init__(self, doc_path=temp_doc_path):
-        self.doc = FreeCAD.newDocument()
+        if doc_path == temp_doc_path:
+            self.doc = FreeCAD.newDocument()
+            self.save_doc(doc_path)
+        else:
+            self.doc = open_doc(doc_path)
         FreeCAD.setActiveDocument(self.doc.Name)
-
         self.initial_path = doc_path
-        save_doc_as(self.doc, doc_path)
+        self.used_assembly_pair = []
+        self.objects_constraint = {}
 
     def import_part(self, part_path, pos=[0, 0, 0], ypr=[0,0,0]):
         obj = importPartFromFile(self.doc, part_path)
@@ -320,13 +327,22 @@ class AssemblyDocument(object):
         obj.Placement.Rotation = FreeCAD.Rotation(ypr[0], ypr[1], ypr[2])
         return obj
     
+    def check_assembly_pair(self, pair_assembly_info):
+        if pair_assembly_info in self.used_assembly_pair:
+            return True
+        else:
+            return False
+    
+    def add_assembly_pair(self, pair_assembly_info):
+        self.used_assembly_pair.append(pair_assembly_info)
+
     def add_circle_constraint(self, obj1, obj2, edge_pair: tuple, direction, offset=0):
-        constraint_two_circle(doc=self.doc, parent_obj=obj1, child_obj=obj2,
+        return constraint_two_circle(doc=self.doc, parent_obj=obj1, child_obj=obj2,
                                 parent_edge=edge_pair[0], child_edge=edge_pair[1],
                                 direction=direction, offset=offset)
-    
+
     def add_parallel_plane_constraint(self, obj1, obj2, face_pair: tuple, direction):
-        constraint_parallel_face(doc=self.doc, parent_obj=obj1, child_obj=obj2,
+        return constraint_parallel_face(doc=self.doc, parent_obj=obj1, child_obj=obj2,
                                 parent_face=face_pair[0], child_face=face_pair[1],
                                 direction=direction)
     
@@ -349,6 +365,12 @@ class AssemblyDocument(object):
         else:
             return False
 
+    def get_object_by_name(self, obj_name):
+        return self.doc.getObject(obj_name)
+    
+    def remove_object(self, obj):
+        self.doc.removeObject(obj.Name)
+
     def save_doc(self, path):
         save_doc_as(self.doc, path)
 
@@ -357,7 +379,7 @@ class AssemblyDocument(object):
         self.doc = open_doc(self.initial_path)
 
     def close(self):
-        close_doc(self.doc.Name)
+        close_doc(self.doc)
 
 #endregion
 
@@ -542,6 +564,7 @@ def constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, d
     co = cc.constraintObject
     co.directionConstraint = direction
     co.offset = offset
+    return co
 
 def constraint_parallel_face(doc, parent_obj, child_obj, parent_face, child_face, direction):
     parent_obj.fixedPosition = True
@@ -551,6 +574,7 @@ def constraint_parallel_face(doc, parent_obj, child_obj, parent_face, child_face
     cc = a2pconst.PlanesParallelConstraint([s1, s2])
     co = cc.constraintObject
     co.directionConstraint = direction
+    return co
 
 def contraint_coinsident_face(doc, parent_obj, child_obj, parent_face, child_face, direction, offset):
     parent_obj.fixedPosition = True
@@ -744,7 +768,9 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
     return assembly_points
 
 def open_doc(filepath):
-    return FreeCAD.openDocument(filepath)
+    doc = FreeCAD.openDocument(filepath)
+    time.sleep(1)
+    return doc
 
 def save_doc_as(doc, filepath):
     doc.saveAs(filepath)
@@ -781,6 +807,9 @@ class FreeCADModule():
         self.part_info = None
         self.furniture_parts = []
     
+        self.assembly_doc_path = "./assembly_document"
+        check_and_reset_dir(self.assembly_doc_path)
+        self.assembly_docs = {} 
         self.assembly_doc = None
         self.assembly_obj = {}
         self.assembly_pair = []
@@ -794,6 +823,7 @@ class FreeCADModule():
             while True:
                 self.Gui.updateGui()
                 self.main_window.update()
+                
         except Exception as e:
             self.logger.info("freecad server error {}".format(e))
 
@@ -847,53 +877,80 @@ class FreeCADModule():
         self.logger.info("ready to check possibility")
         sendall_pickle(self.connected_client, True)
         target_assembly_info = recvall_pickle(self.connected_client)
-        is_possible = self._check_assembly_possibility(target_assembly_info)
-        sendall_pickle(self.connected_client, is_possible)
+        response = self._check_assembly_possibility(target_assembly_info)
+        sendall_pickle(self.connected_client, response)
 
     def _check_assembly_possibility(self, target_assembly_info):
-        self.assembly_doc = AssemblyDocument()
         current_assembly_info = target_assembly_info["target"] 
-        status = target_assembly_info["status"] # list
-        
-        target_pair = current_assembly_info["target_pair"]
-        
-        unique_instance = []
-        # check unique instance part
-        for key in target_pair.keys(): # key is 0, 1
-            part_info = target_pair[key]
-            part_name = part_info["part_name"]
-            instance_id = part_info["instance_id"]
-            if (part_name, instance_id) in unique_instance:
-                continue
-            else:
-                unique_instance.append((part_name, instance_id))
-        for past_assembly_info in status:
+        status = target_assembly_info["status"] # dict
+        """status format
+        status = {
+            "document": document_key,
+            "object_info": {
+                (part_name, instance_id): object_name
+            }
+            "assembly": same as previous version
+        }
+        """
+        document_key = status["document"]
+        object_info = status["object_info"]
+        past_assembly = status["assembly"]
+        used_assembly = []
+        if not document_key == None:
+            document_path = self.assembly_docs[document_key]["document"]
+            used_assembly = self.assembly_docs[document_key]["used_assembly"]
+            self.assembly_doc = AssemblyDocument(document_path)
+        else:
+            self.assembly_doc = AssemblyDocument()
+
+        self.assembly_obj = {}
+        for past_obj_key in object_info.keys():
+            object_name = object_info[past_obj_key]
+            obj = self.assembly_doc.get_object_by_name(object_name)
+            assert obj, "No {} in document {}".format(object_name, document_key)
+            self.assembly_obj[past_obj_key] = obj
+
+        # import unimported past sequence
+        for past_assembly_info in past_assembly:
             past_pair = past_assembly_info["target_pair"]
             for key in past_pair.keys(): # key is 0, 1
                 part_info = past_pair[key]
                 part_name = part_info["part_name"]
                 instance_id = part_info["instance_id"]
-                if (part_name, instance_id) in unique_instance:
+                obj_key = (part_name, instance_id)
+                if obj_key in self.assembly_obj.keys():
                     continue
                 else:
-                    unique_instance.append((part_name, instance_id))
+                    part_path = self.part_info[part_name]["document"]
+                    obj = self.assembly_doc.import_part(part_path)
+                    self.assembly_obj[(part_name, instance_id)] = obj
         
-        self.assembly_obj = {}
-        # import unique instance to scene
-        for part_name, ins in unique_instance:
-            part_path = self.part_info[part_name]["document"]
-            obj = self.assembly_doc.import_part(part_path)
-            self.assembly_obj[(part_name, ins)] = obj
+        target_pair = current_assembly_info["target_pair"]
+        # check unique instance part
+        for key in target_pair.keys(): # key is 0, 1
+            part_info = target_pair[key]
+            part_name = part_info["part_name"]
+            instance_id = part_info["instance_id"]
+            if (part_name, instance_id) in self.assembly_obj.keys():
+                continue
+            else:
+                part_path = self.part_info[part_name]["document"]
+                obj = self.assembly_doc.import_part(part_path)
+                self.assembly_obj[(part_name, instance_id)] = obj
         
         self.assembly_pair = []
         self.additional_assmbly_pair = []
-        # create previous constraint
-        for past_assembly_info in status:
-            self._add_pair_constraint(past_assembly_info)
+        for past_assembly_info in past_assembly:
+            if past_assembly_info in used_assembly:
+                continue
+            _ = self._add_pair_constraint(past_assembly_info)
+            used_assembly.append(past_assembly_info)
         
         _ = self._solve_current_constraint()
-        self._add_pair_constraint(current_assembly_info)
 
+        
+        _ = self._add_pair_constraint(current_assembly_info)
+        used_assembly.append(current_assembly_info)
         count = 0
         is_possible = False
         while count < 5:
@@ -910,7 +967,28 @@ class FreeCADModule():
         else:
             self.assembly_doc.save_doc("test_fail_doc/test_{}.FCStd".format(get_time_stamp()))
         
-        return is_possible
+        object_info = {}
+        for obj_key in self.assembly_obj.keys():
+            obj = self.assembly_obj[obj_key]
+            name = obj.Name
+            object_info[obj_key] = name
+        
+        document_key = float(np.random.rand())
+        document_path = join(self.assembly_doc_path, "document{}.FCStd".format(document_key))
+        self.assembly_doc.save_doc(document_path)
+        self.assembly_doc.close()
+        self.assembly_docs[document_key] = {}
+        self.assembly_docs[document_key]["document"] = document_path
+        self.assembly_docs[document_key]["used_assembly"] = used_assembly
+        response = {
+            "is_possible": is_possible,
+            "status": {
+                "document": document_key,
+                "object_info": object_info
+            }
+        }
+
+        return response
     
     def _add_pair_constraint(self, pair_assembly_info):
         target = pair_assembly_info["target_pair"]
@@ -938,33 +1016,34 @@ class FreeCADModule():
         if additional:
             self.additional_assmbly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1), additional))
 
-        self.assembly_doc.add_circle_constraint(obj_0, obj_1, [edge_0, edge_1], direction, offset)
+        co = self.assembly_doc.add_circle_constraint(obj_0, obj_1, [edge_0, edge_1], direction, offset)
         
         self.assembly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1)))
+        self.assembly_doc.add_assembly_pair(pair_assembly_info)
+
+        return co
 
     def _solve_current_constraint(self):
-        # to assemble each pair one part fix and other part free
         is_possible = True
         num_contraints = {}
-        
+        fixed_obj = []
         for obj_key in self.assembly_obj.keys():
             self.assembly_obj[obj_key].fixedPosition = False
-            num_contraints[obj_key] = 0
-        
-        for pair in self.assembly_pair:
-            instance_0 = pair[0]
-            instance_1 = pair[1]
-            num_contraints[instance_0] += 1
-            num_contraints[instance_1] += 1
-        c_max = -np.inf
-        max_ins = None
-        for instance in num_contraints.keys():
-            if c_max < num_contraints[instance]:
-                c_max = num_contraints[instance]
-                max_ins = instance
-
+            num_contraints[obj_key] = len(self.assembly_obj[obj_key].InList)
+        # for obj_key in self.assembly_obj.keys():
+        #     part_name = obj_key[0]
+        #     if len(self.part_info[part_name]["assembly_points"].keys()) == num_contraints[obj_key]:
+        #         self.assembly_obj[obj_key].fixedPosition = True
+        #         fixed_obj.append(self.assembly_obj[obj_key])
+        if len(fixed_obj) == 0:
+            c_max = -np.inf
+            max_ins = None
+            for instance in num_contraints.keys():
+                if c_max < num_contraints[instance]:
+                    c_max = num_contraints[instance]
+                    max_ins = instance
+            self.assembly_obj[max_ins].fixedPosition = True
         # assemble for max_ins
-        self.assembly_obj[max_ins].fixedPosition = True
         is_possible = self.assembly_doc.solve_system()
         
         return is_possible
@@ -1003,27 +1082,34 @@ class FreeCADModule():
     def _export_group_obj(self, group_status, obj_root):
         composed_part = group_status["composed_part"]
         status = group_status["status"]
-        self.assembly_doc = AssemblyDocument()
+        
+        document_key = status["document"]
+        
         self.assembly_obj = {}
-        # import all parts to document
-        for part_info in composed_part:
-            part_name = part_info["part_name"]
-            ins = part_info["instance_id"]
-            part_path = self.part_info[part_name]["document"]
-            obj = self.assembly_doc.import_part(part_path)
-            self.assembly_obj[(part_name, ins)] = obj
         
-        self.assembly_pair = []
-        self.additional_assmbly_pair = []
-        # assemble to current state
-        for assembly_info in status:
-            self._add_pair_constraint(assembly_info)
+        if not document_key == None:
+            document_path = self.assembly_docs[document_key]["document"]
+            self.assembly_doc = AssemblyDocument(doc_path=document_path)
+        
+            object_info = status["object_info"]
+            for past_obj_key in object_info.keys():
+                object_name = object_info[past_obj_key]
+                obj = self.assembly_doc.get_object_by_name(object_name)
+                assert obj, "No {} find in document {}".format(object_name, document_key)
+                self.assembly_obj[past_obj_key] = obj
+
+        else:
+            self.assembly_doc = AssemblyDocument()
+            assert len(composed_part) == 1, "No document??"
+            part_instance = composed_part[0]
+            part_name = part_instance["part_name"]
+            instance_id = part_instance["instance_id"]
+            document = self.part_info[part_name]["document"]
+            obj = self.assembly_doc.import_part(document)
+            self.assembly_obj[(part_name, instance_id)] = obj
+        
         is_solved = self._solve_current_constraint()
-        # additional assembly
-        if len(self.additional_assmbly_pair) > 0:
-            is_solved = is_solved and self._additional_assembly()
         assert is_solved, "Fail to assemble group obj"
-        
         base_obj = []
         group_object_pose = {}
         for obj_key in self.assembly_obj.keys():
@@ -1045,47 +1131,9 @@ class FreeCADModule():
                 base_obj.append(group_obj)
         Mesh.export(base_obj, join(obj_root, "base.obj"))
         save_dic_to_yaml(group_object_pose, join(obj_root, "group_pose.yaml"))
+        
+        self.assembly_doc.close()
         return True
-
-    def assemble_bottom(self):
-        self.logger.info("ready to assemble bottom!")
-        sendall_pickle(self.connected_client, True)
-        request = recvall_pickle(self.connected_client) # may be current status
-        current_status = request["status"]
-        self.logger.info("Bottom assembly")
-        result = self._assemble_bottom(current_status)
-        self.logger.info("Success to assemble bottom")
-        sendall_pickle(self.connected_client, result)
-    
-    def _assemble_bottom(self, current_status):
-        self.assembly_doc = AssemblyDocument()
-        unique_instance = []
-        for past_assembly_info in current_status:
-            past_pair = past_assembly_info["target_pair"]
-            past_method = past_assembly_info["method"]
-            for key in past_pair.keys(): # key is 0, 1
-                part_info = past_pair[key]
-                part_name = part_info["part_name"]
-                instance_id = part_info["instance_id"]
-                if (part_name, instance_id) in unique_instance:
-                    continue
-                else:
-                    unique_instance.append((part_name, instance_id))
-        self.assembly_obj = {}
-        # import unique instance to scene
-        for part_name, ins in unique_instance:
-            part_path = self.part_info[part_name]["document"]
-            obj = self.assembly_doc.import_part(part_path)
-            self.assembly_obj[(part_name, ins)] = obj
-        
-        self.assembly_pair = []
-        # create previous constraint
-        for past_assembly_info in current_status:
-            self._add_pair_constraint(past_assembly_info)
-        
-        bottom_doc_path = self.part_info["ikea_stefan_bottom"]["document"]
-        bottom_obj = self.assembly_doc.import_part(bottom_doc_path)
-        self.assembly_doc.add_coincident_plane_constraint()
 
     #endregion
     @staticmethod
@@ -1148,14 +1196,14 @@ if __name__ == "__main__":
     
     freecad_module.initialize_server()
     while True:
-        try:
-            request = recvall_pickle(freecad_module.connected_client)
-            logger.info("Get request to {}".format(request))
-            callback = freecad_module.get_callback(request)
-            callback()
-        except Exception as e:
-            logger.info("Error occur {}".format(e))
-            break
+        # try:
+        request = recvall_pickle(freecad_module.connected_client)
+        logger.info("Get request to {}".format(request))
+        callback = freecad_module.get_callback(request)
+        callback()
+    # except Exception as e:
+        # logger.info("Error occur {}".format(e))
+        # break
     freecad_module.close()    
 """
 #TODO: pair refine

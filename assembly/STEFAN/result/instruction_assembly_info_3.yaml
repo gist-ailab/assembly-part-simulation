@@ -17,8 +17,36 @@ connection:
     - connection_loc:
         part_id: 0
         point_cost:
-          3: 0.008082342456864134
-          5: 0.03425117023475323
+          3: 0.006130826526318325
+          5: 0.03148412392748983
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - &id001 !!python/name:numpy.ndarray ''
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - &id002 !!python/object/apply:numpy.dtype
+            args:
+            - f8
+            - false
+            - true
+            state: !!python/tuple
+            - 3
+            - <
+            - null
+            - null
+            - null
+            - -1
+            - -1
+            - 0
+          - false
+          - !!binary |
+            rLBsb8jI1T+kh6EPEnaQP7c4bFDJJdI/5kUS6X2tsD8=
         region_id: 1
       id: 1
 - assembly_type: group_connector
@@ -28,8 +56,23 @@ connection:
     - connection_loc:
         part_id: 0
         point_cost:
-          3: 0.02572524839475103
-          5: 0.011860238295406996
+          3: 0.020531763542139637
+          5: 0.015024722532636054
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - *id002
+          - false
+          - !!binary |
+            P2VbkjDE1T9Qn6ymLdiAP/jmWE1AENI/GrTUCdtKrj8=
         region_id: 1
       id: 1
 - assembly_type: group_connector_group
@@ -39,15 +82,58 @@ connection:
     - connection_loc:
         part_id: 0
         point_cost:
-          0: 0.011208351596672281
-          2: 0.028738362197261107
+          0: 0.006795298733373731
+          2: 0.02607559664658396
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - *id002
+          - false
+          - !!binary |
+            M6Zp8LQwhT/5AWqOI8XVP/jwz7BBNbA/BAsd7/ge0j8=
         region_id: 0
       id: 1
     - connection_loc:
         part_id: 3
         point_cost:
-          1: 0.0076311215989312954
-          2: 0.029199974431336095
+          1: 0.14282574638741605
+          2: 0.17478488745987972
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - &id003 !!python/object/apply:numpy.dtype
+            args:
+            - f8
+            - false
+            - true
+            state: !!python/tuple
+            - 3
+            - <
+            - null
+            - null
+            - null
+            - -1
+            - -1
+            - 0
+          - false
+          - !!binary |
+            VxqkCfFdxD+xRD0R8xjoP4dsTvDzINo/vPxyEuSH4D8=
         region_id: 0
       id: 6
 - assembly_type: group_connector_group
@@ -57,15 +143,45 @@ connection:
     - connection_loc:
         part_id: 0
         point_cost:
-          0: 0.03611061012961778
-          2: 0.005792375188500921
+          0: 0.03561821168384858
+          2: 0.006302582650109122
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - *id002
+          - false
+          - !!binary |
+            Sx7wpQBvlD+RvchFJczVP4+7wpym0q4/wGwXvNYT0j8=
         region_id: 0
       id: 1
     - connection_loc:
         part_id: 3
         point_cost:
-          1: 0.029618123983358405
-          2: 0.018295367578032497
+          1: 0.1257991599934234
+          2: 0.15775159962396726
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - *id003
+          - false
+          - !!binary |
+            BMgfMyMxwj+9SPBMS6PnP2hWzB3itNk/caqEeKYs4D8=
         region_id: 0
       id: 6
 connector_instance: {}

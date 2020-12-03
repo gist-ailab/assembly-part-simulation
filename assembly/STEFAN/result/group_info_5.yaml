@@ -105,7 +105,7 @@
   obj_root: ./assembly/STEFAN/group_obj/group_8
 9:
   available_assembly:
-    ikea_stefan_bolt_side: 6
+    ikea_stefan_bolt_side: 7
     ikea_stefan_bracket: 0
     ikea_stefan_pin: 7
     pan_head_screw_iso(4ea): 4

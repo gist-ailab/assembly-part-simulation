@@ -71,7 +71,7 @@ class SocketType(Enum):
     }
     instruction = {
         "host": '172.27.183.179',
-        # "host": '172.27.183.205',
+        # "host": '172.27.183.205', # hinton
         "port": 7777,
         "reqeust_type": InstructionRequestType,
     }

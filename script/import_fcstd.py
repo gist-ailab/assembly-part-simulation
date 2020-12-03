@@ -20,6 +20,7 @@ for path in FREECADPATH:
 
 try:
     import FreeCAD
+    import FreeCADGui
     
 except:
     print("Could not import FreeCAD")

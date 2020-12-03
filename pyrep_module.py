@@ -184,7 +184,7 @@ class GroupObject():
                 region_position = np.array(region_shape.get_position())
                 distance = np.linalg.norm(target_position - region_position)
                 
-                connection_2_region_cost[connection_idx][region_idx] = distance
+                connection_2_region_cost[connection_idx][region_idx] = float(distance)
         
         connection_idx_list = range(len(connection_points))
         region_idx_list = range(len(available_regions))
@@ -252,6 +252,7 @@ class GroupObject():
                     "part_name": part_info["part_name"],
                     "instance_id": part_info["instance_id"],
                     "region_id": region_idx,
+                    "region_cost": connection_2_region_cost[connection_idx],
                     "point_cost": connection_2_point_cost[connection_idx]
                 }
             print(connection_2_point_cost)

@@ -1,0 +1,358 @@
+assembly:
+  0:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 4
+  1:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 4
+  2:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 4
+  3:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 4
+  4:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 5
+  5:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  6:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 5
+  7:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  8:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 6
+  9:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  10:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 6
+  11:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  12:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 3
+      1:
+        assembly_point: 0
+        part_id: 6
+  13:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 3
+      1:
+        assembly_point: 1
+        part_id: 6
+  14:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 3
+      1:
+        assembly_point: 0
+        part_id: 6
+  15:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 3
+      1:
+        assembly_point: 1
+        part_id: 6
+  16:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 7
+  17:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  18:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 7
+  19:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 7
+  20:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 3
+      1:
+        assembly_point: 0
+        part_id: 7
+  21:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 3
+      1:
+        assembly_point: 1
+        part_id: 7
+  22:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 3
+      1:
+        assembly_point: 0
+        part_id: 7
+  23:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 3
+      1:
+        assembly_point: 1
+        part_id: 7
+assembly_sequence:
+  0:
+    cost: 0.1397814645313744
+    sequence:
+    - 2
+    - 6
+    - 10
+    - 15
+    - 18
+    - 23
+  1:
+    cost: 0.1294536570581602
+    sequence:
+    - 2
+    - 6
+    - 10
+    - 13
+    - 18
+    - 21
+  2:
+    cost: 0.1923752231041797
+    sequence:
+    - 2
+    - 6
+    - 8
+    - 15
+    - 16
+    - 23
+  3:
+    cost: 0.1820474156309655
+    sequence:
+    - 2
+    - 6
+    - 8
+    - 13
+    - 16
+    - 21
+part:
+  0:
+    instance_id: 0
+    part_name: ikea_stefan_short
+  1:
+    instance_id: 2
+    part_name: ikea_stefan_bracket
+  2:
+    instance_id: 3
+    part_name: ikea_stefan_bracket
+  3:
+    instance_id: 0
+    part_name: ikea_stefan_side_left
+  4:
+    instance_id: 0
+    part_name: ikea_stefan_pin
+  5:
+    instance_id: 1
+    part_name: ikea_stefan_pin
+  6:
+    instance_id: 2
+    part_name: ikea_stefan_pin
+  7:
+    instance_id: 3
+    part_name: ikea_stefan_pin
+target_sequence:
+- 2
+- 6
+- 10
+- 13
+- 18
+- 21

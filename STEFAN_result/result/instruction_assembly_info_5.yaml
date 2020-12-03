@@ -1,0 +1,107 @@
+checker:
+  Connector:
+    ikea_stefan_bolt_side: 3
+  Group:
+    5: false
+    8: false
+  connection:
+    0: false
+    1: false
+    2: false
+connection:
+- assembly_type: group_group_connector
+  component:
+    connector: 0
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          3: 0.06643855515876372
+        region_id: 2
+      id: 5
+    - connection_loc:
+        part_id: 2
+        point_cost:
+          4: 0.1115724314481301
+        region_id: 5
+      id: 8
+- assembly_type: group_group_connector
+  component:
+    connector: 0
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          4: 0.02147525822724809
+        region_id: 1
+      id: 5
+    - connection_loc:
+        part_id: 16
+        point_cost:
+          5: 0.014094208083576669
+        region_id: 1
+      id: 8
+- assembly_type: group_group_connector
+  component:
+    connector: 0
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          0: 0.12382576098565257
+        region_id: 0
+      id: 5
+    - connection_loc:
+        part_id: 9
+        point_cost:
+          4: 0.010003851852876592
+        region_id: 13
+      id: 8
+connector_instance: {}
+group_part_instance:
+- instance_id: 0
+  part_name: ikea_stefan_side_right
+- instance_id: 0
+  part_name: ikea_stefan_side_left
+- instance_id: 0
+  part_name: ikea_stefan_short
+- instance_id: 2
+  part_name: ikea_stefan_bracket
+- instance_id: 3
+  part_name: ikea_stefan_bracket
+- instance_id: 0
+  part_name: ikea_stefan_pin
+- instance_id: 1
+  part_name: ikea_stefan_pin
+- instance_id: 2
+  part_name: ikea_stefan_pin
+- instance_id: 3
+  part_name: ikea_stefan_pin
+- instance_id: 0
+  part_name: ikea_stefan_long
+- instance_id: 0
+  part_name: ikea_stefan_bracket
+- instance_id: 1
+  part_name: ikea_stefan_bracket
+- instance_id: 4
+  part_name: ikea_stefan_pin
+- instance_id: 5
+  part_name: ikea_stefan_pin
+- instance_id: 6
+  part_name: ikea_stefan_pin
+- instance_id: 7
+  part_name: ikea_stefan_pin
+- instance_id: 0
+  part_name: ikea_stefan_middle
+- instance_id: 8
+  part_name: ikea_stefan_pin
+- instance_id: 9
+  part_name: ikea_stefan_pin
+- instance_id: 10
+  part_name: ikea_stefan_pin
+- instance_id: 11
+  part_name: ikea_stefan_pin
+- instance_id: 12
+  part_name: ikea_stefan_pin
+- instance_id: 13
+  part_name: ikea_stefan_pin

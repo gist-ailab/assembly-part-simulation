@@ -1,0 +1,136 @@
+assembly:
+  0:
+    method:
+      additional: null
+      direction: opposed
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 26
+  1:
+    method:
+      additional: null
+      direction: aligned
+      offset: 30
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 15
+      1:
+        assembly_point: 1
+        part_id: 27
+  2:
+    method:
+      additional: null
+      direction: opposed
+      offset: -30
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 1
+      1:
+        assembly_point: 1
+        part_id: 28
+assembly_sequence:
+  0:
+    cost: 0
+    sequence:
+    - 0
+    - 1
+    - 2
+part:
+  0:
+    instance_id: 0
+    part_name: ikea_stefan_side_left
+  1:
+    instance_id: 0
+    part_name: ikea_stefan_short
+  2:
+    instance_id: 2
+    part_name: ikea_stefan_bracket
+  3:
+    instance_id: 3
+    part_name: ikea_stefan_bracket
+  4:
+    instance_id: 0
+    part_name: ikea_stefan_pin
+  5:
+    instance_id: 1
+    part_name: ikea_stefan_pin
+  6:
+    instance_id: 2
+    part_name: ikea_stefan_pin
+  7:
+    instance_id: 3
+    part_name: ikea_stefan_pin
+  8:
+    instance_id: 0
+    part_name: ikea_stefan_long
+  9:
+    instance_id: 0
+    part_name: ikea_stefan_bracket
+  10:
+    instance_id: 1
+    part_name: ikea_stefan_bracket
+  11:
+    instance_id: 4
+    part_name: ikea_stefan_pin
+  12:
+    instance_id: 5
+    part_name: ikea_stefan_pin
+  13:
+    instance_id: 6
+    part_name: ikea_stefan_pin
+  14:
+    instance_id: 7
+    part_name: ikea_stefan_pin
+  15:
+    instance_id: 0
+    part_name: ikea_stefan_middle
+  16:
+    instance_id: 8
+    part_name: ikea_stefan_pin
+  17:
+    instance_id: 9
+    part_name: ikea_stefan_pin
+  18:
+    instance_id: 10
+    part_name: ikea_stefan_pin
+  19:
+    instance_id: 11
+    part_name: ikea_stefan_pin
+  20:
+    instance_id: 12
+    part_name: ikea_stefan_pin
+  21:
+    instance_id: 13
+    part_name: ikea_stefan_pin
+  22:
+    instance_id: 0
+    part_name: ikea_stefan_side_right
+  23:
+    instance_id: 0
+    part_name: ikea_stefan_bolt_side
+  24:
+    instance_id: 1
+    part_name: ikea_stefan_bolt_side
+  25:
+    instance_id: 2
+    part_name: ikea_stefan_bolt_side
+  26:
+    instance_id: 3
+    part_name: ikea_stefan_bolt_side
+  27:
+    instance_id: 4
+    part_name: ikea_stefan_bolt_side
+  28:
+    instance_id: 5
+    part_name: ikea_stefan_bolt_side
+target_sequence:
+- 0
+- 1
+- 2
