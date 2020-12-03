@@ -1,7 +1,6 @@
 import enum
 from operator import add
 
-from numpy.lib.npyio import save
 from script.const import PartType, AssemblyType
 from script.fileApi import *
 from enum import Enum
@@ -39,8 +38,12 @@ class AssemblyManager(object):
         self.group_info_root = join(self.assembly_path, "group_info")
         check_and_create_dir(self.group_info_root)
         
-        self.test_info_path = join(self.assembly_path, "test_result")
-        check_and_create_dir(self.test_info_path)
+        self.result_path = join(self.assembly_path, "result")
+        check_and_create_dir(self.result_path)
+        self.SNU_result_path = join(self.assembly_path, "SNU_result")
+        check_and_create_dir(self.SNU_result_path)
+        self.Blender_result_path = join(self.assembly_path, "Blender_result")
+        check_and_create_dir(self.Blender_result_path)
 
         self.socket_module = SocketModule(self.logger)
         
@@ -279,15 +282,15 @@ class AssemblyManager(object):
         self._update_group_to_scene()
         self._update_part_status()
 
-        save_dic_to_yaml(copy.deepcopy(self.assembly_info), join(self.test_info_path, "assembly_info_{}.yaml".format(self.current_step)))
-        save_dic_to_yaml(self.part_instance_status, join(self.test_info_path, "part_instance_status_{}.yaml".format(self.current_step)))
-        save_dic_to_yaml(self.group_status, join(self.test_info_path, "group_status_{}.yaml".format(self.current_step)))
-        save_dic_to_yaml(self.group_info, join(self.test_info_path, "group_info_{}.yaml".format(self.current_step)))
+        save_dic_to_yaml(copy.deepcopy(self.assembly_info), join(self.result_path, "assembly_info_{}.yaml".format(self.current_step)))
+        save_dic_to_yaml(self.part_instance_status, join(self.result_path, "part_instance_status_{}.yaml".format(self.current_step)))
+        save_dic_to_yaml(self.group_status, join(self.result_path, "group_status_{}.yaml".format(self.current_step)))
+        save_dic_to_yaml(self.group_info, join(self.result_path, "group_info_{}.yaml".format(self.current_step)))
 
         self.current_step += 1
         # update instruction info
         self._get_instruction_info()
-        save_dic_to_yaml(self.instruction_info, join(self.test_info_path, "instruction_info_{}.yaml".format(self.current_step)))
+        save_dic_to_yaml(self.instruction_info, join(self.result_path, "instruction_info_{}.yaml".format(self.current_step)))
     def _update_group_info(self):
         # update group info using group status
         group_info = {}
@@ -471,7 +474,7 @@ class AssemblyManager(object):
         for connection_info in instruction_assembly_info["connection"]:
             connection_info["assembly_type"] = connection_info["assembly_type"].name
         
-        save_dic_to_yaml(instruction_assembly_info, join(self.test_info_path, \
+        save_dic_to_yaml(instruction_assembly_info, join(self.result_path, \
             "instruction_assembly_info_{}.yaml".format(self.current_step)))
         
         self.logger.info("Success to extrct assembly info")
@@ -851,7 +854,7 @@ class AssemblyManager(object):
                 break
             self.logger.info("############RETRY FIND ASSEMBLY SEQUENCE############")
         
-        self.assembly_info["instruction_sequence"] = target_sequence
+        self.assembly_info["target_sequence"] = copy.deepcopy(target_sequence)
         self.logger.info("End to simulate instruction assembly")
 
     def _simulate_assembly_sequecne(self, assembly_sequence):
@@ -868,7 +871,8 @@ class AssemblyManager(object):
 
             target_pair = target_assembly_info["target"]["target_pair"]
             current_status = target_assembly_info["status"]
-            self.logger.info("""...Waiting for simulate assemble:
+            self.logger.info("""
+            ...Waiting for simulate assemble:
 
                     ===>  {}_{}_{} and {}_{}_{}
             """.format(target_pair[0]["part_name"],
@@ -1069,57 +1073,178 @@ class AssemblyManager(object):
         return target_assembly_info
     
     def simulate_hidden_assembly(self):
-        # # 1. check available assembly for current used parts
-        # current_group_parts = self.assembly_info["part"] # dict of part_instance
+        # 1. check available assembly for each part in group
+        current_group_parts = self.assembly_info["part"] # dict of part_instance
+        """point
+        part_instance
+        point_id
+        """
+        part_instance_idx_list = range(len(current_group_parts))
+        all_possible_part_pair = combinations(part_instance_idx_list, 2)
         
-        # available_points = []
-        # for pair_idx, part_pair in enumerate(available_part_pair):
-        #     # extract available_assembly_pair for each part pair 
-        #     part_id_0 = part_pair[0]
-        #     part_instance_0 = current_group_parts[part_id_0]
-        #     part_name_0 = part_instance_0["part_name"]
-        #     instance_id_0 = part_instance_0["instance_id"]
-        #     part_status_0 = self.part_instance_status[part_name_0][instance_id_0]
-        #     assembly_points_0 = self._get_available_points(part_name_0, part_status_0)
+        available_assembly_pair = []
+        for part_pair in all_possible_part_pair:
+            part_id_0 = part_pair[0]
+            part_instance_0 = current_group_parts[part_id_0]
+            part_name_0 = part_instance_0["part_name"]
+            instance_id_0 = part_instance_0["instance_id"]
+            part_status_0 = self.part_instance_status[part_name_0][instance_id_0]
+            assembly_points_0 = self._get_available_points(part_name_0, part_status_0)
             
-        #     part_id_1 = part_pair[1]
-        #     part_instance_1 = current_group_parts[part_id_1]
-        #     part_name_1 = part_instance_1["part_name"]
-        #     instance_id_1 = part_instance_1["instance_id"]
-        #     part_status_1 = self.part_instance_status[part_name_1][instance_id_1]
-        #     assembly_points_1 = self._get_available_points(part_name_1, part_status_1)
+            part_id_1 = part_pair[1]
+            part_instance_1 = current_group_parts[part_id_1]
+            part_name_1 = part_instance_1["part_name"]
+            instance_id_1 = part_instance_1["instance_id"]
+            part_status_1 = self.part_instance_status[part_name_1][instance_id_1]
+            assembly_points_1 = self._get_available_points(part_name_1, part_status_1)
             
-        #     if (len(assembly_points_0) > 0) and (len(assembly_points_1) > 0):
-        #         assembly_pair = self._get_available_assembly_pairs(part_id_0=part_id_0,
-        #                                                         part_name_0=part_name_0,
-        #                                                         assembly_points_0=assembly_points_0,
-        #                                                         part_id_1=part_id_1,
-        #                                                         part_name_1=part_name_1,
-        #                                                         assembly_points_1=assembly_points_1) 
-        #         if len(assembly_pair) > 0:
-        #             available_assembly_pair.append(assembly_pair)
-                
-        # # 2. get cost of each pair
-        # save_dic_to_yaml(dic=copy.deepcopy(available_assembly_pair),
-        #                  yaml_path=join(self.test_info_path, "hidden_assembly_{}.yaml".format(self.current_step)))
+            if (len(assembly_points_0) > 0) and (len(assembly_points_1) > 0):
+                assembly_pair = self._get_available_assembly_pairs(part_id_0=part_id_0,
+                                                                   part_name_0=part_name_0,
+                                                                   assembly_points_0=assembly_points_0,
+                                                                   part_id_1=part_id_1,
+                                                                   part_name_1=part_name_1,
+                                                                   assembly_points_1=assembly_points_1) 
+                if len(assembly_pair) > 0:
+
+                    available_assembly_pair += assembly_pair
         
-        
-        # for pair_assembly_info in available_assembly_pair:
-        #     pass
-        pass
+        # 2. check available_assembly in current status
+        hidden_part_status = copy.deepcopy(self.part_instance_status)
+        hidden_group_status = copy.deepcopy(self.group_status)
+
+        used_point = []
+        used_assembly_pair = []
+        for pair_idx, pair_assembly_info in enumerate(available_assembly_pair):
+            target_assembly_info = self._get_target_assembly_info(pair_assembly_info=pair_assembly_info,
+                                                                  current_part_status=hidden_part_status,
+                                                                  current_group_status=hidden_group_status)
+
+            target_pair = target_assembly_info["target"]["target_pair"]
+            current_status = target_assembly_info["status"]
+            if target_pair[0] in used_point:
+                continue
+            if target_pair[1] in used_point:
+                continue
+
+            self.logger.info("""...Waiting for simulate Hidden assemble:
+
+                    ===>  {}_{}_{} and {}_{}_{}
+            """.format(target_pair[0]["part_name"],
+                       target_pair[0]["instance_id"],
+                       target_pair[0]["assembly_point"],
+                       target_pair[1]["part_name"],
+                       target_pair[1]["instance_id"],
+                       target_pair[1]["assembly_point"]))
+            is_possible = False
+            try:
+                is_possible = self.socket_module.check_assembly_possibility(target_assembly_info)
+            except:
+                self.logger.info("ERROR!")
+
+            if not is_possible:
+                continue
+            # update local status
+            """extract assembly info"""
+            target_part_info_0 = target_pair[0]
+            target_part_name_0 = target_part_info_0["part_name"]
+            target_part_instance_id_0 = target_part_info_0["instance_id"]
+            target_assembly_point_0 = target_part_info_0["assembly_point"]
+
+            target_part_info_1 = target_pair[1]
+            target_part_name_1 = target_part_info_1["part_name"]
+            target_part_instance_id_1 = target_part_info_1["instance_id"]
+            target_assembly_point_1 = target_part_info_1["assembly_point"]
+
+            used_assembly_pair.append(pair_assembly_info)
+            used_point.append(target_part_info_0)
+            used_point.append(target_part_info_1)
             
+
+            """update part instance status"""
+            current_part_status_0 = hidden_part_status[target_part_name_0][target_part_instance_id_0]
+            current_part_status_1 = hidden_part_status[target_part_name_1][target_part_instance_id_1]
+            
+            #region update used assembly points
+            current_part_status_0["used_assembly_points"][target_assembly_point_0] = {
+                "part_name": target_part_name_1,
+                "instance_id": target_part_instance_id_1,
+                "assembly_point": target_assembly_point_1
+            }
+            current_part_status_1["used_assembly_points"][target_assembly_point_1] = {
+                "part_name": target_part_name_0,
+                "instance_id": target_part_instance_id_0,
+                "assembly_point": target_assembly_point_0
+            }
+            #endregion
+            
+            #region update available assembly(with connector) of part status
+            if target_part_name_0 in self.connector_parts:
+                current_part_status_1["available_assembly"][target_part_name_0] -= 1
+            if target_part_name_1 in self.connector_parts:
+                current_part_status_0["available_assembly"][target_part_name_1] -= 1
+            #endregion
+
+            # update gruop id of part instance and available assembly for group
+            new_available_assembly = {connector_name: 0 for connector_name in self.connector_parts}
+            for part_instance_key in current_group_parts.keys():
+                part_instance = current_group_parts[part_instance_key]
+                part_name = part_instance["part_name"]
+                instance_id = part_instance["instance_id"]
+                part_instance_status = hidden_group_status[part_name][instance_id]
+                available_assembly = part_instance_status["available_assembly"]
+                for connector_name in available_assembly.keys():
+                    new_available_assembly[connector_name] += available_assembly[connector_name]
+            
+            """update group status"""
+            group_id_0 = hidden_part_status[target_part_name_0]["group_id"]
+            group_id_1 = hidden_part_status[target_part_name_1]["group_id"]
+            assert group_id_0 == group_id_1, "Hidden Assembly in different group???"
+            group_id = group_id_0
+
+            # add new assembly to status => new_status
+            new_status = current_status + [target_assembly_info["target"]]
+
+            hidden_group_status[group_id]["status"] = copy.deepcopy(new_status)
+            hidden_group_status[group_id]["available_assembly"] = copy.deepcopy(new_available_assembly)
+
+        start_idx = len(self.assembly_info["assembly"])
+        self.assembly_info["assembly"] 
+        hidden_sequence = list(range(start_idx, start_idx + len(used_assembly_pair)))
+        for pair_idx, assembly_pair in zip(hidden_sequence, used_assembly_pair):
+            self.assembly_info[pair_idx] = assembly_pair
+            self.assembly_info["target_sequence"].append(pair_idx)
+         
     def compile_2_SNU_format(self):
-        self.SNU_assembly_info = {}
-        self.SNU_assembly_info["part"] = copy.deepcopy(self.assembly_info["part"])
+        """
+        SNU_assembly_info = {
+            "part"
+            "assembly"
+            "sequence"
+        }
+        """
+        SNU_assembly_info = {}
+        SNU_assembly_info["part"] = copy.deepcopy(self.assembly_info["part"])
         assembly_pair_dict = self.assembly_info["assembly"]
         assembly_dict = {}
         for assembly_id in assembly_pair_dict.keys():
             assembly_pair = assembly_pair_dict[assembly_id]
             target_pair = assembly_pair["target_pair"]
             assembly_dict[assembly_id] = copy.deepcopy(target_pair)
-        self.SNU_assembly_info["assembly"] = assembly_dict
-        self.SNU_assembly_info["sequence"] = self.assembly_info["instruction_sequence"]
-        save_dic_to_yaml(self.SNU_assembly_info, join(self.test_info_path, "example_snu_{}.yaml".format(self.current_step)))
+        SNU_assembly_info["assembly"] = assembly_dict
+        SNU_assembly_info["sequence"] = self.assembly_info["target_sequence"]
+        save_dic_to_yaml(SNU_assembly_info, join(self.SNU_result_path, "snu_sequence_{}.yaml".format(self.current_step)))
+    def compile_2_Blender_format(self):
+        """
+        Blender_assembly_info = 
+        """
+        Blender_assembly_info = {}
+        # create all neccessary file for blender simulate
+        pass
+        # send signal by create txt file
+        with open(join(self.Blender_result_path, \
+            "blender_signal_{}.txt".format(self.current_step)), 'w+') as f:
+            self.logger.info("Visualize Step {} using Blender".format(self.current_step))
 
     #region utils
     def _get_available_points(self, part_name, part_status):
@@ -1198,5 +1323,155 @@ class AssemblyManager(object):
         return is_possible
     #endregion
 
+    @staticmethod
+    def compile_whole_sequence(sequence_root):
+        """compile whole step sequence to SNU format
+
+        Returns:
+        compiled_assembly_info = {
+            "part": {},
+            "assembly": {},
+            "sequence": {}
+        }
+        """
+        """predifined condition"""
+        remove_condition = [
+            set(["ikea_stefan_bolt_side", "ikea_stefan_long"]),
+            set(["ikea_stefan_bolt_side", "ikea_stefan_short"]),
+            set(["ikea_stefan_bolt_side","ikea_stefan_middle"])
+        ]
+        """combine whole sequence"""
+        # sequence_root = self.SNU_result_path     
+        sequence_file_list = get_file_list(sequence_root)
+        
+        used_part = []
+        used_assembly = []
+        whole_sequence = []
+
+        furniture_2_part_id = {}
+        connector_2_part_id = {
+            "ikea_stefan_bracket": [],
+            "ikea_stefan_pin": [],
+            "ikea_stefan_bolt_side": [],
+            "pan_head_screw_iso(4ea)": []
+        }
+        
+        for sequence_file in sequence_file_list:
+            assembly_info = load_yaml_to_dic(sequence_file)
+            parts = assembly_info["part"] # dict
+            all_assembly = assembly_info["assembly"] # dict
+            step_sequence = assembly_info["sequence"] # list
+            for assembly_idx in step_sequence:
+                target = all_assembly[assembly_idx]
+                part_id_0 = target[0]["part_id"]
+                part_id_1 = target[1]["part_id"]
+                part_0 = parts[part_id_0]
+                part_1 = parts[part_id_1]
+
+                if not part_0 in used_part:
+                    used_part.append(part_0)
+                if not part_1 in used_part:
+                    used_part.append(part_1)
+                
+                part_id_0 = used_part.index(part_0)
+                part_id_1 = used_part.index(part_1)
+                target[0]["part_id"] = part_id_0
+                target[1]["part_id"] = part_id_1
+
+                part_name_0 = part_0["part_name"]
+                part_name_1 = part_1["part_name"]
+                part_pair = set([part_name_1, part_name_0])
+                if part_pair in remove_condition:
+                    continue
+                if part_name_0 in connector_2_part_id.keys():
+                    connector_2_part_id[part_name_0].append(part_id_0)
+                else:
+                    furniture_2_part_id[part_name_0] = part_id_0
+
+                if part_name_1 in connector_2_part_id.keys():
+                    connector_2_part_id[part_name_1].append(part_id_1)
+                else:
+                    furniture_2_part_id[part_name_1] = part_id_1
+                used_assembly.append(target)
+                sequence_idx = used_assembly.index(target)
+                whole_sequence.append(sequence_idx)
+
+        """sorting sequence by connector
+        - cluster by connector name
+        - connector assembly index to 0
+        - sort each connector sequence to furniture name
+        """
+        ## connector_sequence: connector -> furniture
+        connector_2_sequence = {connector_name: [] for connector_name in connector_2_part_id.keys()}
+
+        for assembly_idx in whole_sequence:
+            assembly = used_assembly[assembly_idx]
+            part_id_0 = assembly[0]["part_id"]
+            part_id_1 = assembly[1]["part_id"]
+
+            for connector_name in connector_2_sequence.keys():
+                connector_id_list = connector_2_part_id[connector_name]
+                if part_id_0 in connector_id_list:
+                    connector_2_sequence[connector_name].append(assembly_idx)
+                elif part_id_1 in connector_id_list:
+                    temp = copy.deepcopy(assembly[0])
+                    assembly[0] = copy.deepcopy(assembly[1])
+                    assembly[1] = temp
+                    connector_2_sequence[connector_name].append(assembly_idx)
+
+        for connector_name in connector_2_sequence.keys():
+            connector_sequence = connector_2_sequence[connector_name]
+            sorted_sequence = []
+        
+            for furniture_name in furniture_2_part_id.keys():
+                furniture_part_id = furniture_2_part_id[furniture_name]
+    
+                for assembly_idx in connector_sequence:
+                    assembly = used_assembly[assembly_idx]
+                    part_id_1 = assembly[1]["part_id"]
+                    if part_id_1 == furniture_part_id:
+                        sorted_sequence.append(assembly_idx)
+    
+            connector_2_sequence[connector_name] = copy.deepcopy(sorted_sequence)
+
+        """sorting sequence by used state"""
+        sorted_whole_sequence = []
+        used_connector = []
+        for connector_name in connector_2_sequence.keys():
+            connector_sequence = connector_2_sequence[connector_name]
+            for assembly_idx in connector_sequence:
+                assembly = used_assembly[assembly_idx]
+                connector_id = assembly[0]["part_id"]
+                part_id = assembly[1]["part_id"]
+                if connector_id in used_connector:
+                    continue
+
+                sorted_whole_sequence.append(assembly_idx)
+                
+        for connector_name in connector_2_sequence.keys():
+            connector_sequence = connector_2_sequence[connector_name]
+        
+            for remain_sequence in connector_sequence:
+                if remain_sequence in sorted_whole_sequence:
+                    continue
+                sorted_whole_sequence.append(remain_sequence)
+        """save compiled info"""
+        compiled_assembly_info = {}
+        
+        temp = {}
+        for idx, val in enumerate(used_part):
+            temp[idx] = val
+        compiled_assembly_info["part"] = temp
+
+        temp = {}
+        for idx, val in enumerate(used_assembly):
+            temp[idx] = copy.deepcopy(val)
+        compiled_assembly_info["assembly"] = temp
+
+        compiled_assembly_info["sequence"] = sorted_whole_sequence
+
+        return compiled_assembly_info
+
 if __name__ == "__main__":
-    pass
+    doc = AssemblyManager.compile_whole_sequence("./SNU_example")
+    save_dic_to_yaml(doc, "test_1.yaml")

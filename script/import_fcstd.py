@@ -20,8 +20,6 @@ for path in FREECADPATH:
 
 try:
     import FreeCAD
-    import FreeCADGui
-    FreeCADGui.showMainWindow()
     
 except:
     print("Could not import FreeCAD")

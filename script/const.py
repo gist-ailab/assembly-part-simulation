@@ -70,8 +70,8 @@ class SocketType(Enum):
         "reqeust_type": FreeCADRequestType,
     }
     instruction = {
-        # "host": '127.0.0.1',
         "host": '172.27.183.179',
+        # "host": '172.27.183.205',
         "port": 7777,
         "reqeust_type": InstructionRequestType,
     }

@@ -46,11 +46,14 @@ if __name__ == "__main__":
         asm_manager.simulate_instruction_assembly()
 
         asm_manager.simulate_hidden_assembly()
-
-        asm_manager.compile_2_SNU_format()
         
+        asm_manager.compile_2_SNU_format()
+        asm_manager.compile_2_Blender_format()
+
         asm_manager.step()
     #endregion
+
+    asm_manager.compile_2_SNU_format(asm_manager.SNU_result_path)
 
         
 
