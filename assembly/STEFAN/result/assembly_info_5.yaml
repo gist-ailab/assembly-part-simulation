@@ -1,3 +1,182 @@
+assembly:
+  0:
+    method:
+      additional: null
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 3
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 23
+  1:
+    method:
+      additional: null
+      direction: aligned
+      offset: 30
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 2
+      1:
+        assembly_point: 1
+        part_id: 23
+  2:
+    method:
+      additional: null
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 24
+  3:
+    method:
+      additional: null
+      direction: opposed
+      offset: -30
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 16
+      1:
+        assembly_point: 1
+        part_id: 24
+  4:
+    method:
+      additional: null
+      direction: aligned
+      offset: 0
+    target_pair:
+      0:
+        assembly_point: 0
+        part_id: 0
+      1:
+        assembly_point: 0
+        part_id: 25
+  5:
+    method:
+      additional: null
+      direction: opposed
+      offset: -30
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 9
+      1:
+        assembly_point: 1
+        part_id: 25
+  6:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 8
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 5
+  7:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 9
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 6
+  8:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 1
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 12
+  9:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 2
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 13
+  10:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 17
+  11:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 18
+  12:
+    method:
+      additional: null
+      direction: opposed
+      offset: 15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 0
+      1:
+        assembly_point: 1
+        part_id: 19
+  13:
+    method:
+      additional: null
+      direction: aligned
+      offset: 30
+    target_pair:
+      0:
+        assembly_point: 4
+        part_id: 9
+      1:
+        assembly_point: 1
+        part_id: 25
+assembly_sequence:
+  0:
+    cost: 0.40077873751003046
+    sequence:
+    - 0
+    - 1
+    - 2
+    - 3
+    - 4
+    - 5
 part:
   0:
     instance_id: 0
@@ -77,89 +256,6 @@ part:
   25:
     instance_id: 2
     part_name: ikea_stefan_bolt_side
-assembly:
-  0:
-    method:
-      additional: null
-      direction: aligned
-      offset: 0
-    target_pair:
-      0:
-        assembly_point: 3
-        part_id: 0
-      1:
-        assembly_point: 0
-        part_id: 23
-  1:
-    method:
-      additional: null
-      direction: aligned
-      offset: 30
-    target_pair:
-      0:
-        assembly_point: 4
-        part_id: 2
-      1:
-        assembly_point: 1
-        part_id: 23
-  2:
-    method:
-      additional: null
-      direction: aligned
-      offset: 0
-    target_pair:
-      0:
-        assembly_point: 4
-        part_id: 0
-      1:
-        assembly_point: 0
-        part_id: 24
-  3:
-    method:
-      additional: null
-      direction: opposed
-      offset: -30
-    target_pair:
-      0:
-        assembly_point: 5
-        part_id: 16
-      1:
-        assembly_point: 1
-        part_id: 24
-  4:
-    method:
-      additional: null
-      direction: aligned
-      offset: 0
-    target_pair:
-      0:
-        assembly_point: 0
-        part_id: 0
-      1:
-        assembly_point: 0
-        part_id: 25
-  5:
-    method:
-      additional: null
-      direction: opposed
-      offset: -30
-    target_pair:
-      0:
-        assembly_point: 1
-        part_id: 9
-      1:
-        assembly_point: 1
-        part_id: 25
-assembly_sequence:
-  0:
-    cost: 0.40077874256808355
-    sequence:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 4
-    - 5
 target_sequence:
 - 0
 - 1
@@ -174,99 +270,3 @@ target_sequence:
 - 11
 - 12
 - 13
-6:
-  method:
-    additional: null
-    direction: opposed
-    offset: 15
-  target_pair:
-    0:
-      assembly_point: 8
-      part_id: 0
-    1:
-      assembly_point: 1
-      part_id: 5
-7:
-  method:
-    additional: null
-    direction: opposed
-    offset: 15
-  target_pair:
-    0:
-      assembly_point: 9
-      part_id: 0
-    1:
-      assembly_point: 1
-      part_id: 6
-8:
-  method:
-    additional: null
-    direction: opposed
-    offset: 15
-  target_pair:
-    0:
-      assembly_point: 1
-      part_id: 0
-    1:
-      assembly_point: 1
-      part_id: 12
-9:
-  method:
-    additional: null
-    direction: opposed
-    offset: 15
-  target_pair:
-    0:
-      assembly_point: 2
-      part_id: 0
-    1:
-      assembly_point: 1
-      part_id: 13
-10:
-  method:
-    additional: null
-    direction: opposed
-    offset: 15
-  target_pair:
-    0:
-      assembly_point: 5
-      part_id: 0
-    1:
-      assembly_point: 1
-      part_id: 17
-11:
-  method:
-    additional: null
-    direction: opposed
-    offset: 15
-  target_pair:
-    0:
-      assembly_point: 6
-      part_id: 0
-    1:
-      assembly_point: 1
-      part_id: 18
-12:
-  method:
-    additional: null
-    direction: opposed
-    offset: 15
-  target_pair:
-    0:
-      assembly_point: 7
-      part_id: 0
-    1:
-      assembly_point: 1
-      part_id: 19
-13:
-  method:
-    additional: null
-    direction: aligned
-    offset: 30
-  target_pair:
-    0:
-      assembly_point: 4
-      part_id: 9
-    1:
-      assembly_point: 1
-      part_id: 25

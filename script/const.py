@@ -75,4 +75,10 @@ class SocketType(Enum):
         "port": 7777,
         "reqeust_type": InstructionRequestType,
     }
+    blender = {
+        "host": '172.27.183.179',
+        # "host": '172.27.183.205', # hinton
+        "port": 7942,
+        "reqeust_type": BlenderRequestType,
+    }
 

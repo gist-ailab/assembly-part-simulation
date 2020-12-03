@@ -17,6 +17,8 @@ from a2p_importpart import importPartFromFile
 import a2p_constraints as a2pconst
 from a2p_solversystem import SolverSystem
 solver = SolverSystem()
+
+from script.timeout import timeout
 """document of SolverSystem()
 1. solveSystem(doc, matelist=None, showFailMessage=True)
     - same as Gui Solve system Icon
@@ -769,7 +771,7 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
 
 def open_doc(filepath):
     doc = FreeCAD.openDocument(filepath)
-    time.sleep(1)
+    # time.sleep(1)
     return doc
 
 def save_doc_as(doc, filepath):
@@ -990,6 +992,7 @@ class FreeCADModule():
 
         return response
     
+    timeout(10)
     def _add_pair_constraint(self, pair_assembly_info):
         target = pair_assembly_info["target_pair"]
         method = pair_assembly_info["method"]
@@ -1016,8 +1019,14 @@ class FreeCADModule():
         if additional:
             self.additional_assmbly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1), additional))
 
-        co = self.assembly_doc.add_circle_constraint(obj_0, obj_1, [edge_0, edge_1], direction, offset)
-        
+
+        while True:
+            try:
+                co = self.assembly_doc.add_circle_constraint(obj_0, obj_1, [edge_0, edge_1], direction, offset)
+                break
+            except:
+                continue
+
         self.assembly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1)))
         self.assembly_doc.add_assembly_pair(pair_assembly_info)
 

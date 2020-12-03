@@ -1342,10 +1342,10 @@ class AssemblyManager(object):
 
 
         start_idx = len(self.assembly_info["assembly"])
-        self.assembly_info["assembly"] 
+        
         hidden_sequence = list(range(start_idx, start_idx + len(used_assembly_pair)))
         for pair_idx, assembly_pair in zip(hidden_sequence, used_assembly_pair):
-            self.assembly_info[pair_idx] = assembly_pair
+            self.assembly_info["assembly"][pair_idx] = assembly_pair
             self.assembly_info["target_sequence"].append(pair_idx)
          
     def compile_2_SNU_format(self):
@@ -1365,7 +1365,11 @@ class AssemblyManager(object):
             target_pair = assembly_pair["target_pair"]
             assembly_dict[assembly_id] = copy.deepcopy(target_pair)
         SNU_assembly_info["assembly"] = assembly_dict
+        
         SNU_assembly_info["sequence"] = self.assembly_info["target_sequence"]
+        
+        sorted_doc = self._sorting_assembly_info(SNU_assembly_info)
+        SNU_assembly_info = copy.deepcopy(sorted_doc)
         save_dic_to_yaml(SNU_assembly_info, join(self.SNU_result_path, "snu_sequence_{}.yaml".format(self.current_step)))
     def compile_2_Blender_format(self):
         """
@@ -1378,6 +1382,112 @@ class AssemblyManager(object):
         with open(join(self.Blender_result_path, \
             "blender_signal_{}.txt".format(self.current_step)), 'w+') as f:
             self.logger.info("Visualize Step {} using Blender".format(self.current_step))
+
+    @staticmethod
+    def _sorting_assembly_info(assembly_info):
+        used_part = assembly_info["part"]
+        used_assembly = []
+        whole_sequence = []
+        remove_condition = [
+            set(["ikea_stefan_bolt_side", "ikea_stefan_long"]),
+            set(["ikea_stefan_bolt_side", "ikea_stefan_short"]),
+            set(["ikea_stefan_bolt_side","ikea_stefan_middle"])
+        ]
+        furniture_2_part_id = {}
+        connector_2_part_id = {
+            "ikea_stefan_bracket": [],
+            "ikea_stefan_pin": [],
+            "ikea_stefan_bolt_side": [],
+            "pan_head_screw_iso(4ea)": []
+        }
+        parts = assembly_info["part"] # dict
+        all_assembly = assembly_info["assembly"] # dict
+        step_sequence = assembly_info["sequence"] # list
+        for assembly_idx in step_sequence:
+            target = all_assembly[assembly_idx]
+            part_id_0 = target[0]["part_id"]
+            part_id_1 = target[1]["part_id"]
+            part_0 = parts[part_id_0]
+            part_1 = parts[part_id_1]
+            
+            part_name_0 = part_0["part_name"]
+            part_name_1 = part_1["part_name"]
+            part_pair = set([part_name_1, part_name_0])
+            if part_pair in remove_condition:
+                continue
+            if part_name_0 in connector_2_part_id.keys():
+                connector_2_part_id[part_name_0].append(part_id_0)
+            else:
+                furniture_2_part_id[part_name_0] = part_id_0
+
+            if part_name_1 in connector_2_part_id.keys():
+                connector_2_part_id[part_name_1].append(part_id_1)
+            else:
+                furniture_2_part_id[part_name_1] = part_id_1
+            used_assembly.append(target)
+            sequence_idx = used_assembly.index(target)
+            whole_sequence.append(sequence_idx)
+        # sequence: connector -> furniture => furniture(connector) -> furniture
+        connector_2_sequence = {connector_name: [] for connector_name in connector_2_part_id.keys()}
+
+        for assembly_idx in whole_sequence:
+            assembly = used_assembly[assembly_idx]
+            part_id_0 = assembly[0]["part_id"]
+            part_id_1 = assembly[1]["part_id"]
+
+            for connector_name in connector_2_sequence.keys():
+                connector_id_list = connector_2_part_id[connector_name]
+                if part_id_0 in connector_id_list:
+                    connector_2_sequence[connector_name].append(assembly_idx)
+                elif part_id_1 in connector_id_list:
+                    temp = copy.deepcopy(assembly[0])
+                    assembly[0] = copy.deepcopy(assembly[1])
+                    assembly[1] = temp
+                    connector_2_sequence[connector_name].append(assembly_idx)
+        for connector_name in connector_2_sequence.keys():
+            connector_sequence = connector_2_sequence[connector_name]
+            sorted_sequence = []
+        
+            for furniture_name in furniture_2_part_id.keys():
+                furniture_part_id = furniture_2_part_id[furniture_name]
+    
+                for assembly_idx in connector_sequence:
+                    assembly = used_assembly[assembly_idx]
+                    part_id_1 = assembly[1]["part_id"]
+                    if part_id_1 == furniture_part_id:
+                        sorted_sequence.append(assembly_idx)
+    
+            connector_2_sequence[connector_name] = copy.deepcopy(sorted_sequence)
+        """sorting sequence by used state"""
+        sorted_whole_sequence = []
+        used_connector = []
+        for connector_name in connector_2_sequence.keys():
+            connector_sequence = connector_2_sequence[connector_name]
+            for assembly_idx in connector_sequence:
+                assembly = used_assembly[assembly_idx]
+                connector_id = assembly[0]["part_id"]
+                part_id = assembly[1]["part_id"]
+                if connector_id in used_connector:
+                    continue
+
+                sorted_whole_sequence.append(assembly_idx)
+            for remain_sequence in connector_sequence:
+                if remain_sequence in sorted_whole_sequence:
+                    continue
+                sorted_whole_sequence.append(remain_sequence)
+        """compiled info"""
+        compiled_assembly_info = {}
+        
+        compiled_assembly_info["part"] = used_part
+
+        temp = {}
+        for idx, val in enumerate(used_assembly):
+            temp[idx] = copy.deepcopy(val)
+        compiled_assembly_info["assembly"] = temp
+
+        compiled_assembly_info["sequence"] = sorted_whole_sequence
+
+        return compiled_assembly_info
 
     #region utils
     def _get_available_points(self, part_name, part_status):
@@ -1585,7 +1695,7 @@ class AssemblyManager(object):
                     continue
                 sorted_whole_sequence.append(remain_sequence)
             
-        """save compiled info"""
+        """compiled info"""
         compiled_assembly_info = {}
         
         temp = {}
@@ -1603,5 +1713,6 @@ class AssemblyManager(object):
         return compiled_assembly_info
 
 if __name__ == "__main__":
-    doc = AssemblyManager.compile_whole_sequence("./SNU_example")
-    save_dic_to_yaml(doc, "test_sequence.yaml")
+    pass
+    # doc = AssemblyManager.compile_whole_sequence("./assembly/STEFAN/SNU_result")
+    

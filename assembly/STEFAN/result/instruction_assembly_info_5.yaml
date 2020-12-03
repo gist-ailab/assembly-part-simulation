@@ -79,8 +79,8 @@ connection:
           - false
           - !!binary |
             Y23HeSHK4D9ZSrBwq8rcP3EyrqQv7tM/9BbgLaDcwz9iFIpzalrRP/cU8GcueZk/So4GLHTzyz/9
-            TghCkCSxP76QjeI3ot4/t1mICOD04D++BkgpmP3RP03cuWE27tM/cXFnO2Q33j9tp+u9cSzXP/jk
-            rBhEjtw/DQ7TLJfT1z8=
+            TghCkCSxPwk1r8Y4ot4/3fgpr9/04D9UMttFl/3RP2WsVwg27tM/1CetO2Q33j/IqsidcSzXP4aI
+            7hhEjtw/TipqLJfT1z8=
         region_id: 5
       id: 8
 - assembly_type: group_group_connector
@@ -127,8 +127,8 @@ connection:
           - false
           - !!binary |
             C8fthUtM0T9RBxk410SJP9vg5cjuE9o/Y7BIzOmH0z/tBCsXarPhPwuVp8Dc5d4/knqvmkFb4T9B
-            PMPsEgjgP8x666e2YuY/cDY9H/jv0T+3iSXT8NvhPxvJwc3mE9o/lXGmOVE+5j/JqRW/5wTkPzjw
-            ZuNfBOY/DBcrvAaQ5D8=
+            PMPsEgjgP5qi3Ay3YuY/DGZ+ivjv0T+DQK5S8NvhP0w+M2nmE9o/7h6JO1E+5j/+B9Oy5wTkP9fz
+            e+RfBOY/o5yfugaQ5D8=
         region_id: 1
       id: 8
 - assembly_type: group_group_connector
@@ -159,7 +159,7 @@ connection:
     - connection_loc:
         part_id: 9
         point_cost:
-          1: 0.158967969621145
+          1: 0.15896796456309195
         region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
           args:
           - *id001
@@ -175,8 +175,8 @@ connection:
           - false
           - !!binary |
             erdCWuIe6D/OqRbSngrqP/6WlkBFi+A/I/iBa6U84z9RdtAluTTaP0fU3W05X+A/a3Rt4+7a2T+f
-            NfC8svLdP/cHhCq3WsQ/kc7ZIi8b6D918SF+DSfaPxoM9FJLi+A/CDJR+w9ZxD/UkXKeIETYPwpy
-            gY9GG8Q/ub/Pv4yD1D8=
+            NfC8svLdPytCh5+3WsQ/G+R8UC8b6D8zR5w+DCfaP1dHdyZLi+A/WYB08A9ZxD/jEWehIETYP/lV
+            /4lGG8Q/03OcwYyD1D8=
         region_id: 12
       id: 8
 connector_instance: {}

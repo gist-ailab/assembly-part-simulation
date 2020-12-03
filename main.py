@@ -53,7 +53,7 @@ if __name__ == "__main__":
         asm_manager.step()
     #endregion
 
-    asm_manager.compile_2_SNU_format(asm_manager.SNU_result_path)
+    asm_manager.compile_whole_sequence(asm_manager.SNU_result_path)
 
         
 

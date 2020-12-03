@@ -361,7 +361,7 @@ assembly:
         part_id: 21
 assembly_sequence:
   0:
-    cost: 0.15723515126711848
+    cost: 0.15723407682881396
     sequence:
     - 2
     - 6
@@ -373,7 +373,7 @@ assembly_sequence:
     - 24
     - 29
   1:
-    cost: 0.1833809125406638
+    cost: 0.1833798454872636
     sequence:
     - 2
     - 6
@@ -385,7 +385,7 @@ assembly_sequence:
     - 24
     - 27
   2:
-    cost: 0.1139556189901324
+    cost: 0.1139545445518279
     sequence:
     - 2
     - 6
@@ -397,7 +397,7 @@ assembly_sequence:
     - 22
     - 29
   3:
-    cost: 0.1401013802636777
+    cost: 0.14010031321027755
     sequence:
     - 2
     - 6
