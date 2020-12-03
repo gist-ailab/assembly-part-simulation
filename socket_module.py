@@ -1,7 +1,8 @@
 import socket
 from enum import Enum
 
-from script.const import SocketType, FreeCADRequestType, PyRepRequestType, InstructionRequestType
+from script.const import SocketType, FreeCADRequestType, \
+    PyRepRequestType, InstructionRequestType, BlenderRequestType
 from script.socket_utils import *
 from script.fileApi import *
 import random
@@ -9,11 +10,14 @@ import time
 from pyprnt import prnt
 
 class SocketModule():
-    def __init__(self, logger):
+    def __init__(self, logger, is_visualize):
         self.logger = logger
         self.c_freecad = self.initialize_freecad_client()
         self.c_pyrep = self.initialize_pyrep_client()
         self.c_instruction = self.initialize_instruction_client()
+        self.is_visualize = is_visualize
+        if self.is_visualize:
+            self.c_blender = self.initialize_blender_client()
 
     def initialize_freecad_client(self):
         host = SocketType.freecad.value["host"]
@@ -39,6 +43,15 @@ class SocketModule():
         sock = socket.socket()
         sock.connect((host, port))
         self.logger.info("==> Connected to Instruction server on {}:{}".format(host, port))
+        
+        return sock
+
+    def initialize_blender_client(self):
+        host = SocketType.blender.value["host"]
+        port = SocketType.blender.value["port"]
+        sock = socket.socket()
+        sock.connect((host, port))
+        self.logger.info("==> Connected to Blender server on {}:{}".format(host, port))
         
         return sock
 
@@ -190,6 +203,37 @@ class SocketModule():
         prnt(instruction_info)
         
         return instruction_info
+    #endregion
+
+    #region blender module
+    def start_visualization(self, current_step, group_info, instruction_info,
+                                assembly_info, is_end):
+        assert self.is_visualize, "No visualize server exist"
+        request = BlenderRequestType.start_visualization
+        self.logger.info("Request {} to Blender Module".format(request))
+        sendall_pickle(self.c_blender, request)
+        response = recvall_pickle(self.c_blender)
+        assert response, "Not ready to start visualization"
+        group_files = {group_id: {} for group_id in group_info.keys()}
+        for group_id in group_info.keys():
+            obj_root = group_info[group_id]["obj_root"]
+            
+            obj_files = get_file_list(obj_root)
+            for file_path in obj_files:
+                with open(file_path, "r") as f:
+                    group_files[group_id][file_path] = f.readlines()
+        request = {
+            "current_step": current_step,
+            "group_info": group_info,
+            "group_files": group_files,
+            "instruction_info": instruction_info,
+            "assembly_info": assembly_info,
+            "is_end": is_end
+        }
+        sendall_pickle(self.c_blender, request)
+        is_start = recvall_pickle(self.c_blender)
+        if is_start:
+            self.logger.info("visualization start")
     #endregion
 
     def close(self):

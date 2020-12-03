@@ -58,6 +58,9 @@ class FreeCADRequestType():
 class InstructionRequestType():
     get_instruction_info = "get_instruction_info"
 
+class BlenderRequestType():
+    start_visualization = "start_visualization"
+
 class SocketType(Enum):
     pyrep = {
         "host": '172.27.183.179',

@@ -14,7 +14,7 @@ import numpy as np
 
 class AssemblyManager(object):
 
-    def __init__(self, logger, furniture_name, cad_root="./cad_file", instruction_root="./instruction"):
+    def __init__(self, logger, furniture_name, is_visualize, cad_root="./cad_file", instruction_root="./instruction"):
         self.logger = logger
         self.furniture_name = furniture_name
 
@@ -45,7 +45,7 @@ class AssemblyManager(object):
         self.Blender_result_path = join(self.assembly_path, "Blender_result")
         check_and_create_dir(self.Blender_result_path)
 
-        self.socket_module = SocketModule(self.logger)
+        self.socket_module = SocketModule(self.logger, is_visualize)
         
         # 내부에서 사용하는 데이터(저장은 선택)
         self.part_info_path = join(self.assembly_path, "part_info.yaml")
@@ -65,7 +65,8 @@ class AssemblyManager(object):
         self.group_info_path = join(self.group_info_root, "group_info_{}.yaml".format(self.current_step))
         self.instruction_info = None
         self.instruction_assembly_info = None
-        
+        self.sorted_assembly_info = None
+
         # 조립 마다 바뀌는 정보
         self.part_instance_status = {}
         self.group_status = {}
@@ -300,11 +301,7 @@ class AssemblyManager(object):
         save_dic_to_yaml(self.part_instance_status, join(self.result_path, "part_instance_status_{}.yaml".format(self.current_step)))
         save_dic_to_yaml(self.group_status, join(self.result_path, "group_status_{}.yaml".format(self.current_step)))
         save_dic_to_yaml(self.group_info, join(self.result_path, "group_info_{}.yaml".format(self.current_step)))
-
-        self.current_step += 1
-        # update instruction info
-        self._get_instruction_info()
-        save_dic_to_yaml(self.instruction_info, join(self.result_path, "instruction_info_{}.yaml".format(self.current_step)))
+        
     def _update_group_info(self):
         # update group info using group status
         group_info = {}
@@ -340,6 +337,12 @@ class AssemblyManager(object):
         else:
             self.logger.info("Instruction end!")
             self.is_end = True
+
+    def get_instruction_info(self):
+        self.current_step += 1
+        # update instruction info
+        self._get_instruction_info()
+        save_dic_to_yaml(self.instruction_info, join(self.result_path, "instruction_info_{}.yaml".format(self.current_step)))
 
     def initialize_part_to_scene(self):
         self.logger.info("...Waiting for initialize PyRep scene")
@@ -1356,6 +1359,7 @@ class AssemblyManager(object):
             "sequence"
         }
         """
+        self.sorted_assembly_info = {}
         SNU_assembly_info = {}
         SNU_assembly_info["part"] = copy.deepcopy(self.assembly_info["part"])
         assembly_pair_dict = self.assembly_info["assembly"]
@@ -1371,17 +1375,15 @@ class AssemblyManager(object):
         sorted_doc = self._sorting_assembly_info(SNU_assembly_info)
         SNU_assembly_info = copy.deepcopy(sorted_doc)
         save_dic_to_yaml(SNU_assembly_info, join(self.SNU_result_path, "snu_sequence_{}.yaml".format(self.current_step)))
-    def compile_2_Blender_format(self):
-        """
-        Blender_assembly_info = 
-        """
-        Blender_assembly_info = {}
-        # create all neccessary file for blender simulate
-        pass
-        # send signal by create txt file
-        with open(join(self.Blender_result_path, \
-            "blender_signal_{}.txt".format(self.current_step)), 'w+') as f:
-            self.logger.info("Visualize Step {} using Blender".format(self.current_step))
+        self.sorted_assembly_info = SNU_assembly_info
+
+    def visualization(self):
+        self.socket_module.start_visualization(current_step=self.current_step,
+                                               group_info=self.group_info,
+                                               instruction_info=self.instruction_info,
+                                               assembly_info=self.sorted_assembly_info,
+                                               is_end=self.is_end)
+        self.logger.info("Visualize Step {} using Blender".format(self.current_step))
 
     @staticmethod
     def _sorting_assembly_info(assembly_info):
