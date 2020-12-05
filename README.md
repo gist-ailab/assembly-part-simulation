@@ -55,11 +55,11 @@ python main.py
 ```
 ## terminal #2 freecad_module.py
 ```shell
-python pyrep_module.py 
+python freecad_module.py 
 ```
-## pyrep_module.py
+## terminal #3 pyrep_module.py
 ```shell
-python .py 
+python pyrep_module.py 
 ```
 
 
