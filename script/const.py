@@ -64,7 +64,7 @@ class BlenderRequestType():
 class SocketType(Enum):
     pyrep = {
         "host": '172.27.183.179',
-        "port": 8282,
+        "port": 8080,
         "request_type": PyRepRequestType,
     }
     freecad = {
@@ -73,13 +73,13 @@ class SocketType(Enum):
         "reqeust_type": FreeCADRequestType,
     }
     instruction = {
-        "host": '172.27.183.179',
-        # "host": '172.27.183.205', # hinton
+        # "host": '172.27.183.179',
+        "host": '172.27.183.205', # hinton
         "port": 7777,
         "reqeust_type": InstructionRequestType,
     }
     blender = {
-        "host": '172.27.183.179',
+        "host": '172.27.183.183',
         # "host": '172.27.183.205', # hinton
         "port": 7942,
         "reqeust_type": BlenderRequestType,
