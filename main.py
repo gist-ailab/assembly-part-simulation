@@ -6,7 +6,9 @@ from assembly_manager import AssemblyManager
 def get_args_parser():
     parser = argparse.ArgumentParser('Set IKEA Assembly Part Simulation', add_help=False)
     parser.add_argument('--furniture_name', default='STEFAN', type=str)
+    parser.add_argument('--instruction', action='store_true')
     parser.add_argument('--visualize', action='store_true')
+    parser.add_argument('--dyros', action='store_true')
     return parser
 
 # test for joosoon branch
@@ -21,15 +23,19 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser('Assembly Part Simulator', parents=[get_args_parser()])
     args = parser.parse_args()
     furniture_name = args.furniture_name
+    is_instruction = args.instruction
     is_visualize = args.visualize
+    is_dyros = args.dyros
     logger = get_logger(furniture_name)
 
     # Assembly manager    
-    asm_manager = AssemblyManager(logger, furniture_name, is_visualize)
+    asm_manager = AssemblyManager(logger, furniture_name, 
+                                          is_instruction, 
+                                          is_visualize,
+                                          is_dyros)
 
     # initialize part information from CAD
     asm_manager.initialize_CAD_info()
-    
     
     # using part info to initialize scene
     asm_manager.initialize_part_to_scene()
@@ -60,7 +66,8 @@ if __name__ == "__main__":
     #endregion
     if is_visualize:
         asm_manager.visualization()
-    asm_manager.compile_whole_sequence(asm_manager.SNU_result_path)
+    
+    asm_manager.compile_whole_sequence()
 
         
 

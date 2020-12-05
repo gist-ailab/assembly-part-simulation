@@ -1,7 +1,7 @@
 import enum
 from operator import add, pos
 
-from script.const import PartType, AssemblyType
+from script.const import CONNECTOR_PARTS, PartType, AssemblyType
 from script.fileApi import *
 from enum import Enum
 from socket_module import SocketModule
@@ -14,7 +14,8 @@ import numpy as np
 
 class AssemblyManager(object):
 
-    def __init__(self, logger, furniture_name, is_visualize, cad_root="./cad_file", instruction_root="./instruction"):
+    def __init__(self, logger, furniture_name, is_instruction, is_visualize, is_dyros,
+                    cad_root="./cad_file", instruction_root="./instruction"):
         self.logger = logger
         self.furniture_name = furniture_name
 
@@ -24,6 +25,9 @@ class AssemblyManager(object):
         self.instruction_root = instruction_root
         self.instruction_path = join(self.instruction_root, self.furniture_name)
         
+        self.is_instruction = is_instruction
+        self.is_visualize = is_visualize
+        self.is_dyros = is_dyros
         self.is_end = False
 
         # 조립 폴더 생성
@@ -45,7 +49,9 @@ class AssemblyManager(object):
         self.Blender_result_path = join(self.assembly_path, "Blender_result")
         check_and_create_dir(self.Blender_result_path)
 
-        self.socket_module = SocketModule(self.logger, is_visualize)
+        self.socket_module = SocketModule(self.logger, is_instruction, 
+                                                       is_visualize,
+                                                       is_dyros)
         
         # 내부에서 사용하는 데이터(저장은 선택)
         self.part_info_path = join(self.assembly_path, "part_info.yaml")
@@ -54,10 +60,11 @@ class AssemblyManager(object):
         self.refined_pair_path = "./assembly_pair_refined.yaml"
         
         self.part_info = None
-        self.connector_info = None
         self.assemlby_pair = None
-        self.furniture_parts, self.connector_parts = [], [] # save part_name
+        self.furniture_parts = []
+        self.connector_parts = CONNECTOR_PARTS
         self.assembly_info = None
+        self.connector_info = None
 
         # 매 스탭 마다 바뀌는 정보
         self.current_step = 0
@@ -76,7 +83,6 @@ class AssemblyManager(object):
             "target_sequence": []
         }
         
-
     def initialize_CAD_info(self):
         self.logger.info("...Waiting for cad info from FreeCAD Module")
         self.part_info = self.socket_module.initialize_cad_info(self.cad_path)
@@ -86,10 +92,11 @@ class AssemblyManager(object):
         save_dic_to_yaml(self.assembly_pair, self.assembly_pair_path)
         # self.assembly_pair = load_yaml_to_dic(self.refined_pair_path)
 
-        self._initialize_each_parts()
+        self._initialize_furniture_parts()
+        self._initialize_connector_parts()
         self._initialize_part_instance_status()
-        self._initialize_connector_info()            
         self._initialize_group_status()
+
     def _initialize_assembly_pair(self):
         """part info 를 바탕으로 가능한 모든 assembly pairs 를 출력
         - radius_group => all possible groups
@@ -216,22 +223,28 @@ class AssemblyManager(object):
                             assembly_pairs[part_name_1][point_idx_1].append(target)
         
         self.assembly_pair =  assembly_pairs
-    def _initialize_each_parts(self):
+    def _initialize_furniture_parts(self):
         for part_name in self.part_info.keys():
             if self.part_info[part_name]["type"] == PartType.furniture.value:
                 self.furniture_parts.append(part_name)
             elif self.part_info[part_name]["type"] == PartType.connector.value:
-                self.connector_parts.append(part_name)
+                pass
             else:
                 self.logger.error("type is not matching!")
                 exit()
+    def _initialize_connector_parts(self):
+        assert self.connector_parts
+        connector_quantity = self._get_connector_quantity()
+        connector_info = {}
+        for connector_id in connector_quantity.keys():
+            connector_name = self.connector_parts[connector_id]
+            connector_info[connector_name] = {
+                "quantity": connector_quantity[connector_id]
+            }
+        self.connector_info = connector_info
+        save_dic_to_yaml(self.connector_info, self.connector_info_path)
     def _initialize_part_instance_status(self):
-        part_instance_quantity = {
-            "ikea_stefan_bolt_side": 6,
-            "ikea_stefan_bracket": 4,
-            "ikea_stefan_pin": 14,
-            "pan_head_screw_iso(4ea)": 4,
-        }
+        self.connector_instance_quantity = {}
         part_instance_status = {}
         for part_name in self.part_info.keys():
             part_instance_status[part_name] = {}
@@ -248,7 +261,7 @@ class AssemblyManager(object):
                     if pair_name in self.connector_parts:
                         available_assembly[pair_name] += 1
             try:
-                quantity = part_instance_quantity[part_name]
+                quantity = self.connector_info[part_name]["quantity"]
             except:
                 quantity = 1
             for i in range(quantity):
@@ -259,14 +272,11 @@ class AssemblyManager(object):
                 }
 
         self.part_instance_status = part_instance_status
-    def _initialize_connector_info(self):
-        connector_info = {}
-        for connector_id, connector_name in enumerate(self.connector_parts):
-            connector_info[connector_id] = {
-                "part_name": connector_name
-            }
-        self.connector_info = connector_info
-        save_dic_to_yaml(self.connector_info, self.connector_info_path)
+    def _get_connector_quantity(self):
+        if self.is_instruction:
+            return self.socket_module.get_connector_quantity()
+        else:
+            return load_yaml_to_dic("./instruction_ex/connector_quantity.yaml")
     def _initialize_group_status(self):
         # furniture part 를 베이스로 하여 그룹을 생성
         for group_id, part_name in enumerate(self.furniture_parts):
@@ -328,21 +338,29 @@ class AssemblyManager(object):
         assert self.socket_module.update_group_to_scene(self.group_info), "update group to scene error"
     def _update_part_status(self):
         assert self.socket_module.update_part_status(self.part_instance_status), "update part status error"
+    
+    def get_instruction_info(self):
+        self.current_step += 1
+        # update instruction info
+        self._get_instruction_info()
+        save_dic_to_yaml(self.instruction_info, join(self.result_path, "instruction_info_{}.yaml".format(self.current_step)))
     def _get_instruction_info(self):
         self.logger.info("... wating for instruction of [step {}]".format(self.current_step))
-        self.instruction_info = self.socket_module.get_instruction_info(self.current_step, self.group_info, self.connector_info)
+    
+        if self.is_instruction:
+            self.instruction_info = self.socket_module.get_instruction_info(self.current_step,
+                                                                            self.group_info, 
+                                                                            self.connector_info)
+        else:
+            yaml_path = "./instruction_ex/instruction_info_{}.yaml".format(self.current_step)
+            self.instruction_info = load_yaml_to_dic(yaml_path)
+        
         if self.instruction_info:
             self.logger.info("Get instruction of [step {}] information !".format(self.current_step))
             self.is_end = False
         else:
             self.logger.info("Instruction end!")
             self.is_end = True
-
-    def get_instruction_info(self):
-        self.current_step += 1
-        # update instruction info
-        self._get_instruction_info()
-        save_dic_to_yaml(self.instruction_info, join(self.result_path, "instruction_info_{}.yaml".format(self.current_step)))
 
     def initialize_part_to_scene(self):
         self.logger.info("...Waiting for initialize PyRep scene")
@@ -398,7 +416,7 @@ class AssemblyManager(object):
         for connector_info in instruction_connector_info:
             connector_id = connector_info["connector_id"]
             connector_name = connector_info["part_name"]
-            assert self.connector_info[connector_id]["part_name"] == connector_name
+            assert connector_id == self.connector_parts.index(connector_name)
             
             connector_num = connector_info["number_of_connector"]
             instruction_checker["Connector"][connector_name] = connector_num
@@ -674,7 +692,7 @@ class AssemblyManager(object):
         
         #region find unused connector instance
         connctor_id = assembly_component["connector"]
-        connector_name = self.connector_info[connctor_id]["part_name"]
+        connector_name = self.connector_parts[connctor_id]
 
         used_connector_instance = None
         count = 0
@@ -1237,8 +1255,8 @@ class AssemblyManager(object):
                     available_assembly_pair += assembly_pair
         
         # 2. check available_assembly in current status
-        hidden_part_status = copy.deepcopy(self.part_instance_status)
-        hidden_group_status = copy.deepcopy(self.group_status)
+        hidden_part_status = self.part_instance_status
+        hidden_group_status = self.group_status
 
         used_point = []
         used_assembly_pair = []
@@ -1567,49 +1585,31 @@ class AssemblyManager(object):
                     used_point.append(point)
         return is_possible
     #endregion
-
-    @staticmethod
-    def compile_whole_sequence(sequence_root):
-        """compile whole step sequence to SNU format
-        - long / short
-        Returns:
-        compiled_assembly_info = {
-            "part": {},
-            "assembly": {},
-            "sequence": {}
-        }
-        """
-        """predifined condition"""
-        remove_condition = [
-            set(["ikea_stefan_bolt_side", "ikea_stefan_long"]),
-            set(["ikea_stefan_bolt_side", "ikea_stefan_short"]),
-            set(["ikea_stefan_bolt_side","ikea_stefan_middle"])
-        ]
-        """combine whole sequence"""
-        # sequence_root = self.SNU_result_path     
+    
+    def compile_whole_sequence(self):
+        sequence_root = self.SNU_result_path
         sequence_file_list = get_file_list(sequence_root)
         
         used_part = []
         used_assembly = []
         whole_sequence = []
 
-        furniture_2_part_id = {}
-        connector_2_part_id = {
-            "ikea_stefan_bracket": [],
-            "ikea_stefan_pin": [],
-            "ikea_stefan_bolt_side": [],
-            "pan_head_screw_iso(4ea)": []
-        }
-        
         for sequence_file in sequence_file_list:
             assembly_info = load_yaml_to_dic(sequence_file)
+            
             parts = assembly_info["part"] # dict
             all_assembly = assembly_info["assembly"] # dict
             step_sequence = assembly_info["sequence"] # list
+            
             for assembly_idx in step_sequence:
-                target = all_assembly[assembly_idx]
-                part_id_0 = target[0]["part_id"]
-                part_id_1 = target[1]["part_id"]
+                target_assembly = all_assembly[assembly_idx]
+                if target_assembly in used_assembly:
+                    # assert False, "ERROR"
+                    continue
+                
+                part_id_0 = target_assembly[0]["part_id"]
+                part_id_1 = target_assembly[1]["part_id"]
+                
                 part_0 = parts[part_id_0]
                 part_1 = parts[part_id_1]
 
@@ -1620,83 +1620,17 @@ class AssemblyManager(object):
                 
                 part_id_0 = used_part.index(part_0)
                 part_id_1 = used_part.index(part_1)
-                target[0]["part_id"] = part_id_0
-                target[1]["part_id"] = part_id_1
+                
+                target_assembly[0]["part_id"] = part_id_0
+                target_assembly[1]["part_id"] = part_id_1
 
                 part_name_0 = part_0["part_name"]
                 part_name_1 = part_1["part_name"]
-                part_pair = set([part_name_1, part_name_0])
-                if part_pair in remove_condition:
-                    continue
-                if part_name_0 in connector_2_part_id.keys():
-                    connector_2_part_id[part_name_0].append(part_id_0)
-                else:
-                    furniture_2_part_id[part_name_0] = part_id_0
-
-                if part_name_1 in connector_2_part_id.keys():
-                    connector_2_part_id[part_name_1].append(part_id_1)
-                else:
-                    furniture_2_part_id[part_name_1] = part_id_1
-                used_assembly.append(target)
-                sequence_idx = used_assembly.index(target)
+                
+                used_assembly.append(target_assembly)
+                sequence_idx = used_assembly.index(target_assembly)
                 whole_sequence.append(sequence_idx)
 
-        """sorting sequence by connector
-        - cluster by connector name
-        - connector assembly index to 0
-        - sort each connector sequence to furniture name
-        """
-        # sequence: connector -> furniture => furniture(connector) -> furniture
-        connector_2_sequence = {connector_name: [] for connector_name in connector_2_part_id.keys()}
-
-        for assembly_idx in whole_sequence:
-            assembly = used_assembly[assembly_idx]
-            part_id_0 = assembly[0]["part_id"]
-            part_id_1 = assembly[1]["part_id"]
-
-            for connector_name in connector_2_sequence.keys():
-                connector_id_list = connector_2_part_id[connector_name]
-                if part_id_0 in connector_id_list:
-                    connector_2_sequence[connector_name].append(assembly_idx)
-                elif part_id_1 in connector_id_list:
-                    temp = copy.deepcopy(assembly[0])
-                    assembly[0] = copy.deepcopy(assembly[1])
-                    assembly[1] = temp
-                    connector_2_sequence[connector_name].append(assembly_idx)
-
-        for connector_name in connector_2_sequence.keys():
-            connector_sequence = connector_2_sequence[connector_name]
-            sorted_sequence = []
-        
-            for furniture_name in furniture_2_part_id.keys():
-                furniture_part_id = furniture_2_part_id[furniture_name]
-    
-                for assembly_idx in connector_sequence:
-                    assembly = used_assembly[assembly_idx]
-                    part_id_1 = assembly[1]["part_id"]
-                    if part_id_1 == furniture_part_id:
-                        sorted_sequence.append(assembly_idx)
-    
-            connector_2_sequence[connector_name] = copy.deepcopy(sorted_sequence)
-
-        """sorting sequence by used state"""
-        sorted_whole_sequence = []
-        used_connector = []
-        for connector_name in connector_2_sequence.keys():
-            connector_sequence = connector_2_sequence[connector_name]
-            for assembly_idx in connector_sequence:
-                assembly = used_assembly[assembly_idx]
-                connector_id = assembly[0]["part_id"]
-                part_id = assembly[1]["part_id"]
-                if connector_id in used_connector:
-                    continue
-
-                sorted_whole_sequence.append(assembly_idx)
-            for remain_sequence in connector_sequence:
-                if remain_sequence in sorted_whole_sequence:
-                    continue
-                sorted_whole_sequence.append(remain_sequence)
-            
         """compiled info"""
         compiled_assembly_info = {}
         
@@ -1710,8 +1644,9 @@ class AssemblyManager(object):
             temp[idx] = copy.deepcopy(val)
         compiled_assembly_info["assembly"] = temp
 
-        compiled_assembly_info["sequence"] = sorted_whole_sequence
+        compiled_assembly_info["sequence"] = whole_sequence
 
+        save_dic_to_yaml(compiled_assembly_info, "final_result.yaml")
         return compiled_assembly_info
 
 if __name__ == "__main__":

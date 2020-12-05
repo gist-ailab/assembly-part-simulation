@@ -8,16 +8,24 @@ from script.fileApi import *
 import random
 import time
 from pyprnt import prnt
+from easy_tcp_python2_3 import socket_utils as su
 
 class SocketModule():
-    def __init__(self, logger, is_visualize):
+    def __init__(self, logger, is_instruction, is_visualize, is_dyros):
         self.logger = logger
         self.c_freecad = self.initialize_freecad_client()
         self.c_pyrep = self.initialize_pyrep_client()
-        self.c_instruction = self.initialize_instruction_client()
+        
+        self.is_instruction = is_instruction
         self.is_visualize = is_visualize
+        self.is_dyros = is_dyros
+        
+        if self.is_instruction:
+            self.c_instruction = self.initialize_instruction_client()
         if self.is_visualize:
             self.c_blender = self.initialize_blender_client()
+        if self.is_dyros:
+            self.c_dyros = self.initialize_dyros_client()
 
     def initialize_freecad_client(self):
         host = SocketType.freecad.value["host"]
@@ -54,6 +62,10 @@ class SocketModule():
         self.logger.info("==> Connected to Blender server on {}:{}".format(host, port))
         
         return sock
+
+    def initialize_dyros_client(self):
+        #TODO:
+        pass
 
     #region freecad module
     def initialize_cad_info(self, cad_file_path):
@@ -181,6 +193,19 @@ class SocketModule():
     #endregion
 
     #region instruction module
+    def get_connector_quantity(self):
+        request = InstructionRequestType.get_connector_quantity
+        self.logger.info("Request {} to Instruction Module".format(request))
+        sendall_pickle(self.c_instruction, request)
+        response = recvall_pickle(self.c_instruction)
+        assert response, "Not ready to extract instruction info"
+        
+        sendall_pickle(self.c_instruction, True)
+        connector_quantity = recvall_pickle(self.c_instruction)
+        
+        self.logger.info("Success to get quantity of connector")
+        return connector_quantity
+
     def get_instruction_info(self, current_step, group_info, connector_info):
         request = InstructionRequestType.get_instruction_info
         self.logger.info("Request {} to Instruction Module".format(request))
@@ -234,6 +259,10 @@ class SocketModule():
         is_start = recvall_pickle(self.c_blender)
         if is_start:
             self.logger.info("visualization start")
+    #endregion
+
+    #region dyros module
+    #TODO:
     #endregion
 
     def close(self):

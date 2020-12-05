@@ -32,6 +32,12 @@ class AssemblyType(Enum):
         else:
             assert False
 
+CONNECTOR_PARTS = (
+    "ikea_stefan_bolt_side",
+    "ikea_stefan_bracket",
+    "ikea_stefan_pin",
+    "pan_head_screw_iso(4ea)"
+)
 
 class AssemblyPoint(object):
     def __init__(self, idx, hole_type, radius, edge_index, depth, direction, position, quaternion):
@@ -57,31 +63,36 @@ class FreeCADRequestType():
 
 class InstructionRequestType():
     get_instruction_info = "get_instruction_info"
+    get_connector_quantity = "get_connector_quantity"
 
 class BlenderRequestType():
     start_visualization = "start_visualization"
+
+class DyrosRequestType():
+    send_result = "send_result"
 
 class SocketType(Enum):
     pyrep = {
         "host": '172.27.183.179',
         "port": 8080,
-        "request_type": PyRepRequestType,
     }
     freecad = {
         "host": '172.27.183.179',
         "port": 9293,
-        "reqeust_type": FreeCADRequestType,
     }
     instruction = {
         # "host": '172.27.183.179',
         "host": '172.27.183.205', # hinton
         "port": 7777,
-        "reqeust_type": InstructionRequestType,
     }
     blender = {
         "host": '172.27.183.183',
         # "host": '172.27.183.205', # hinton
         "port": 7942,
-        "reqeust_type": BlenderRequestType,
+    }
+    dyros = {
+        "host": '172.27.183.183',
+        # "host": '172.27.183.205', # hinton
+        "port": 7942,
     }
 
