@@ -22,3 +22,18 @@ try:
     
 except:
     print("Could not import FreeCAD")
+
+if __name__ == "__main__":
+    import time
+    FreeCADGui.showMainWindow()
+    doc = FreeCAD.newDocument()
+    FreeCAD.ActiveDocument = FreeCAD.getDocument(doc.Name)
+    FreeCADGui.ActiveDocument = FreeCADGui.getDocument(doc.Name)
+    view = FreeCADGui.ActiveDocument.ActiveView
+    mw = FreeCADGui.getMainWindow()
+    print(mw)
+    loop()
+
+    
+    while True:
+        view.fitAll()

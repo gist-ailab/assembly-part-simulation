@@ -1,6 +1,6 @@
 Connector:
 - connector_id: 3
-  number_of_connector: 1
+  number_of_connector: null
   part_name: pan_head_screw_iso(4ea)
 Group:
 - group_id: 6

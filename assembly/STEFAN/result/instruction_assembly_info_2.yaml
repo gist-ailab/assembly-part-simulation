@@ -1,0 +1,196 @@
+checker:
+  Connector:
+    ikea_stefan_pin: 4
+  Group:
+    3: false
+    4: false
+  connection:
+    0: false
+    1: false
+    2: false
+    3: false
+connection:
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          0: 0.009945424206402346
+          2: 0.03243580845037543
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - &id001 !!python/name:numpy.ndarray ''
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - &id002 !!python/object/apply:numpy.dtype
+            args:
+            - f8
+            - false
+            - true
+            state: !!python/tuple
+            - 3
+            - <
+            - null
+            - null
+            - null
+            - -1
+            - -1
+            - 0
+          - false
+          - !!binary |
+            9ht6I69Nkj9AScgTXVHRP3KnNaHe7a8/iiyijafGyz8=
+        region_id: 0
+      id: 3
+- assembly_type: group_connector
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          0: 0.040562451970031374
+          2: 0.00988937087315908
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - *id002
+          - false
+          - !!binary |
+            gBp66uVnmT+LREhNUVrRPwYpew7hrqw/zToATMKNyz8=
+        region_id: 0
+      id: 3
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          3: 0.009884239088161308
+          5: 0.030131275878360248
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - *id002
+          - false
+          - !!binary |
+            L1IIXSlP0T/I/S/ENhaQP2ETYjQlvcs/ruwJ54Jorz8=
+        region_id: 1
+      id: 3
+    - connection_loc:
+        part_id: 3
+        point_cost:
+          8: 0.06012686230400187
+          9: 0.0865488610856688
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - &id003 !!python/object/apply:numpy.dtype
+            args:
+            - f8
+            - false
+            - true
+            state: !!python/tuple
+            - 3
+            - <
+            - null
+            - null
+            - null
+            - -1
+            - -1
+            - 0
+          - false
+          - !!binary |
+            9+LwCjeO2T9pVz0a3wjhP+UcTKIIu7E/Y6wiSseuzj8=
+        region_id: 2
+      id: 4
+- assembly_type: group_connector_group
+  component:
+    connector: 2
+    group:
+    - connection_loc:
+        part_id: 0
+        point_cost:
+          3: 0.03666158308367443
+          5: 0.005789262287873603
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - *id002
+          - false
+          - !!binary |
+            ofUfsspU0T8jh9s+kE2VP5/3jvHkiss/Jgi1A7mCrD8=
+        region_id: 1
+      id: 3
+    - connection_loc:
+        part_id: 3
+        point_cost:
+          8: 0.03781678475588585
+          9: 0.055772357968891184
+        region_cost: !!python/object/apply:numpy.core.multiarray._reconstruct
+          args:
+          - *id001
+          - !!python/tuple
+            - 0
+          - !!binary |
+            Yg==
+          state: !!python/tuple
+          - 1
+          - !!python/tuple
+            - 4
+          - *id003
+          - false
+          - !!binary |
+            BWQT8cwt2T/wgjwfJt/fP7EI+oN7WqQ/z6y+PRlEyj8=
+        region_id: 2
+      id: 4
+connector_instance: {}
+group_part_instance:
+- instance_id: 0
+  part_name: ikea_stefan_short
+- instance_id: 2
+  part_name: ikea_stefan_bracket
+- instance_id: 3
+  part_name: ikea_stefan_bracket
+- instance_id: 0
+  part_name: ikea_stefan_side_left

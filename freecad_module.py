@@ -6,6 +6,7 @@ from script import import_fcstd
 import FreeCAD
 import FreeCADGui
 FreeCADGui.showMainWindow()
+
 import Part
 from FreeCAD import Base
 import importOBJ
@@ -154,6 +155,10 @@ bottom_condition = [
         "direction": Base.Vector(0, 0, 1)
     },
 ]
+bolt_condition = {
+    "ikea_stefan_side_left": [0, 3, 4],
+    "ikea_stefan_side_right": [0, 3, 4]
+}
 
 class AssembleDirection(Enum):
     aligned = "aligned"
@@ -319,14 +324,18 @@ class AssemblyDocument(object):
         else:
             self.doc = open_doc(doc_path)
         FreeCAD.setActiveDocument(self.doc.Name)
+        FreeCADGui.setActiveDocument(self.doc.Name)
+
+        self.gui_doc = FreeCADGui.getDocument(self.doc.Name)
         self.initial_path = doc_path
         self.used_assembly_pair = []
         self.objects_constraint = {}
-
+    
     def import_part(self, part_path, pos=[0, 0, 0], ypr=[0,0,0]):
         obj = importPartFromFile(self.doc, part_path)
         obj.Placement.Base = FreeCAD.Vector(pos)
         obj.Placement.Rotation = FreeCAD.Rotation(ypr[0], ypr[1], ypr[2])
+        self.set_view()
         return obj
     
     def check_assembly_pair(self, pair_assembly_info):
@@ -359,6 +368,7 @@ class AssemblyDocument(object):
 
     def solve_system(self):
         is_solved = solver.solveAccuracySteps(self.doc, None)
+        self.set_view()
         return is_solved
 
     def check_unmoved_parts(self):
@@ -376,10 +386,17 @@ class AssemblyDocument(object):
     def save_doc(self, path):
         save_doc_as(self.doc, path)
 
+    def set_view(self):
+        self.gui_doc.ActiveView.fitAll()
+        self.gui_doc.ActiveView.viewIsometric()
+
     def reset(self):
         close_doc(self.doc)
         self.doc = open_doc(self.initial_path)
-
+        FreeCAD.setActiveDocument(self.doc.Name)
+        FreeCADGui.setActiveDocument(self.doc.Name)
+        self.gui_doc = FreeCADGui.getDocument(self.doc.Name)
+    
     def close(self):
         close_doc(self.doc)
 
@@ -693,16 +710,6 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
     obj.Label = part_type.value
     Mesh.export([obj], obj_path)
     
-    # if "ikea_stefan_bottom" in step_name:
-    #     # create hole
-    #     for bottom_hole in bottom_condition:
-    #         radius = bottom_hole["radius"]
-    #         depth = bottom_hole["depth"]
-    #         position = bottom_hole["position"]
-    #         direction = bottom_hole["direction"]
-    #         sh = Part.makeCylinder(radius, depth, position, direction, 360)
-    #         Part.show(sh)
-
     #region extract circles
     reverse_condition = hole_condition[step_name]
     
@@ -721,13 +728,12 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
     # extract circle holes
     circle_holes = get_circle_holes(circles)
 
-    if "bolt_side" in step_name:
-        mid_circle = copy.deepcopy(circles[-1])
-        position = [val1/2 + val2/2 for val1, val2 in zip(circles[0].position, circles[-1].position)]
-        mid_circle.position = position
-        added_circles = [mid_circle, circles[-1]]
-        circle_holes += get_circle_holes(added_circles)
-    
+    # if "bolt_side" in step_name:
+    #     mid_circle = copy.deepcopy(circles[-1])
+    #     position = [val1/2 + val2/2 for val1, val2 in zip(circles[0].position, circles[-1].position)]
+    #     mid_circle.position = position
+    #     added_circles = [mid_circle, circles[-1]]
+    #     circle_holes += get_circle_holes(added_circles)
         
     for hole in circle_holes:
         hole.create_hole()
@@ -742,14 +748,14 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
             unique_radius.append(hole.radius)
             unique_radius.sort()
     
-    if "bolt_side" in step_name:
-        circle_holes[1].radius = 7.9
+    # if "bolt_side" in step_name:
+    #     circle_holes[1].radius = 7.9
     if "bracket" in step_name:
         circle_holes[1].radius = 8.0
 
     # extract assembly point from circle holes
-    assembly_points = {}
-    for idx, hole in enumerate(circle_holes):
+    assembly_points = []
+    for hole in circle_holes:
         assembly_point = {
             "type": hole.type,
             "radius": hole.radius,
@@ -761,10 +767,25 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
                 "quaternion": npfloat_to_float(hole.start_circle.quaternion)
             },
         }
-        assembly_points[idx] = assembly_point
-    if "pan_head" in step_name:
-        assembly_points[1] = copy.deepcopy(assembly_points[0])
-        assembly_points[1]["radius"] = 6.2
+        assembly_points.append(assembly_point)
+    if "bracket" in step_name:
+        assembly_points[1]["type"] = "penet"
+        new_point = copy.deepcopy(assembly_points[1])
+        new_point["radius"] = 6.2
+        assembly_points.append(new_point)
+
+    if step_name in bolt_condition.keys():
+        point_list = bolt_condition[step_name]
+        for point_idx in point_list:
+            assembly_points[point_idx]["type"] = "penet"
+            new_point = copy.deepcopy(assembly_points[point_idx])
+            new_point["radius"] = 7.9
+            assembly_points.append(new_point)
+
+    temp = {}
+    for idx, val in enumerate(assembly_points):
+        temp[idx] = val
+    assembly_points = temp
     doc.saveAs(doc_path)
     FreeCAD.closeDocument(doc.Name)
     return assembly_points
@@ -802,8 +823,7 @@ class FreeCADModule():
         self.main_window = FreeCADGui.getMainWindow()
         self.App = FreeCAD
         self.Gui = FreeCADGui
-        # self.th = threading.Thread(target=self.binding)
-        # self.th.start()
+        
 
         # 조립에 사용하는 변수들
         self.part_info = None
@@ -820,15 +840,7 @@ class FreeCADModule():
     def get_callback(self, request):
         return self.callback[request]
 
-    def binding(self):
-        try:
-            while True:
-                self.Gui.updateGui()
-                self.main_window.update()
-                
-        except Exception as e:
-            self.logger.info("freecad server error {}".format(e))
-
+    
     def close(self):
         while self.App.ActiveDocument:
             self.App.closeDocument(self.App.ActiveDocument.Name)
@@ -992,7 +1004,7 @@ class FreeCADModule():
 
         return response
     
-    timeout(10)
+    @timeout(10)
     def _add_pair_constraint(self, pair_assembly_info):
         target = pair_assembly_info["target_pair"]
         method = pair_assembly_info["method"]
@@ -1083,6 +1095,7 @@ class FreeCADModule():
         group_info = recvall_pickle(self.connected_client)
         group_status = group_info["group_status"]
         obj_root = group_info["obj_root"]
+        check_and_reset_dir(obj_root)
         self.logger.info("Export group obj in {}".format(obj_root))
         result = self._export_group_obj(group_status, obj_root)
         self.logger.info("Success to extract group obj into {}".format(obj_root))

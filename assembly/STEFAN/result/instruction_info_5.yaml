@@ -1,0 +1,90 @@
+Connector:
+- connector_id: 0
+  number_of_connector: 3
+  part_name: ikea_stefan_bolt_side
+Group:
+- group_id: 5
+  rotation:
+  - 160.81979370117188
+  - 284.43560791015625
+  - 279.5677185058594
+  translation:
+  - -0.0050710407085716724
+  - 0.0208546482026577
+  - 0.10997113585472107
+- group_id: 8
+  rotation:
+  - 163.0365753173828
+  - 112.58348846435547
+  - 77.60013580322266
+  translation:
+  - -0.058678556233644485
+  - -0.006636360194534063
+  - -0.08815004676580429
+connection:
+- components:
+  - id: 0
+    loc: null
+    order: 1
+    type: connector
+  - id: 5
+    loc:
+    - 0.35774320363998413
+    - 0.4578346014022827
+    - 0.020987242460250854
+    order: 2
+    type: group
+  - id: 8
+    loc:
+    - 0.009495973587036133
+    - -0.012545764446258545
+    - -0.1139964759349823
+    order: 3
+    type: group
+  connection_id: 0
+  num_component: 3
+- components:
+  - id: 0
+    loc: null
+    order: 1
+    type: connector
+  - id: 5
+    loc:
+    - 0.4359692931175232
+    - 0.8429276943206787
+    - 0.019999999552965164
+    order: 2
+    type: group
+  - id: 8
+    loc:
+    - -0.03214782476425171
+    - -0.4511399269104004
+    - -0.13500000536441803
+    order: 3
+    type: group
+  connection_id: 1
+  num_component: 3
+- components:
+  - id: 0
+    loc: null
+    order: 1
+    type: connector
+  - id: 5
+    loc:
+    - -0.006932154297828674
+    - 0.2889292538166046
+    - -0.014999998733401299
+    order: 2
+    type: group
+  - id: 8
+    loc:
+    - 0.37008675932884216
+    - 0.22114107012748718
+    - 0.17000001668930054
+    order: 3
+    type: group
+  connection_id: 2
+  num_component: 3
+file_name: /data/sung/src/furniture/manual-parser/data/image/mission1/8.png
+group_info: ./data/group_info/group_info_4.yaml
+sequence_id: 5
