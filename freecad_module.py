@@ -115,15 +115,15 @@ region_condition = {
         3: [7]
     },
     "ikea_stefan_side_left": {
-        0: [0,1,2],
-        1: [4,5,6],
-        2: [3,8,9],
+        0: [0,1,2,10],
+        1: [4,5,6,12],
+        2: [3,8,9,11],
         3: [7]
     },
     "ikea_stefan_side_right": {
-        0: [0,1,2],
-        1: [4,5,6],
-        2: [3,8,9],
+        0: [0,1,2,10],
+        1: [4,5,6,12],
+        2: [3,8,9,11],
         3: [7]
     },
 }
@@ -328,6 +328,7 @@ class AssemblyDocument(object):
 
         self.gui_doc = FreeCADGui.getDocument(self.doc.Name)
         self.initial_path = doc_path
+        self.current_path = doc_path
         self.used_assembly_pair = []
         self.objects_constraint = {}
     
@@ -385,7 +386,13 @@ class AssemblyDocument(object):
 
     def save_doc(self, path):
         save_doc_as(self.doc, path)
+        self.current_path = path
 
+    def show(self):
+        FreeCAD.setActiveDocument(self.doc.Name)
+        FreeCADGui.setActiveDocument(self.doc.Name)
+        self.gui_doc = FreeCADGui.getDocument(self.doc.Name)
+    
     def set_view(self):
         self.gui_doc.ActiveView.fitAll()
         self.gui_doc.ActiveView.viewIsometric()
@@ -575,8 +582,8 @@ def set_obj_pose(obj, position, quaternion):
     obj.Placement.Rotation = FreeCAD.Vector(quaternion)
 
 def constraint_two_circle(doc, parent_obj, child_obj, parent_edge, child_edge, direction, offset):
-    parent_obj.fixedPosition = True
-    child_obj.fixedPosition = False
+    # parent_obj.fixedPosition = True
+    # child_obj.fixedPosition = False
     s1 = a2plib.SelectionExObject(doc, parent_obj, "Edge" + str(parent_edge))
     s2 = a2plib.SelectionExObject(doc, child_obj, "Edge" + str(child_edge))
     cc = a2pconst.CircularEdgeConstraint([s1, s2])
@@ -839,7 +846,6 @@ class FreeCADModule():
         
     def get_callback(self, request):
         return self.callback[request]
-
     
     def close(self):
         while self.App.ActiveDocument:
@@ -911,19 +917,24 @@ class FreeCADModule():
         past_assembly = status["assembly"]
         used_assembly = []
         if not document_key == None:
-            document_path = self.assembly_docs[document_key]["document"]
+            document = self.assembly_docs[document_key]["document"]
+            document_path = self.assembly_docs[document_key]["document_path"]
+            if not document_path == document.current_path:
+                document = AssemblyDocument(document_path)
             used_assembly = self.assembly_docs[document_key]["used_assembly"]
-            self.assembly_doc = AssemblyDocument(document_path)
+            self.assembly_doc = document
         else:
             self.assembly_doc = AssemblyDocument()
 
+
         self.assembly_obj = {}
+        added_object_key = []
         for past_obj_key in object_info.keys():
             object_name = object_info[past_obj_key]
             obj = self.assembly_doc.get_object_by_name(object_name)
             assert obj, "No {} in document {}".format(object_name, document_key)
             self.assembly_obj[past_obj_key] = obj
-
+        
         # import unimported past sequence
         for past_assembly_info in past_assembly:
             past_pair = past_assembly_info["target_pair"]
@@ -938,6 +949,7 @@ class FreeCADModule():
                     part_path = self.part_info[part_name]["document"]
                     obj = self.assembly_doc.import_part(part_path)
                     self.assembly_obj[(part_name, instance_id)] = obj
+                    added_object_key.append((part_name, instance_id))
         
         target_pair = current_assembly_info["target_pair"]
         # check unique instance part
@@ -951,7 +963,9 @@ class FreeCADModule():
                 part_path = self.part_info[part_name]["document"]
                 obj = self.assembly_doc.import_part(part_path)
                 self.assembly_obj[(part_name, instance_id)] = obj
-        
+                added_object_key.append((part_name, instance_id))
+
+        self.assembly_doc.show()
         self.assembly_pair = []
         self.additional_assmbly_pair = []
         for past_assembly_info in past_assembly:
@@ -962,16 +976,11 @@ class FreeCADModule():
         
         _ = self._solve_current_constraint()
 
-        
-        _ = self._add_pair_constraint(current_assembly_info)
+        self.assembly_doc.save_doc("test_fail_doc/test_{}.FCStd".format(get_time_stamp()))
+        target_constraint = self._add_pair_constraint(current_assembly_info)
         used_assembly.append(current_assembly_info)
-        count = 0
         is_possible = False
-        while count < 5:
-            is_possible = self._solve_current_constraint()
-            if is_possible:
-                break
-            count += 1
+        is_possible = self._solve_current_constraint()
         # additional assembly
         if len(self.additional_assmbly_pair) > 0:
             is_possible = is_possible and self._additional_assembly()
@@ -980,19 +989,24 @@ class FreeCADModule():
             self.assembly_doc.save_doc("test_success_doc/test_{}.FCStd".format(get_time_stamp()))
         else:
             self.assembly_doc.save_doc("test_fail_doc/test_{}.FCStd".format(get_time_stamp()))
+            self.assembly_doc.remove_object(target_constraint)
+            for obj_key in added_object_key:
+                added_object = self.assembly_obj.pop(obj_key)
+                self.assembly_doc.remove_object(added_object)
         
         object_info = {}
         for obj_key in self.assembly_obj.keys():
             obj = self.assembly_obj[obj_key]
             name = obj.Name
             object_info[obj_key] = name
-        
+
+
         document_key = float(np.random.rand())
         document_path = join(self.assembly_doc_path, "document{}.FCStd".format(document_key))
         self.assembly_doc.save_doc(document_path)
-        self.assembly_doc.close()
         self.assembly_docs[document_key] = {}
-        self.assembly_docs[document_key]["document"] = document_path
+        self.assembly_docs[document_key]["document"] = self.assembly_doc
+        self.assembly_docs[document_key]["document_path"] = self.assembly_doc.current_path
         self.assembly_docs[document_key]["used_assembly"] = used_assembly
         response = {
             "is_possible": is_possible,
@@ -1004,7 +1018,6 @@ class FreeCADModule():
 
         return response
     
-    @timeout(10)
     def _add_pair_constraint(self, pair_assembly_info):
         target = pair_assembly_info["target_pair"]
         method = pair_assembly_info["method"]
@@ -1032,13 +1045,8 @@ class FreeCADModule():
             self.additional_assmbly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1), additional))
 
 
-        while True:
-            try:
-                co = self.assembly_doc.add_circle_constraint(obj_0, obj_1, [edge_0, edge_1], direction, offset)
-                break
-            except:
-                continue
-
+        co = self.assembly_doc.add_circle_constraint(obj_0, obj_1, [edge_0, edge_1], direction, offset)
+        
         self.assembly_pair.append(((part_name_0, instance_id_0), (part_name_1, instance_id_1)))
         self.assembly_doc.add_assembly_pair(pair_assembly_info)
 
@@ -1047,24 +1055,26 @@ class FreeCADModule():
     def _solve_current_constraint(self):
         is_possible = True
         num_contraints = {}
+        # diagoanl = {}
         fixed_obj = []
         for obj_key in self.assembly_obj.keys():
             self.assembly_obj[obj_key].fixedPosition = False
-            num_contraints[obj_key] = len(self.assembly_obj[obj_key].InList)
+            circle_cons = []
+            for cons in self.assembly_obj[obj_key].InList:
+                if cons.Type == 'circularEdge':
+                    circle_cons.append(cons)
+            num_contraints[obj_key] = len(circle_cons)
         # for obj_key in self.assembly_obj.keys():
-        #     part_name = obj_key[0]
-        #     if len(self.part_info[part_name]["assembly_points"].keys()) == num_contraints[obj_key]:
-        #         self.assembly_obj[obj_key].fixedPosition = True
-        #         fixed_obj.append(self.assembly_obj[obj_key])
-        if len(fixed_obj) == 0:
-            c_max = -np.inf
-            max_ins = None
-            for instance in num_contraints.keys():
-                if c_max < num_contraints[instance]:
-                    c_max = num_contraints[instance]
-                    max_ins = instance
-            self.assembly_obj[max_ins].fixedPosition = True
-        # assemble for max_ins
+        #     d_lenght = self.assembly_obj[obj_key].Shape.BoundBox.DiagonalLength
+        #     diagoanl[obj_key] = d_lenght
+
+        sorted_instance = sorted(num_contraints.items(), key=(lambda x:x[1]), reverse=True)
+        # sorted_instance = sorted(diagoanl.items(), key=(lambda x:x[1]))
+        # print(sorted_instance)
+        
+        fixed_obj_key = sorted_instance[0][0]
+        self.assembly_obj[fixed_obj_key].fixedPosition = True
+        
         is_possible = self.assembly_doc.solve_system()
         
         return is_possible
@@ -1110,16 +1120,17 @@ class FreeCADModule():
         self.assembly_obj = {}
         
         if not document_key == None:
-            document_path = self.assembly_docs[document_key]["document"]
-            self.assembly_doc = AssemblyDocument(doc_path=document_path)
-        
+            self.assembly_doc = self.assembly_docs[document_key]["document"]
+            document_path = self.assembly_docs[document_key]["document_path"]
+            if not document_path == self.assembly_doc.current_path:
+                self.assembly_doc = AssemblyDocument(document_path)
+            
             object_info = status["object_info"]
             for past_obj_key in object_info.keys():
                 object_name = object_info[past_obj_key]
                 obj = self.assembly_doc.get_object_by_name(object_name)
                 assert obj, "No {} find in document {}".format(object_name, document_key)
                 self.assembly_obj[past_obj_key] = obj
-
         else:
             self.assembly_doc = AssemblyDocument()
             assert len(composed_part) == 1, "No document??"
@@ -1129,7 +1140,8 @@ class FreeCADModule():
             document = self.part_info[part_name]["document"]
             obj = self.assembly_doc.import_part(document)
             self.assembly_obj[(part_name, instance_id)] = obj
-        
+
+        self.assembly_doc.show()
         is_solved = self._solve_current_constraint()
         assert is_solved, "Fail to assemble group obj"
         base_obj = []
@@ -1154,7 +1166,6 @@ class FreeCADModule():
         Mesh.export(base_obj, join(obj_root, "base.obj"))
         save_dic_to_yaml(group_object_pose, join(obj_root, "group_pose.yaml"))
         
-        self.assembly_doc.close()
         return True
 
     #endregion

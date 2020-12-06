@@ -19,6 +19,7 @@ import copy
 
 #TODO
 ASSEMBLY_PAIR = None
+
 def get_available_points(part_name, instance_id, connector_name, part_status=None):
     assert ASSEMBLY_PAIR
     available_points = []
@@ -27,6 +28,8 @@ def get_available_points(part_name, instance_id, connector_name, part_status=Non
         pair_list = point_pair_info[point_idx]
         for pair_info in pair_list:
             if pair_info["part_name"] == connector_name:
+                available_points.append(point_idx)
+            elif pair_info["penet"] == connector_name:
                 available_points.append(point_idx)
     available_points = set(available_points)
     # 3.2.2 remove used points
@@ -139,7 +142,6 @@ class GroupObject():
         self.composed_objects = composed_objects
 
     def get_assembly_points(self, locations, connector_name, part_status):
-        target_assembly_points = {idx: None for idx in range(len(locations))}
         # 1. import connection locs to scene
         """
         connection_points = tuple of Connection_point(Dummy)
@@ -190,75 +192,89 @@ class GroupObject():
         region_idx_list = range(len(available_regions))
         all_possible_matching = product(region_idx_list, repeat=len(connection_points))
         
-        min_cost = np.inf
-        connection_2_region = None
+        
+        solution_num = 3
+        solution = {
+            "region_candidate": [],
+            "min_cost": np.inf
+        }
+        solution_list = [copy.deepcopy(solution) for i in range(solution_num)]
+        
         for candidate in all_possible_matching:
             cost = 0
             for connection_idx, region_idx in zip(connection_idx_list, candidate):
                 cost += connection_2_region_cost[connection_idx, region_idx]
 
-            if cost < min_cost:
-                is_possible = True
-                candidate = np.array(candidate)
-                unique_region_idx = np.unique(candidate)
-                for unique_region in unique_region_idx:
-                    candidate_num = np.count_nonzero(candidate == unique_region)
-                    available_num = len(available_regions[unique_region]["points"])
-                    if candidate_num > available_num:
-                        is_possible = False
-                        break
-                if is_possible:
-                    min_cost = cost
-                    connection_2_region = candidate
+            candidate = np.array(candidate)
+            unique_region_idx = np.unique(candidate)
+            is_possible = True
+            for unique_region in unique_region_idx:
+                candidate_num = np.count_nonzero(candidate == unique_region)
+                available_num = len(available_regions[unique_region]["points"])
+                if candidate_num > available_num:
+                    is_possible = False
+                    break
+            if not is_possible:
+                continue
+            for solution in solution_list:
+                if cost < solution["min_cost"]:
+                    solution["min_cost"] = cost
+                    solution["region_candidate"] = candidate
+                    break
 
-        assert len(connection_2_region) > 0, "Fail to search region for connections"
+        assert len(solution_list[0]["region_candidate"]) > 0, "Fail to search region for connections"
+        
         #endregion
 
         #region 4. calculate cost for each used region
-        # 4.1 region_2_connection_list
-        used_region = np.unique(np.array(connection_2_region))
-        region_2_connection = {region_idx: [] for region_idx in used_region}
-        for connection_idx, region_idx in enumerate(connection_2_region):
-            connection_dummy = connection_points[connection_idx]
-            region_2_connection[region_idx].append(connection_idx)
+        assembly_points_solution = []
+        for solution in solution_list:
+            # 4.1 region_2_connection_list
+            connection_2_region = solution["region_candidate"]
+            if len(connection_2_region) == 0:
+                break
+            target_region = np.unique(np.array(connection_2_region))
+            region_2_connection = {region_idx: [] for region_idx in target_region}
+            for connection_idx, region_idx in enumerate(connection_2_region):
+                connection_dummy = connection_points[connection_idx]
+                region_2_connection[region_idx].append(connection_idx)
+            solution["region_2_connection"] = region_2_connection
 
-        connection_2_point = {connection_idx: {} for connection_idx in range(len(connection_points))}
-        # 4.2 searching points matching for each region
-        for region_idx in region_2_connection.keys():
-            region_info = available_regions[region_idx]
-            connection_idx_list = region_2_connection[region_idx]    
-            part_id = region_info["part_id"]
-            available_points_idx_list = region_info["points"]
-            candidate_point_matching_list = permutations(available_points_idx_list, len(connection_idx_list))
+            # 4.2 searching points matching for each region
+            connection_2_point = {connection_idx: {} for connection_idx in range(len(connection_points))}
+            for region_idx in region_2_connection.keys():
+                region_info = available_regions[region_idx]
+                connection_idx_list = region_2_connection[region_idx]    
+                part_id = region_info["part_id"]
+                available_points_idx_list = region_info["points"]
+                candidate_point_matching_list = permutations(available_points_idx_list, len(connection_idx_list))
 
-            connection_2_point_cost = {connection_idx: {} for connection_idx in connection_idx_list}
+                connection_2_point_cost = {connection_idx: {} for connection_idx in connection_idx_list}
 
-            for candidate_point_matching in candidate_point_matching_list:
-                
-                for connection_idx, point_idx in zip(connection_idx_list, candidate_point_matching):
-                    connection_dummy = connection_points[connection_idx]
-                    connection_position = np.array(connection_dummy.get_position())
+                for candidate_point_matching in candidate_point_matching_list:
                     
-                    primitive_object = self.composed_objects[part_id]["primitive"]
-                    target_point = primitive_object.assembly_points[point_idx]
-                    target_position = np.array(target_point.get_position())
+                    for connection_idx, point_idx in zip(connection_idx_list, candidate_point_matching):
+                        connection_dummy = connection_points[connection_idx]
+                        connection_position = np.array(connection_dummy.get_position())
+                        
+                        primitive_object = self.composed_objects[part_id]["primitive"]
+                        target_point = primitive_object.assembly_points[point_idx]
+                        target_position = np.array(target_point.get_position())
 
-                    cost = np.linalg.norm(connection_position - target_position)
-                    connection_2_point_cost[connection_idx][point_idx] = float(cost)
-                
-            for connection_idx in connection_idx_list:
-                part_info = self.composed_parts[part_id]
-                connection_2_point[connection_idx] = {
-                    "part_name": part_info["part_name"],
-                    "instance_id": part_info["instance_id"],
-                    "region_id": region_idx,
-                    "region_cost": connection_2_region_cost[connection_idx],
-                    "point_cost": connection_2_point_cost[connection_idx]
-                }
-            print(connection_2_point_cost)
-        target_assembly_points = copy.deepcopy(connection_2_point)                
+                        cost = np.linalg.norm(connection_position - target_position)
+                        connection_2_point_cost[connection_idx][point_idx] = float(cost)
+                    
+                for connection_idx in connection_idx_list:
+                    part_info = self.composed_parts[part_id]
+                    connection_2_point[connection_idx] = {
+                        "part_name": part_info["part_name"],
+                        "instance_id": part_info["instance_id"],
+                        "point_cost": connection_2_point_cost[connection_idx]
+                    }
+            
+            assembly_points_solution.append(copy.deepcopy(connection_2_point))
 
-        return target_assembly_points
+        return assembly_points_solution
 
     def _create_connection_points(self, connection_locations):
         connection_points = []
@@ -297,7 +313,7 @@ class GroupObject():
                 })
 
         return tuple(available_regions)
-    
+
     def remove(self):
         self.base_obj.remove()
         self.composed_parts = None

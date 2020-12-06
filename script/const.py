@@ -83,6 +83,7 @@ class SocketType(Enum):
     instruction = {
         # "host": '172.27.183.179',
         "host": '172.27.183.205', # hinton
+        # "host": '172.27.183.205',
         "port": 7777,
     }
     blender = {

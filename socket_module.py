@@ -231,8 +231,8 @@ class SocketModule():
     #endregion
 
     #region blender module
-    def start_visualization(self, current_step, group_info, instruction_info,
-                                assembly_info, is_end):
+    def start_visualization(self, current_step, group_info, instruction_info, 
+                                  group_status, assembly_info, is_end):
         assert self.is_visualize, "No visualize server exist"
         request = BlenderRequestType.start_visualization
         self.logger.info("Request {} to Blender Module".format(request))
@@ -250,6 +250,7 @@ class SocketModule():
         request = {
             "current_step": current_step,
             "group_info": group_info,
+            "group_status": group_status,
             "group_files": group_files,
             "instruction_info": instruction_info,
             "assembly_info": assembly_info,
