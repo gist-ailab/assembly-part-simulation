@@ -64,8 +64,12 @@ class SocketModule():
         return sock
 
     def initialize_dyros_client(self):
-        #TODO:
-        pass
+        host = SocketType.dyros.value["host"]
+        port = SocketType.dyros.value["port"]
+        sock = su.initialize_client(host, port)
+        self.logger.info("==> Connected to Dyros server on {}:{}".format(host, port))
+        
+        return sock
 
     #region freecad module
     def initialize_cad_info(self, cad_file_path):
@@ -280,13 +284,31 @@ class SocketModule():
     #endregion
 
     #region dyros module
-    #TODO:
+    def send_final_assembly_sequence(self, assembly_sequence):
+        request = DyrosRequestType.send_final_assembly_sequence
+        self.logger.info("Request {} to Dyros Module".format(request))
+        su.sendall_pickle(self.c_dyros, request)
+        response = su.recvall_pickle(self.c_dyros)
+        assert response, "Not ready to dyros"
+        
+        request = assembly_sequence
+        su.sendall_pickle(self.c_dyros, request)
+        is_success = su.recvall_pickle(self.c_dyros)
+        if is_success:
+            self.logger.info("Success to send Final sequence")
+        assert is_success, "sdfsfadfasdfsdfsdfsdfsadf"
+        return is_success
     #endregion
 
     def close(self):
         self.c_freecad.close()
         self.c_pyrep.close()
-        self.c_instruction.close()
+        self.is_instruction:
+            self.c_instruction.close()
+        self.is_visualize:
+            self.c_blender.close()
+        self.is_dyros:
+            self.c_dyros.close()
 
 if __name__=="__main__":
     s = SocketModule()
