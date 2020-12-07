@@ -55,6 +55,7 @@ class PyRepRequestType():
     update_group_to_scene = "update_group_to_scene"
     get_assembly_point = "get_assembly_point"
     update_part_status = "update_part_status"
+    get_cost_of_available_pair = "get_cost_of_available_pair"
 
 class FreeCADRequestType():
     initialize_cad_info = "initialize_cad_info"
@@ -83,7 +84,7 @@ class SocketType(Enum):
     instruction = {
         # "host": '172.27.183.179',
         "host": '172.27.183.205', # hinton
-        # "host": '172.27.183.205',
+        # "host": '172.27.183.203', # gyuri
         "port": 7777,
     }
     blender = {

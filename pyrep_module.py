@@ -121,7 +121,8 @@ class ObjObject():
         self.instruction_frame.remove()
 
 class GroupObject():
-    def __init__(self, base_obj: ObjObject, composed_parts, composed_objects):
+    def __init__(self, base_obj: ObjObject, composed_parts, 
+                    composed_objects, composed_part_pose):
         """Group
         Args:
             base_obj (ObjObject): [description]
@@ -140,6 +141,7 @@ class GroupObject():
         self.base_obj = base_obj
         self.composed_parts = composed_parts
         self.composed_objects = composed_objects
+        self.composed_part_pose = composed_part_pose
 
     def get_assembly_points(self, locations, connector_name, part_status):
         # 1. import connection locs to scene
@@ -179,7 +181,7 @@ class GroupObject():
                 object_info = self.composed_objects[part_idx]
                 group_object = object_info["group_object"]
                 primitive_object = object_info["primitive"]
-                composed_part_pose = self.composed_parts[part_idx]["pose"]
+                composed_part_pose = self.composed_part_pose[part_idx]
                 primitive_object.set_pose(composed_part_pose, relative_to=self.base_obj.frame)
                 primitive_object.object.set_parent(self.base_obj.shape)
                 region_shape = region_info["shape"]
@@ -190,10 +192,9 @@ class GroupObject():
         
         connection_idx_list = range(len(connection_points))
         region_idx_list = range(len(available_regions))
-        all_possible_matching = product(region_idx_list, repeat=len(connection_points))
+        all_possible_matching = list(product(region_idx_list, repeat=len(connection_points)))
         
-        
-        solution_num = 3
+        solution_num = len(all_possible_matching)
         solution = {
             "region_candidate": [],
             "min_cost": np.inf
@@ -314,6 +315,29 @@ class GroupObject():
 
         return tuple(available_regions)
 
+    def get_cost_between_pair(self, pair_list):
+        pair_cost = {idx: 0 for idx in range(len(pair_list))}
+        for pair_idx, pair in enumerate(pair_list):
+            part_instance_0 = pair[0]["part_instance"]
+            assembly_point_0 = pair[0]["assembly_point"]
+            part_idx_0 = self.composed_parts.index(part_instance_0)
+            primitive_object_0 = self.composed_objects[part_idx_0]["primitive"]
+            composed_part_pose_0 = self.composed_part_pose[part_idx_0]
+            primitive_object_0.set_pose(composed_part_pose_0, relative_to=self.base_obj.frame)
+            position_0 = np.array(primitive_object_0.assembly_points[assembly_point_0].get_position())
+
+            part_instance_1 = pair[1]["part_instance"]
+            assembly_point_1 = pair[1]["assembly_point"]
+            part_idx_1 = self.composed_parts.index(part_instance_1)
+            primitive_object_1 = self.composed_objects[part_idx_1]["primitive"]
+            composed_part_pose_1 = self.composed_part_pose[part_idx_1]
+            primitive_object_1.set_pose(composed_part_pose_1, relative_to=self.base_obj.frame)
+            position_1 = np.array(primitive_object_1.assembly_points[assembly_point_1].get_position())
+                    
+            cost = np.linalg.norm(position_0 - position_1)
+            pair_cost[pair_idx] = cost
+        return pair_cost
+
     def remove(self):
         self.base_obj.remove()
         self.composed_parts = None
@@ -344,7 +368,8 @@ class PyRepModule(object):
             PyRepRequestType.initialize_part_to_scene: self.initialize_part_to_scene,
             PyRepRequestType.update_group_to_scene: self.update_group_to_scene,
             PyRepRequestType.get_assembly_point: self.get_assembly_point,
-            PyRepRequestType.update_part_status: self.update_part_status
+            PyRepRequestType.update_part_status: self.update_part_status,
+            PyRepRequestType.get_cost_of_available_pair: self.get_cost_of_available_pair
         }
         self.pr = PyRep()
         self.pr.launch(headless=headless)
@@ -491,8 +516,8 @@ class PyRepModule(object):
             base_obj = None
             composed_parts = []
             composed_objects = []
-            composed_part_idx = 0
             group_pose = load_yaml_to_dic(join(obj_root, "group_pose.yaml"))
+            composed_part_pose = {}
             for file_path in file_list:
                 obj_name, ext = get_file_name(file_path)
                 if not ext == ".obj":
@@ -507,23 +532,25 @@ class PyRepModule(object):
                     obj.set_name("G{}_{}_{}".format(group_id, part_name, instance_id))
                     part_instance = {
                         "part_name": part_name,
-                        "instance_id": int(instance_id),
-                        "pose": group_pose[obj_name]
+                        "instance_id": int(instance_id)
                     }
                     composed_parts.append(part_instance)
+                    composed_part_idx = composed_parts.index(part_instance)
+                    composed_part_pose[composed_part_idx] = group_pose[obj_name]
                     object_dict = {
                         "group_object": obj,
                         "primitive": self.primitive_parts[part_name]
                     }
                     composed_objects.append(object_dict)
-                    composed_part_idx += 1
+
             assert base_obj, "No base object"
             composed_parts = tuple(composed_parts)
             composed_objects = tuple(composed_objects)
             for object_dict in composed_objects:
                 obj = object_dict["group_object"]
                 obj.set_parent(base_obj.shape)
-            self.group_obj[group_id] = GroupObject(base_obj, composed_parts, composed_objects)
+            self.group_obj[group_id] = GroupObject(base_obj, composed_parts, 
+                                                    composed_objects, composed_part_pose)
 
     def update_part_status(self):
         self.logger.info("ready to update part_status")
@@ -556,6 +583,28 @@ class PyRepModule(object):
         self.logger.info("End to get assembly point from pyrep scene")
         sendall_pickle(self.connected_client, assembly_points)
         self.save_scene("test_scene/test_scene_{}.ttt".format(get_time_stamp()))
+    
+    def get_cost_of_available_pair(self):
+        self.logger.info("ready to get cost from scene")
+        sendall_pickle(self.connected_client, True)
+        request = recvall_pickle(self.connected_client)
+        
+        group_id = int(request["group_id"])
+        pair_list = request["check_pair"]
+        
+        self.logger.info("...get cost of group {} from scene".format(group_id))
+        target_group = self.group_obj[group_id]
+        pair_cost = None        
+        try:
+            pair_cost = target_group.get_cost_between_pair(pair_list)
+            
+        except Exception as e:
+            self.logger.info("Error occur {}".format(e))
+            self.save_scene("test_error_scene/error_scene_{}.ttt".format(get_time_stamp()))    
+        self.logger.info("End to get assembly point from pyrep scene")
+        sendall_pickle(self.connected_client, pair_cost)
+        self.save_scene("test_scene/test_scene_{}.ttt".format(get_time_stamp()))
+
     #endregion
     
 if __name__ == "__main__":

@@ -9,32 +9,33 @@ checker:
     1: false
     2: false
     3: false
-connection:
-- assembly_type: group_connector
-  component:
-    connector: 1
-    group:
-    - connection_loc: null
-      id: 1
-- assembly_type: group_connector
-  component:
-    connector: 1
-    group:
-    - connection_loc: null
-      id: 1
-- assembly_type: group_connector
-  component:
-    connector: 1
-    group:
-    - connection_loc: null
-      id: 3
-- assembly_type: group_connector
-  component:
-    connector: 1
-    group:
-    - connection_loc: null
-      id: 3
-connector_instance: {}
+connection_solutions:
+  0:
+  - assembly_type: group_connector
+    component:
+      connector: 1
+      group:
+      - connection_loc: null
+        id: 1
+  - assembly_type: group_connector
+    component:
+      connector: 1
+      group:
+      - connection_loc: null
+        id: 1
+  - assembly_type: group_connector
+    component:
+      connector: 1
+      group:
+      - connection_loc: null
+        id: 3
+  - assembly_type: group_connector
+    component:
+      connector: 1
+      group:
+      - connection_loc: null
+        id: 3
+connector_instance: []
 group_part_instance:
 - instance_id: 0
   part_name: ikea_stefan_long

@@ -149,11 +149,11 @@ ikea_stefan_middle:
     used_assembly_points:
       0:
         assembly_point: 0
-        instance_id: 12
+        instance_id: 13
         part_name: ikea_stefan_pin
       1:
         assembly_point: 0
-        instance_id: 13
+        instance_id: 12
         part_name: ikea_stefan_pin
       3:
         assembly_point: 0
@@ -345,11 +345,11 @@ ikea_stefan_pin:
     group_id: 8
     used_assembly_points:
       0:
-        assembly_point: 0
+        assembly_point: 1
         instance_id: 0
         part_name: ikea_stefan_middle
       1:
-        assembly_point: 6
+        assembly_point: 5
         instance_id: 0
         part_name: ikea_stefan_side_left
   13:
@@ -361,11 +361,11 @@ ikea_stefan_pin:
     group_id: 8
     used_assembly_points:
       0:
-        assembly_point: 1
+        assembly_point: 0
         instance_id: 0
         part_name: ikea_stefan_middle
       1:
-        assembly_point: 5
+        assembly_point: 6
         instance_id: 0
         part_name: ikea_stefan_side_left
 ikea_stefan_short:
@@ -420,11 +420,11 @@ ikea_stefan_side_left:
         part_name: ikea_stefan_pin
       5:
         assembly_point: 1
-        instance_id: 13
+        instance_id: 12
         part_name: ikea_stefan_pin
       6:
         assembly_point: 1
-        instance_id: 12
+        instance_id: 13
         part_name: ikea_stefan_pin
       7:
         assembly_point: 1

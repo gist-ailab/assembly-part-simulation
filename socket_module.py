@@ -190,6 +190,23 @@ class SocketModule():
         
         return assembly_points
     
+    def get_cost_of_available_pair(self, group_id, check_pair):
+        request = PyRepRequestType.get_cost_of_available_pair
+        self.logger.info("Request {} to PyRep Module".format(request))
+        sendall_pickle(self.c_pyrep, request)
+        response = recvall_pickle(self.c_pyrep)
+        assert response, "Not ready to get cost from scene"
+        # send part info and initialize pyrep scene
+        request = {
+            "group_id": group_id,
+            "check_pair": check_pair
+        }
+        sendall_pickle(self.c_pyrep, request)
+        pair_cost = recvall_pickle(self.c_pyrep)
+        assert pair_cost, "Fail to get cost from scene"
+        
+        return pair_cost
+
     #endregion
 
     #region instruction module

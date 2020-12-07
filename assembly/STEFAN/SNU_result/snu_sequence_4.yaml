@@ -39,28 +39,28 @@ assembly:
       assembly_point: 0
       part_id: 20
     1:
-      assembly_point: 0
+      assembly_point: 1
       part_id: 15
   6:
     0:
       assembly_point: 1
       part_id: 20
     1:
-      assembly_point: 6
+      assembly_point: 5
       part_id: 0
   7:
     0:
       assembly_point: 0
       part_id: 21
     1:
-      assembly_point: 1
+      assembly_point: 0
       part_id: 15
   8:
     0:
       assembly_point: 1
       part_id: 21
     1:
-      assembly_point: 5
+      assembly_point: 6
       part_id: 0
 part:
   0:

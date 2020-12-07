@@ -20,19 +20,6 @@ from a2p_solversystem import SolverSystem
 solver = SolverSystem()
 
 from script.timeout import timeout
-"""document of SolverSystem()
-1. solveSystem(doc, matelist=None, showFailMessage=True)
-    - same as Gui Solve system Icon
-    - composed by SolverSystem::solveAccuracySteps and SolverSystem::checkForUnmovedParts
-    - if can not solve system(contraints mismatching) return False and show msg(if showFailMessage=True)
-2.solveAccuracySteps
-    - 실제로 문제를 푸는 곳
-    - 문제를 풀면 True 못 풀면 False 반환
-    - 이때, 물체 고정을 잘 못 시켰을 때도 True 반환(움직일 수 있는 건 다 풀었다)
-3. checkForUnmovedParts
-    - 안 움직인 물체를 확인하는 작업으로 물체를 잘못 움직였을 경우
-    - len(self.unmovedParts) > 0 이다.
-"""
 
 from scipy.spatial.transform import Rotation as R
 import numpy as np
@@ -48,6 +35,7 @@ from script.const import SocketType, FreeCADRequestType, PartType
 from script.fileApi import *
 from script.socket_utils import *
 
+from pyprnt import prnt
 
 PART_INFO = None
 temp_doc_path = "./test.FCStd"
@@ -747,7 +735,8 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
         hole.visualize_hole(doc)
         hole.set_hole_type(doc, obj)
         hole.remove_hole(doc) # TODO: if not to do this error occur when assembly
-        # hole.start_circle.visualize_circle(doc)
+        for cir in hole.circle_group:
+            cir.visualize_circle(doc)
         # hole.visualize_frame(doc)
         if hole.radius in unique_radius:
             pass
@@ -755,6 +744,18 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
             unique_radius.append(hole.radius)
             unique_radius.sort()
     
+    point_2_position = {}
+    if step_name in bolt_condition.keys():
+        point_list = bolt_condition[step_name]
+        for point_idx in point_list:
+            target_hole = circle_holes[point_idx]
+            mean_pos = np.zeros(3)
+            for cir in target_hole.circle_group:
+                mean_pos+= np.array(cir.get_position_m())
+            mean_pos /= len(target_hole.circle_group)
+            point_2_position[point_idx] = list(mean_pos)
+
+
     # if "bolt_side" in step_name:
     #     circle_holes[1].radius = 7.9
     if "bracket" in step_name:
@@ -787,6 +788,7 @@ def extract_assembly_points(step_path, step_name, doc_path, obj_path, part_type)
             assembly_points[point_idx]["type"] = "penet"
             new_point = copy.deepcopy(assembly_points[point_idx])
             new_point["radius"] = 7.9
+            new_point["pose"]["position"] = npfloat_to_float(point_2_position[point_idx])
             assembly_points.append(new_point)
 
     temp = {}
@@ -806,7 +808,10 @@ def save_doc_as(doc, filepath):
     doc.saveAs(filepath)
 
 def close_doc(doc):
-    FreeCAD.closeDocument(doc.Name)
+    try:
+        FreeCAD.closeDocument(doc.Name)
+    except ReferenceError:
+        pass
 
 def setview():
     """Rearrange View"""
@@ -916,16 +921,19 @@ class FreeCADModule():
         object_info = status["object_info"]
         past_assembly = status["assembly"]
         used_assembly = []
-        if not document_key == None:
+
+        if document_key == None:
+            """first time to assemble"""
+            self.assembly_doc = AssemblyDocument()
+        else:
             document = self.assembly_docs[document_key]["document"]
             document_path = self.assembly_docs[document_key]["document_path"]
+            used_assembly = copy.deepcopy(self.assembly_docs[document_key]["used_assembly"])
             if not document_path == document.current_path:
-                document = AssemblyDocument(document_path)
-            used_assembly = self.assembly_docs[document_key]["used_assembly"]
-            self.assembly_doc = document
-        else:
-            self.assembly_doc = AssemblyDocument()
-
+                document.close()
+                self.assembly_doc = AssemblyDocument(document_path)
+            else:
+                self.assembly_doc = document
 
         self.assembly_obj = {}
         added_object_key = []
@@ -993,6 +1001,7 @@ class FreeCADModule():
             for obj_key in added_object_key:
                 added_object = self.assembly_obj.pop(obj_key)
                 self.assembly_doc.remove_object(added_object)
+            used_assembly.remove(current_assembly_info)
         
         object_info = {}
         for obj_key in self.assembly_obj.keys():
@@ -1000,13 +1009,12 @@ class FreeCADModule():
             name = obj.Name
             object_info[obj_key] = name
 
-
         document_key = float(np.random.rand())
         document_path = join(self.assembly_doc_path, "document{}.FCStd".format(document_key))
         self.assembly_doc.save_doc(document_path)
         self.assembly_docs[document_key] = {}
         self.assembly_docs[document_key]["document"] = self.assembly_doc
-        self.assembly_docs[document_key]["document_path"] = self.assembly_doc.current_path
+        self.assembly_docs[document_key]["document_path"] = document_path
         self.assembly_docs[document_key]["used_assembly"] = used_assembly
         response = {
             "is_possible": is_possible,
@@ -1015,7 +1023,7 @@ class FreeCADModule():
                 "object_info": object_info
             }
         }
-
+        
         return response
     
     def _add_pair_constraint(self, pair_assembly_info):
@@ -1118,13 +1126,15 @@ class FreeCADModule():
         document_key = status["document"]
         
         self.assembly_obj = {}
-        
+        used_assembly = []
         if not document_key == None:
             self.assembly_doc = self.assembly_docs[document_key]["document"]
             document_path = self.assembly_docs[document_key]["document_path"]
             if not document_path == self.assembly_doc.current_path:
+                self.assembly_doc.close()
                 self.assembly_doc = AssemblyDocument(document_path)
             
+            used_assembly = self.assembly_docs[document_key]["used_assembly"]
             object_info = status["object_info"]
             for past_obj_key in object_info.keys():
                 object_name = object_info[past_obj_key]
@@ -1166,6 +1176,14 @@ class FreeCADModule():
         Mesh.export(base_obj, join(obj_root, "base.obj"))
         save_dic_to_yaml(group_object_pose, join(obj_root, "group_pose.yaml"))
         
+        document_key = float(np.random.rand())
+        document_path = join(self.assembly_doc_path, "group{}.FCStd".format(document_key))
+        self.assembly_doc.save_doc(document_path)
+        self.assembly_docs[document_key] = {}
+        self.assembly_docs[document_key]["document"] = self.assembly_doc
+        self.assembly_docs[document_key]["document_path"] = self.assembly_doc.current_path
+        self.assembly_docs[document_key]["used_assembly"] = copy.deepcopy(used_assembly)
+
         return True
 
     #endregion
@@ -1221,6 +1239,7 @@ if __name__ == "__main__":
     freecad_module = FreeCADModule(logger)
     
     # extract_part_info("./cad_file/STEFAN")
+    # assert False, "SUCCESS"
     # all_part_info = load_yaml_to_dic("./assembly/STEFAN/part_info.yaml")
     # pair_path = "./assembly/STEFAN/assembly_pair.yaml"
     # assembly_pair = load_yaml_to_dic(pair_path)
@@ -1238,9 +1257,4 @@ if __name__ == "__main__":
         # logger.info("Error occur {}".format(e))
         # break
     freecad_module.close()    
-"""
-#TODO: pair refine
-- pin 에서 1번이 자꾸 opposed 가 됨.
-- left 와 볼트 aligned -> opposed 로 변경 해야함
-"""
 

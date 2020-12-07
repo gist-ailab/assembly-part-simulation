@@ -113,7 +113,7 @@
           assembly_point: 0
           instance_id: 6
           part_name: ikea_stefan_pin
-    document: 0.15539893962326234
+    document: 0.14408857496958505
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
@@ -254,7 +254,7 @@
           assembly_point: 0
           instance_id: 2
           part_name: ikea_stefan_pin
-    document: 0.46390022562790245
+    document: 0.4033171677609748
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
@@ -455,7 +455,7 @@
           assembly_point: 1
           instance_id: 3
           part_name: ikea_stefan_pin
-    document: 0.6684370663374252
+    document: 0.22839389245240704
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
@@ -761,7 +761,7 @@
           assembly_point: 1
           instance_id: 7
           part_name: ikea_stefan_pin
-    document: 0.7983473934866089
+    document: 0.9308177235342765
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket

@@ -68,7 +68,7 @@
           assembly_point: 0
           instance_id: 1
           part_name: ikea_stefan_bracket
-    document: 0.026584315428485827
+    document: 0.08090612934320196
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
@@ -152,7 +152,7 @@
           assembly_point: 0
           instance_id: 3
           part_name: ikea_stefan_bracket
-    document: 0.5409269102163271
+    document: 0.4506440283093145
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket

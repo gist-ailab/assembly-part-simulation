@@ -287,9 +287,105 @@ assembly:
       1:
         assembly_point: 1
         part_id: 14
+  24:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 3
+      1:
+        assembly_point: 0
+        part_id: 14
+  25:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 3
+      1:
+        assembly_point: 1
+        part_id: 14
+  26:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 3
+      1:
+        assembly_point: 0
+        part_id: 13
+  27:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 7
+        part_id: 3
+      1:
+        assembly_point: 1
+        part_id: 13
+  28:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 3
+      1:
+        assembly_point: 0
+        part_id: 14
+  29:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 5
+        part_id: 3
+      1:
+        assembly_point: 1
+        part_id: 14
+  30:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 3
+      1:
+        assembly_point: 0
+        part_id: 14
+  31:
+    method:
+      additional: null
+      direction: aligned
+      offset: -15
+    target_pair:
+      0:
+        assembly_point: 6
+        part_id: 3
+      1:
+        assembly_point: 1
+        part_id: 14
 assembly_sequence:
   0:
-    cost: 0.12535396232377613
+    cost: 0.12491916429907611
     sequence:
     - 2
     - 6
@@ -298,7 +394,7 @@ assembly_sequence:
     - 18
     - 23
   1:
-    cost: 0.08622272495739683
+    cost: 0.08667627421651058
     sequence:
     - 2
     - 6
@@ -307,7 +403,7 @@ assembly_sequence:
     - 18
     - 21
   2:
-    cost: 0.07417707880663704
+    cost: 0.07374228078193704
     sequence:
     - 2
     - 6
@@ -316,7 +412,7 @@ assembly_sequence:
     - 16
     - 23
   3:
-    cost: 0.035045841440257734
+    cost: 0.0354993906993715
     sequence:
     - 2
     - 6
@@ -324,6 +420,114 @@ assembly_sequence:
     - 13
     - 16
     - 21
+  4:
+    cost: 0.5233669630134299
+    sequence:
+    - 2
+    - 6
+    - 10
+    - 15
+    - 18
+    - 25
+  5:
+    cost: 0.5030100827740233
+    sequence:
+    - 2
+    - 6
+    - 10
+    - 13
+    - 18
+    - 25
+  6:
+    cost: 0.4721900794962909
+    sequence:
+    - 2
+    - 6
+    - 8
+    - 15
+    - 16
+    - 25
+  7:
+    cost: 0.45183319925688414
+    sequence:
+    - 2
+    - 6
+    - 8
+    - 13
+    - 16
+    - 25
+  8:
+    cost: 0.5100403125803235
+    sequence:
+    - 2
+    - 6
+    - 10
+    - 27
+    - 18
+    - 21
+  9:
+    cost: 0.5279263224234823
+    sequence:
+    - 2
+    - 6
+    - 10
+    - 27
+    - 18
+    - 23
+  10:
+    cost: 0.45886342906318434
+    sequence:
+    - 2
+    - 6
+    - 8
+    - 27
+    - 16
+    - 21
+  11:
+    cost: 0.47674943890634314
+    sequence:
+    - 2
+    - 6
+    - 8
+    - 27
+    - 16
+    - 23
+  12:
+    cost: 1.1027672835554045
+    sequence:
+    - 2
+    - 6
+    - 10
+    - 27
+    - 18
+    - 31
+  13:
+    cost: 1.128069579361533
+    sequence:
+    - 2
+    - 6
+    - 10
+    - 27
+    - 18
+    - 29
+  14:
+    cost: 1.0515904000382652
+    sequence:
+    - 2
+    - 6
+    - 8
+    - 27
+    - 16
+    - 31
+  15:
+    cost: 1.0768926958443938
+    sequence:
+    - 2
+    - 6
+    - 8
+    - 27
+    - 16
+    - 29
 part:
   0:
     instance_id: 0

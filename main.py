@@ -55,7 +55,7 @@ if __name__ == "__main__":
         # assemble parts and calculate cost by distance taken during assembly
         asm_manager.simulate_instruction_assembly()
 
-        # asm_manager.simulate_hidden_assembly()
+        asm_manager.simulate_hidden_assembly()
         
         asm_manager.compile_2_SNU_format()
 

@@ -113,7 +113,7 @@
           assembly_point: 0
           instance_id: 6
           part_name: ikea_stefan_pin
-    document: 0.15539893962326234
+    document: 0.14408857496958505
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
@@ -213,7 +213,7 @@
           assembly_point: 0
           instance_id: 11
           part_name: ikea_stefan_pin
-    document: 0.43124809515123574
+    document: 0.20007962700995108
     object_info:
       ? !!python/tuple
       - ikea_stefan_middle
@@ -334,7 +334,7 @@
           assembly_point: 0
           instance_id: 2
           part_name: ikea_stefan_pin
-    document: 0.46390022562790245
+    document: 0.4033171677609748
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
@@ -535,7 +535,7 @@
           assembly_point: 1
           instance_id: 3
           part_name: ikea_stefan_pin
-    document: 0.6684370663374252
+    document: 0.22839389245240704
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
@@ -841,7 +841,7 @@
           assembly_point: 1
           instance_id: 7
           part_name: ikea_stefan_pin
-    document: 0.7983473934866089
+    document: 0.9308177235342765
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
@@ -1261,38 +1261,12 @@
         offset: 15
       target_pair:
         0:
-          assembly_point: 0
-          instance_id: 0
-          part_name: ikea_stefan_middle
-        1:
-          assembly_point: 0
-          instance_id: 12
-          part_name: ikea_stefan_pin
-    - method:
-        additional: null
-        direction: aligned
-        offset: -15
-      target_pair:
-        0:
-          assembly_point: 6
-          instance_id: 0
-          part_name: ikea_stefan_side_left
-        1:
-          assembly_point: 1
-          instance_id: 12
-          part_name: ikea_stefan_pin
-    - method:
-        additional: null
-        direction: opposed
-        offset: 15
-      target_pair:
-        0:
           assembly_point: 1
           instance_id: 0
           part_name: ikea_stefan_middle
         1:
           assembly_point: 0
-          instance_id: 13
+          instance_id: 12
           part_name: ikea_stefan_pin
     - method:
         additional: null
@@ -1305,9 +1279,35 @@
           part_name: ikea_stefan_side_left
         1:
           assembly_point: 1
+          instance_id: 12
+          part_name: ikea_stefan_pin
+    - method:
+        additional: null
+        direction: opposed
+        offset: 15
+      target_pair:
+        0:
+          assembly_point: 0
+          instance_id: 0
+          part_name: ikea_stefan_middle
+        1:
+          assembly_point: 0
           instance_id: 13
           part_name: ikea_stefan_pin
-    document: 0.2900649315978421
+    - method:
+        additional: null
+        direction: aligned
+        offset: -15
+      target_pair:
+        0:
+          assembly_point: 6
+          instance_id: 0
+          part_name: ikea_stefan_side_left
+        1:
+          assembly_point: 1
+          instance_id: 13
+          part_name: ikea_stefan_pin
+    document: 0.09538452051465218
     object_info:
       ? !!python/tuple
       - ikea_stefan_bracket
