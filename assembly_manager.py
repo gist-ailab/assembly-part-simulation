@@ -1706,9 +1706,13 @@ class AssemblyManager(object):
         used_assembly = []
         whole_sequence = []
         remove_condition = [
-            set(["ikea_stefan_bolt_side", "ikea_stefan_long"]),
-            set(["ikea_stefan_bolt_side", "ikea_stefan_short"]),
-            set(["ikea_stefan_bolt_side","ikea_stefan_middle"])
+            set(["ikea_stefan_side_left", "ikea_stefan_long"]),
+            set(["ikea_stefan_side_left", "ikea_stefan_short"]),
+            set(["ikea_stefan_side_left","ikea_stefan_middle"]),
+            set(["ikea_stefan_side_right", "ikea_stefan_long"]),
+            set(["ikea_stefan_side_right", "ikea_stefan_short"]),
+            set(["ikea_stefan_side_right","ikea_stefan_middle"]),
+            set(["ikea_stefan_bottom", "ikea_stefan_bracket"])
         ]
         furniture_2_part_id = {}
         connector_2_part_id = {
@@ -1886,17 +1890,20 @@ class AssemblyManager(object):
         return is_possible
     #endregion
     
-    def compile_whole_sequence(self):
-        sequence_root = self.SNU_result_path
+    # @staticmethod
+    def compile_whole_sequence(sequence_root):
+        # sequence_root = self.SNU_result_path
         used_part = []
         used_assembly = []
         whole_sequence = []
         step_num = 1
-        while step_num == self.end_step:
-            sequence_file = join(sequence_root, "snu_sequence_{}".format(step_num))
+        while step_num < 10:
+            sequence_file = join(sequence_root, "snu_sequence_{}.yaml".format(step_num))
             try:
                 assembly_info = load_yaml_to_dic(sequence_file)
+                assembly_info = AssemblyManager._sorting_assembly_info(assembly_info)
             except:
+                step_num += 1
                 continue
             parts = assembly_info["part"] # dict
             all_assembly = assembly_info["assembly"] # dict
@@ -1932,6 +1939,7 @@ class AssemblyManager(object):
                 sequence_idx = used_assembly.index(target_assembly)
                 whole_sequence.append(sequence_idx)
             step_num += 1
+            
 
         """compiled info"""
         compiled_assembly_info = {}
@@ -1952,6 +1960,6 @@ class AssemblyManager(object):
         return compiled_assembly_info
 
 if __name__ == "__main__":
-    pass
-    # doc = AssemblyManager.compile_whole_sequence("./assembly/STEFAN/SNU_result")
+    
+    doc = AssemblyManager.compile_whole_sequence("./assembly/STEFAN/SNU_result")
     

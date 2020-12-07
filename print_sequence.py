@@ -26,9 +26,11 @@ def print_sequence(assembly_info):
         =======> {}_{} and {}_{}
         """.format(part_name_0, part_instance_0, part_name_1, part_instance_1))
 
-root = "./assembly/STEFAN/SNU_result"
-info_files = get_file_list(root)
-info_files.sort()
-for info_file in info_files:
-    assembly_info = load_yaml_to_dic(info_file)
-    print_sequence(assembly_info)
+assembly_info = load_yaml_to_dic("final_result.yaml")
+print_sequence(assembly_info)
+# root = "./assembly/STEFAN/SNU_result"
+# info_files = get_file_list(root)
+# info_files.sort()
+# for info_file in info_files:
+#     assembly_info = load_yaml_to_dic(info_file)
+#     print_sequence(assembly_info)
