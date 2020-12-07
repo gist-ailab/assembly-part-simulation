@@ -195,11 +195,7 @@ class GroupObject():
         all_possible_matching = list(product(region_idx_list, repeat=len(connection_points)))
         
         solution_num = len(all_possible_matching)
-        solution = {
-            "region_candidate": [],
-            "min_cost": np.inf
-        }
-        solution_list = [copy.deepcopy(solution) for i in range(solution_num)]
+        solution_list = []
         
         for candidate in all_possible_matching:
             cost = 0
@@ -216,20 +212,27 @@ class GroupObject():
                     is_possible = False
                     break
             if not is_possible:
+                
                 continue
-            for solution in solution_list:
-                if cost < solution["min_cost"]:
-                    solution["min_cost"] = cost
-                    solution["region_candidate"] = candidate
-                    break
+            solution = {
+                "region_candidate": candidate,
+                "min_cost": cost
+            }
+            solution_list.append(solution)
+            # for solution in solution_list:
+            #     if cost < solution["min_cost"]:
+            #         solution["min_cost"] = cost
+            #         solution["region_candidate"] = candidate
+            #         break
 
-        assert len(solution_list[0]["region_candidate"]) > 0, "Fail to search region for connections"
+        assert len(solution_list) > 0, "Fail to search region for connections"
         
+        sorted_solution_list = sorted(solution_list, key=lambda x: x["min_cost"])
         #endregion
 
         #region 4. calculate cost for each used region
         assembly_points_solution = []
-        for solution in solution_list:
+        for solution in sorted_solution_list:
             # 4.1 region_2_connection_list
             connection_2_region = solution["region_candidate"]
             if len(connection_2_region) == 0:
@@ -377,6 +380,8 @@ class PyRepModule(object):
         # self.scene_th = threading.Thread(target=self.scene_binding)
         # self.scene_th.start()
         
+
+        self.scene_path = "./test_scene"
         # used to visualize and assembly
         self.part_info = None
         self.part_status = None
@@ -579,10 +584,10 @@ class PyRepModule(object):
             
         except Exception as e:
             self.logger.info("Error occur {}".format(e))
-            self.save_scene("test_error_scene/error_scene_{}.ttt".format(get_time_stamp()))    
+            self.save_scene(join(self.scene_path,"error_scene_{}.ttt".format(get_time_stamp())))
         self.logger.info("End to get assembly point from pyrep scene")
         sendall_pickle(self.connected_client, assembly_points)
-        self.save_scene("test_scene/test_scene_{}.ttt".format(get_time_stamp()))
+        self.save_scene(join(self.scene_path,"test_scene_{}.ttt".format(get_time_stamp())))
     
     def get_cost_of_available_pair(self):
         self.logger.info("ready to get cost from scene")

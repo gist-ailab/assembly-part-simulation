@@ -843,6 +843,11 @@ class FreeCADModule():
     
         self.assembly_doc_path = "./assembly_document"
         check_and_reset_dir(self.assembly_doc_path)
+        self.test_success_path = "./test_success_doc"
+        check_and_reset_dir(self.test_success_path)
+        self.test_fail_path = "./test_fail_doc"
+        check_and_reset_dir(self.test_fail_path)
+        
         self.assembly_docs = {} 
         self.assembly_doc = None
         self.assembly_obj = {}
@@ -984,7 +989,6 @@ class FreeCADModule():
         
         _ = self._solve_current_constraint()
 
-        self.assembly_doc.save_doc("test_fail_doc/test_{}.FCStd".format(get_time_stamp()))
         target_constraint = self._add_pair_constraint(current_assembly_info)
         used_assembly.append(current_assembly_info)
         is_possible = False
@@ -994,9 +998,9 @@ class FreeCADModule():
             is_possible = is_possible and self._additional_assembly()
         
         if is_possible:
-            self.assembly_doc.save_doc("test_success_doc/test_{}.FCStd".format(get_time_stamp()))
+            self.assembly_doc.save_doc(join(self.test_success_path, "test_{}.FCStd".format(get_time_stamp())))
         else:
-            self.assembly_doc.save_doc("test_fail_doc/test_{}.FCStd".format(get_time_stamp()))
+            self.assembly_doc.save_doc(join(self.test_fail_path,"test_{}.FCStd".format(get_time_stamp())))
             self.assembly_doc.remove_object(target_constraint)
             for obj_key in added_object_key:
                 added_object = self.assembly_obj.pop(obj_key)

@@ -399,15 +399,25 @@ class AssemblyManager(object):
                                                                             self.connector_info)
         else:
             yaml_path = "./instruction_ex/instruction_info_{}.yaml".format(self.current_step)
-            self.instruction_info = load_yaml_to_dic(yaml_path)
+            try:
+                self.instruction_info = load_yaml_to_dic(yaml_path)
+            except:
+                self.instruction_info = {}
+
         
         if self.instruction_info:
             self.logger.info("Get instruction of [step {}] information !".format(self.current_step))
             self.is_end = False
         else:
-            self.logger.info("Instruction end!")
-            self.is_end = True
+            self.end_step = self.current_step - 1
+            self.logger.info("""
+            ########################################################
 
+                            Instruction end at {}
+                        
+            ########################################################""".format(self.end_step))
+
+            self.is_end = True
     def initialize_part_to_scene(self):
         self.logger.info("...Waiting for initialize PyRep scene")
         self.socket_module.initialize_part_to_scene(self.part_info, self.assembly_pair)
@@ -428,8 +438,13 @@ class AssemblyManager(object):
         if self.current_step == instruction_sequnce_id:
             pass
         else:
+            self.logger.info("""
+            
+            Try to assemble instruction step {} to {}!
+            
+            """.format(self.current_step, instruction_sequnce_id))
             self.current_step = instruction_sequnce_id
-        
+            
         instruction_group_info = self.instruction_info["Group"] # list
         instruction_connector_info = self.instruction_info["Connector"] # list
         instruction_connection_info = self.instruction_info['connection'] # list
@@ -492,7 +507,8 @@ class AssemblyManager(object):
         for connector_name in instruction_checker["Connector"].keys():
             total_num += instruction_checker["Connector"][connector_name]
         if len(connection_list) < total_num and len(connection_list) == 1:
-            connection_list *= total_num
+            connection = connection_list[0]
+            connection_list = [copy.deepcopy(connection) for _ in range(total_num)]
 
         """compile connection location to region and points
         - cluster each connection point with same group
@@ -754,8 +770,6 @@ class AssemblyManager(object):
             temp_dict[idx] = copy.deepcopy(v)
         self.assembly_info["assembly"] = temp_dict
 
-        save_dic_to_yaml(self.assembly_info, "assembly_info_{}.yaml".format(self.current_step))
-
     def _extract_sequence_from_connection_assembly(self, connection_assembly):
         """connection_assembly = {
             "assembly_type": AssemblyType.group_connector,
@@ -911,6 +925,13 @@ class AssemblyManager(object):
                 assembly_info = group_info["connection_loc"]
                 if assembly_info == None:
                     for sequence in possible_sequences:
+                        pair_idx = sequence[0]
+                        target_assembly_pair = available_pair_0[pair_idx]
+                        if not target_assembly_pair in available_pair:
+                            available_pair.append(target_assembly_pair)
+                        pair_idx = available_pair.index(target_assembly_pair)
+                        sequence = [pair_idx]
+                        
                         sequence_info = {
                             "sequence": list(sequence),
                             "cost": 0
@@ -947,10 +968,10 @@ class AssemblyManager(object):
             new_assembly_sequence_info_list = []
             for idx, connector_sequence_info in enumerate(assembly_sequence_info_list):
                 #region find used_part, point
-                if idx > group_boundary:
-                    other_group_info = group_info_list[0]
-                else:
+                if idx < group_boundary:
                     other_group_info = group_info_list[1]
+                else:
+                    other_group_info = group_info_list[0]
                 # initialize current(connector + group) sequence
                 pair_idx = connector_sequence_info["sequence"][0] # len(current_sequence) == 1
                 target_pair = available_pair[pair_idx]["target_pair"]
@@ -979,7 +1000,7 @@ class AssemblyManager(object):
                 other_assembly_info = other_group_info["connection_loc"]
                 available_pair_1 = []
                 if other_assembly_info == None:
-                    group_id = other_assembly_info["id"]
+                    group_id = other_group_info["id"]
                     composed_parts_1 = self.group_status[group_id]["composed_part"]
                     for composed_part in composed_parts_1:
                         part_id_1 = used_assembly_instance.index(composed_part)
@@ -1472,17 +1493,20 @@ class AssemblyManager(object):
             part_status_1 = self.part_instance_status[part_name_1][instance_id_1]
             assembly_points_1 = self._get_available_points(part_name_1, part_status_1)
             
-
             if (len(assembly_points_0) > 0) and (len(assembly_points_1) > 0):
                 assembly_pair = self._get_available_assembly_pairs(part_id_0=part_id_0,
                                                                    part_name_0=part_name_0,
                                                                    assembly_points_0=assembly_points_0,
                                                                    part_id_1=part_id_1,
                                                                    part_name_1=part_name_1,
-                                                                   assembly_points_1=assembly_points_1) 
+                                                                   assembly_points_1=assembly_points_1)
+                                                                   
                 if len(assembly_pair) > 0:
 
                     available_assembly_pair += assembly_pair
+        if len(available_assembly_pair) == 0:
+            self.logger.info("No available Hidden Assembly")
+            return False
         # 2. check available_assembly in current status
         used_point = []
         used_assembly_pair = []
@@ -1570,10 +1594,6 @@ class AssemblyManager(object):
                 continue
             # update local status
             """extract assembly info"""
-            
-
-            
-
             new_status = response["status"]
             """update part instance status"""
             current_part_status_0 = self.part_instance_status[target_part_name_0][target_part_instance_id_0]
@@ -1802,7 +1822,8 @@ class AssemblyManager(object):
             for pair_info in availabe_pair_list:
                 if pair_info["part_name"]==part_name_1\
                     and pair_info["assembly_point"] in assembly_points_1:
-                    if not pair_info["penet"] == penet:
+                    
+                    if (not pair_info["penet"] == penet) and (not penet==None):
                         continue
                     assembly_pair_info = {
                         "method":{
@@ -1867,15 +1888,16 @@ class AssemblyManager(object):
     
     def compile_whole_sequence(self):
         sequence_root = self.SNU_result_path
-        sequence_file_list = get_file_list(sequence_root)
-        
         used_part = []
         used_assembly = []
         whole_sequence = []
-
-        for sequence_file in sequence_file_list:
-            assembly_info = load_yaml_to_dic(sequence_file)
-            
+        step_num = 1
+        while step_num == self.end_step:
+            sequence_file = join(sequence_root, "snu_sequence_{}".format(step_num))
+            try:
+                assembly_info = load_yaml_to_dic(sequence_file)
+            except:
+                continue
             parts = assembly_info["part"] # dict
             all_assembly = assembly_info["assembly"] # dict
             step_sequence = assembly_info["sequence"] # list
@@ -1909,6 +1931,7 @@ class AssemblyManager(object):
                 used_assembly.append(target_assembly)
                 sequence_idx = used_assembly.index(target_assembly)
                 whole_sequence.append(sequence_idx)
+            step_num += 1
 
         """compiled info"""
         compiled_assembly_info = {}
