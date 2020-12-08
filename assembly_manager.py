@@ -100,6 +100,7 @@ class AssemblyManager(object):
         # 매 스탭 마다 바뀌는 정보
         self.group_info = None
         self.current_step = start_step - 1
+        self.saved_step = self.current_step
         self.instruction_info = None
         self.instruction_assembly_info = None
         self.sorted_assembly_info = None
@@ -409,13 +410,13 @@ class AssemblyManager(object):
             self.logger.info("Get instruction of [step {}] information !".format(self.current_step))
             self.is_end = False
         else:
-            self.end_step = self.current_step - 1
+            self.current_step -= 1
             self.logger.info("""
             ########################################################
 
                             Instruction end at {}
                         
-            ########################################################""".format(self.end_step))
+            ########################################################""".format(self.current_step))
 
             self.is_end = True
     def initialize_part_to_scene(self):
@@ -755,8 +756,19 @@ class AssemblyManager(object):
                     break
             if available_sequence:
                 whole_assembly_sequence_info_list += assembly_sequence_info_list
+        
+        unique_seq = []
+        filtered_info_list = []
+        for assembly_sequence_info in whole_assembly_sequence_info_list:
+            sequence = assembly_sequence_info["sequence"]
+            if set(sequence) in unique_seq:
+                continue
+            unique_seq.append(set(sequence))
+            filtered_info_list.append(assembly_sequence_info)
+
+        
         temp_dict = {}
-        for idx, v in enumerate(whole_assembly_sequence_info_list):
+        for idx, v in enumerate(filtered_info_list):
             temp_dict[idx] = v
         self.assembly_info["assembly_sequence"] = temp_dict
 
@@ -824,7 +836,7 @@ class AssemblyManager(object):
             group_info = group_info_list[0]
             possible_sequences, available_pair = self._extract_possible_sequence(group_info=group_info,
                                                                                  connector_instance=target_connector_instance)
-            
+            # all possible case is same result
             for sequence in possible_sequences:
                 sequence_info = {
                     "sequence": list(sequence),
@@ -1691,6 +1703,27 @@ class AssemblyManager(object):
         save_dic_to_yaml(SNU_assembly_info, join(self.SNU_result_path, "snu_sequence_{}.yaml".format(self.current_step)))
         self.sorted_assembly_info = SNU_assembly_info
 
+    @staticmethod
+    def compile_test(assembly_info):
+        sorted_assembly_info = {}
+        SNU_assembly_info = {}
+        SNU_assembly_info["part"] = copy.deepcopy(assembly_info["part"])
+        assembly_pair_dict = assembly_info["assembly"]
+        assembly_dict = {}
+        for assembly_id in assembly_pair_dict.keys():
+            assembly_pair = assembly_pair_dict[assembly_id]
+            target_pair = assembly_pair["target_pair"]
+            assembly_dict[assembly_id] = copy.deepcopy(target_pair)
+        SNU_assembly_info["assembly"] = assembly_dict
+        
+        SNU_assembly_info["sequence"] = assembly_info["target_sequence"]
+        
+        sorted_doc = AssemblyManager._sorting_assembly_info(SNU_assembly_info)
+        SNU_assembly_info = copy.deepcopy(sorted_doc)
+        sorted_assembly_info = SNU_assembly_info
+
+        return sorted_assembly_info
+        
     def visualization(self):
         self.socket_module.start_visualization(current_step=self.current_step,
                                                group_info=self.group_info,
@@ -1765,7 +1798,14 @@ class AssemblyManager(object):
                     assembly[0] = copy.deepcopy(assembly[1])
                     assembly[1] = temp
                     connector_2_sequence[connector_name].append(assembly_idx)
+        
+        sorted_whole_sequence = []
+        pan_head_seq = connector_2_sequence["pan_head_screw_iso(4ea)"]
+        if len(pan_head_seq):
+            sorted_whole_sequence = connector_2_sequence["pan_head_screw_iso(4ea)"]
+        
         for connector_name in connector_2_sequence.keys():
+        
             connector_sequence = connector_2_sequence[connector_name]
             sorted_sequence = []
         
@@ -1780,8 +1820,9 @@ class AssemblyManager(object):
     
             connector_2_sequence[connector_name] = copy.deepcopy(sorted_sequence)
         """sorting sequence by used state"""
-        sorted_whole_sequence = []
+        
         used_connector = []
+        """special case for connector + connector"""
         for connector_name in connector_2_sequence.keys():
             connector_sequence = connector_2_sequence[connector_name]
             for assembly_idx in connector_sequence:
@@ -1891,13 +1932,15 @@ class AssemblyManager(object):
     #endregion
     
     # @staticmethod
-    def compile_whole_sequence(sequence_root):
-        # sequence_root = self.SNU_result_path
+    def compile_whole_sequence(self):
+        sequence_root = self.SNU_result_path
         used_part = []
         used_assembly = []
         whole_sequence = []
-        step_num = 1
-        while step_num < 10:
+        start_step = self.saved_step + 1
+        step_num = start_step
+        self.logger.info("Compile manual sequence step {} to {}".format(start_step, self.current_step))
+        while step_num < self.current_step + 1:
             sequence_file = join(sequence_root, "snu_sequence_{}.yaml".format(step_num))
             try:
                 assembly_info = load_yaml_to_dic(sequence_file)
@@ -1939,7 +1982,7 @@ class AssemblyManager(object):
                 sequence_idx = used_assembly.index(target_assembly)
                 whole_sequence.append(sequence_idx)
             step_num += 1
-            
+        self.saved_step = step_num
 
         """compiled info"""
         compiled_assembly_info = {}
@@ -1956,10 +1999,20 @@ class AssemblyManager(object):
 
         compiled_assembly_info["sequence"] = whole_sequence
 
-        save_dic_to_yaml(compiled_assembly_info, "final_result.yaml")
+        save_dic_to_yaml(compiled_assembly_info, \
+            "final_result_{}_to_{}.yaml".format(start_step, self.current_step))
+
+        if self.is_dyros:
+            self._send_sequence_to_dyros(compiled_assembly_info)
+
         return compiled_assembly_info
 
+    def _send_sequence_to_dyros(self, sequence):
+        self.socket_module.send_final_assembly_sequence(sequence, self.is_end)
+
 if __name__ == "__main__":
-    
-    doc = AssemblyManager.compile_whole_sequence("./assembly/STEFAN/SNU_result")
+    assembly_info = load_yaml_to_dic("./assembly/STEFAN/result/assembly_info_9.yaml")
+    doc = AssemblyManager.compile_test(assembly_info)
+    save_dic_to_yaml(doc, "tst.yaml")
+    # doc = AssemblyManager.compile_whole_sequence("./assembly/STEFAN/SNU_result")
     

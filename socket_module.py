@@ -21,11 +21,20 @@ class SocketModule():
         self.is_dyros = is_dyros
         
         if self.is_instruction:
-            self.c_instruction = self.initialize_instruction_client()
+            is_connected = False
+            while not is_connected:
+                try:
+                    self.c_instruction = self.initialize_instruction_client()
+                    is_connected = True
+                except:
+                    print("...waiting for parsing")
+                    time.sleep(1)
         if self.is_visualize:
             self.c_blender = self.initialize_blender_client()
         if self.is_dyros:
-            self.c_dyros = self.initialize_dyros_client()
+            # self.c_dyros = self.initialize_dyros_client()
+            self.c_dyros_1 = self.initialize_dyros_client_1()
+            self.c_dyros_2 = self.initialize_dyros_client_2()
 
     def initialize_freecad_client(self):
         host = SocketType.freecad.value["host"]
@@ -63,14 +72,27 @@ class SocketModule():
         
         return sock
 
-    def initialize_dyros_client(self):
-        host = SocketType.dyros.value["host"]
-        port = SocketType.dyros.value["port"]
+    # def initialize_dyros_client(self):
+    #     host = SocketType.dyros.value["host"]
+    #     port = SocketType.dyros.value["port"]
+    #     sock = su.initialize_client(host, port)
+    #     self.logger.info("==> Connected to Dyros server on {}:{}".format(host, port))
+        
+    #     return sock
+    def initialize_dyros_client_1(self):
+        host = SocketType.dyros_1.value["host"]
+        port = SocketType.dyros_1.value["port"]
         sock = su.initialize_client(host, port)
-        self.logger.info("==> Connected to Dyros server on {}:{}".format(host, port))
+        self.logger.info("==> Connected to Dyros 1 server on {}:{}".format(host, port))
         
         return sock
-
+    def initialize_dyros_client_2(self):
+        host = SocketType.dyros_2.value["host"]
+        port = SocketType.dyros_2.value["port"]
+        sock = su.initialize_client(host, port)
+        self.logger.info("==> Connected to Dyros 2 server on {}:{}".format(host, port))
+        
+        return sock
     #region freecad module
     def initialize_cad_info(self, cad_file_path):
         """
@@ -284,16 +306,25 @@ class SocketModule():
     #endregion
 
     #region dyros module
-    def send_final_assembly_sequence(self, assembly_sequence):
+    def send_final_assembly_sequence(self, assembly_sequence, is_end):
         request = DyrosRequestType.send_final_assembly_sequence
         self.logger.info("Request {} to Dyros Module".format(request))
-        su.sendall_pickle(self.c_dyros, request)
-        response = su.recvall_pickle(self.c_dyros)
-        assert response, "Not ready to dyros"
-        
-        request = assembly_sequence
-        su.sendall_pickle(self.c_dyros, request)
-        is_success = su.recvall_pickle(self.c_dyros)
+        if not is_end:
+            su.sendall_pickle(self.c_dyros, request)
+            response = su.recvall_pickle(self.c_dyros)
+            assert response, "Not ready to dyros"
+            
+            request = assembly_sequence
+            su.sendall_pickle(self.c_dyros, request)
+            is_success = su.recvall_pickle(self.c_dyros)
+        else:
+            su.sendall_pickle(self.c_dyros, request)
+            response = su.recvall_pickle(self.c_dyros)
+            assert response, "Not ready to dyros"
+            
+            request = assembly_sequence
+            su.sendall_pickle(self.c_dyros, request)
+            is_success = su.recvall_pickle(self.c_dyros)
         if is_success:
             self.logger.info("Success to send Final sequence")
         assert is_success, "sdfsfadfasdfsdfsdfsdfsadf"
@@ -303,11 +334,11 @@ class SocketModule():
     def close(self):
         self.c_freecad.close()
         self.c_pyrep.close()
-        self.is_instruction:
+        if self.is_instruction:
             self.c_instruction.close()
-        self.is_visualize:
+        if self.is_visualize:
             self.c_blender.close()
-        self.is_dyros:
+        if self.is_dyros:
             self.c_dyros.close()
 
 if __name__=="__main__":
