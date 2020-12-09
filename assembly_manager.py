@@ -400,6 +400,7 @@ class AssemblyManager(object):
                                                                                 self.group_info, 
                                                                                 self.connector_info)
             except:
+                self.logger.info("Instruction Module END ERROR")
                 self.instruction_info = {}
         else:
             yaml_path = "./instruction_ex/instruction_info_{}.yaml".format(self.current_step)
