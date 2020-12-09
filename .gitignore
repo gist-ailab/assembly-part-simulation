@@ -6,10 +6,9 @@
 # /FCDocument
 /output
 
-
 .idea
 # debugging
-/__pycache__
+*__pycache__*
 # *.txt
 # vscode setting json
 /.vscode

@@ -614,8 +614,11 @@ class PyRepModule(object):
     
 if __name__ == "__main__":
     logger = get_logger("PyRep_Module")
+    logger.info("Initializing PyrRepModule")
     pyrep_module = PyRepModule(logger, headless=True)
+    logger.info("Initializing PyRep Server ..")
     pyrep_module.initialize_server()
+    logger.info("Sucessfully initialized PyRep Server !! ..")
     while True:
         try:
             request = recvall_pickle(pyrep_module.connected_client)

@@ -29,7 +29,6 @@ if __name__ == "__main__":
     is_visualize = args.visualize
     is_dyros = args.dyros
     logger = get_logger(furniture_name)
-     
     # Assembly manager    
     asm_manager = AssemblyManager(logger, furniture_name, 
                                           is_instruction, 
@@ -58,6 +57,8 @@ if __name__ == "__main__":
         asm_manager.simulate_hidden_assembly()
         
         asm_manager.compile_2_SNU_format()
+        if asm_manager.current_step == 4:
+            asm_manager.compile_whole_sequence()
 
         asm_manager.step()
 
