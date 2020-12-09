@@ -62,6 +62,6 @@ connection:
     type: group
   connection_id: 3
   num_component: 2
-file_name: /data/sung/src/furniture/manual-parser/data/image/mission1/4.png
+file_name: /data_2/sung/src/furniture/manual-parser/data/image/mission1/4.png
 group_info: ./data/group_info/group_info_0.yaml
 sequence_id: 1

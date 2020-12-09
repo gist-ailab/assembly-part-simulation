@@ -5,28 +5,19 @@ Connector:
 Group:
 - camera_position:
   - 1.2
-  - 30.0
-  - -5
-  group_id: 9
-  rotation:
-  - 201.1011505126953
-  - 231.5553741455078
-  - 240.9705810546875
-  translation:
-  - -0.028153473511338234
-  - -0.023146266117691994
-  - 0.1138116791844368
+  - 0
+  - 0
+  group_id: '9'
+  rotation: null
+  translation: null
 connection:
 - components:
   - id: 0
     loc: null
     order: 1
     type: connector
-  - id: 9
-    loc:
-    - 0.3734661340713501
-    - 0.5697090029716492
-    - -0.3498792052268982
+  - id: '9'
+    loc: null
     order: 2
     type: group
   connection_id: 0
@@ -36,11 +27,8 @@ connection:
     loc: null
     order: 1
     type: connector
-  - id: 9
-    loc:
-    - 0.43766725063323975
-    - 0.8690088987350464
-    - -0.34999996423721313
+  - id: '9'
+    loc: null
     order: 2
     type: group
   connection_id: 1
@@ -50,15 +38,12 @@ connection:
     loc: null
     order: 1
     type: connector
-  - id: 9
-    loc:
-    - 0.3970934748649597
-    - 0.47911977767944336
-    - -0.3493536412715912
+  - id: '9'
+    loc: null
     order: 2
     type: group
   connection_id: 2
   num_component: 2
-file_name: /data/sung/src/furniture/manual-parser/data/image/mission1/9.png
+file_name: /data_2/sung/src/furniture/manual-parser/data/image/mission1/9.png
 group_info: ./data/group_info/group_info_5.yaml
 sequence_id: 6

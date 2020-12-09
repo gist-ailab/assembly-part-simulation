@@ -22,12 +22,15 @@ class SocketModule():
         
         if self.is_instruction:
             is_connected = False
+            is_once = True
             while not is_connected:
                 try:
                     self.c_instruction = self.initialize_instruction_client()
                     is_connected = True
                 except:
-                    print("...waiting for parsing")
+                    if is_once:
+                        print("...waiting for parsing")
+                        is_once = False
                     time.sleep(1)
         if self.is_visualize:
             self.c_blender = self.initialize_blender_client()
