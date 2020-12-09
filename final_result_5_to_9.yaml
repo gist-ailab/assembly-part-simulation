@@ -4,49 +4,49 @@ assembly:
       assembly_point: 1
       part_id: 0
     1:
-      assembly_point: 9
+      assembly_point: 6
       part_id: 1
   1:
     0:
       assembly_point: 1
       part_id: 2
     1:
-      assembly_point: 8
+      assembly_point: 7
       part_id: 1
   2:
     0:
       assembly_point: 1
       part_id: 3
     1:
-      assembly_point: 7
+      assembly_point: 9
       part_id: 1
   3:
     0:
       assembly_point: 1
       part_id: 4
     1:
-      assembly_point: 2
+      assembly_point: 5
       part_id: 1
   4:
     0:
       assembly_point: 1
       part_id: 5
     1:
-      assembly_point: 6
+      assembly_point: 1
       part_id: 1
   5:
     0:
       assembly_point: 1
       part_id: 6
     1:
-      assembly_point: 1
+      assembly_point: 2
       part_id: 1
   6:
     0:
       assembly_point: 1
       part_id: 7
     1:
-      assembly_point: 5
+      assembly_point: 8
       part_id: 1
   7:
     0:
@@ -74,14 +74,14 @@ assembly:
       assembly_point: 0
       part_id: 11
     1:
-      assembly_point: 0
+      assembly_point: 4
       part_id: 12
   11:
     0:
       assembly_point: 0
       part_id: 13
     1:
-      assembly_point: 4
+      assembly_point: 0
       part_id: 12
   12:
     0:
@@ -90,30 +90,58 @@ assembly:
     1:
       assembly_point: 3
       part_id: 12
+  13:
+    0:
+      assembly_point: 1
+      part_id: 15
+    1:
+      assembly_point: 0
+      part_id: 16
+  14:
+    0:
+      assembly_point: 1
+      part_id: 17
+    1:
+      assembly_point: 0
+      part_id: 18
+  15:
+    0:
+      assembly_point: 1
+      part_id: 19
+    1:
+      assembly_point: 0
+      part_id: 20
+  16:
+    0:
+      assembly_point: 1
+      part_id: 21
+    1:
+      assembly_point: 0
+      part_id: 22
 part:
   0:
-    instance_id: 0
+    instance_id: 9
     part_name: ikea_stefan_pin
   1:
     instance_id: 0
     part_name: ikea_stefan_side_right
   2:
-    instance_id: 1
-    part_name: ikea_stefan_pin
-  3:
     instance_id: 10
     part_name: ikea_stefan_pin
+  3:
+    instance_id: 0
+    part_name: ikea_stefan_pin
   4:
-    instance_id: 4
+    instance_id: 8
     part_name: ikea_stefan_pin
   5:
-    instance_id: 9
-    part_name: ikea_stefan_pin
-  6:
     instance_id: 5
     part_name: ikea_stefan_pin
+  6:
+    instance_id: 4
+    part_name: ikea_stefan_pin
   7:
-    instance_id: 8
+    instance_id: 1
     part_name: ikea_stefan_pin
   8:
     instance_id: 0
@@ -136,6 +164,30 @@ part:
   14:
     instance_id: 5
     part_name: ikea_stefan_bolt_side
+  15:
+    instance_id: 0
+    part_name: ikea_stefan_bracket
+  16:
+    instance_id: 0
+    part_name: pan_head_screw_iso(4ea)
+  17:
+    instance_id: 2
+    part_name: ikea_stefan_bracket
+  18:
+    instance_id: 1
+    part_name: pan_head_screw_iso(4ea)
+  19:
+    instance_id: 1
+    part_name: ikea_stefan_bracket
+  20:
+    instance_id: 2
+    part_name: pan_head_screw_iso(4ea)
+  21:
+    instance_id: 3
+    part_name: ikea_stefan_bracket
+  22:
+    instance_id: 3
+    part_name: pan_head_screw_iso(4ea)
 sequence:
 - 0
 - 1
@@ -150,3 +202,7 @@ sequence:
 - 10
 - 11
 - 12
+- 13
+- 14
+- 15
+- 16

@@ -30,6 +30,7 @@ from enum import Enum
 import threading
 import copy
 import time
+import os
 
 from script.const import SocketType, FreeCADRequestType, PartType
 from script.fileApi import *
@@ -1239,6 +1240,7 @@ class FreeCADModule():
             assembly_doc.save_doc(parent_part_path)
 
 if __name__ == "__main__":
+    PID = os.getpid()
     logger = get_logger("FreeCAD_Module")    
     freecad_module = FreeCADModule(logger)
     
@@ -1252,13 +1254,14 @@ if __name__ == "__main__":
     
     freecad_module.initialize_server()
     while True:
-        # try:
-        request = recvall_pickle(freecad_module.connected_client)
-        logger.info("Get request to {}".format(request))
-        callback = freecad_module.get_callback(request)
-        callback()
-    # except Exception as e:
-        # logger.info("Error occur {}".format(e))
-        # break
+        try:
+            request = recvall_pickle(freecad_module.connected_client)
+            logger.info("Get request to {}".format(request))
+            callback = freecad_module.get_callback(request)
+            callback()
+        except Exception as e:
+            logger.info("Error occur {}".format(e))
+            os.system('kill -9 {}'.format(PID))
+            break
     freecad_module.close()    
 

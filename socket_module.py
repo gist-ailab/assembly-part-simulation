@@ -2,7 +2,7 @@ import socket
 from enum import Enum
 
 from script.const import SocketType, FreeCADRequestType, \
-    PyRepRequestType, InstructionRequestType, BlenderRequestType
+    PyRepRequestType, InstructionRequestType, BlenderRequestType, DyrosRequestType
 from script.socket_utils import *
 from script.fileApi import *
 import random
@@ -313,21 +313,21 @@ class SocketModule():
         request = DyrosRequestType.send_final_assembly_sequence
         self.logger.info("Request {} to Dyros Module".format(request))
         if not is_end:
-            su.sendall_pickle(self.c_dyros, request)
-            response = su.recvall_pickle(self.c_dyros)
+            su.sendall_pickle(self.c_dyros_1, request)
+            response = su.recvall_pickle(self.c_dyros_1)
             assert response, "Not ready to dyros"
             
             request = assembly_sequence
-            su.sendall_pickle(self.c_dyros, request)
-            is_success = su.recvall_pickle(self.c_dyros)
+            su.sendall_pickle(self.c_dyros_1, request)
+            is_success = su.recvall_pickle(self.c_dyros_1)
         else:
-            su.sendall_pickle(self.c_dyros, request)
-            response = su.recvall_pickle(self.c_dyros)
+            su.sendall_pickle(self.c_dyros_2, request)
+            response = su.recvall_pickle(self.c_dyros_2)
             assert response, "Not ready to dyros"
             
             request = assembly_sequence
-            su.sendall_pickle(self.c_dyros, request)
-            is_success = su.recvall_pickle(self.c_dyros)
+            su.sendall_pickle(self.c_dyros_2, request)
+            is_success = su.recvall_pickle(self.c_dyros_2)
         if is_success:
             self.logger.info("Success to send Final sequence")
         assert is_success, "sdfsfadfasdfsdfsdfsdfsadf"

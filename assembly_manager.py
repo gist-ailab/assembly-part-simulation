@@ -693,6 +693,7 @@ class AssemblyManager(object):
         self.assembly_info = {}
         self.assembly_info["part"] = self.instruction_assembly_info["group_part_instance"]
         self.assembly_info["assembly"] = []
+        self.assembly_info["robust_sequence"] = []
         self.assembly_info["assembly_sequence"] = []
         self.assembly_info["target_sequence"] = []
         # assembly_sequence = self.assembly_info["assembly_sequence"]
@@ -762,6 +763,7 @@ class AssemblyManager(object):
             if available_sequence:
                 whole_assembly_sequence_info_list += assembly_sequence_info_list
         
+        # filter overlap sequence
         unique_seq = []
         filtered_info_list = []
         for assembly_sequence_info in whole_assembly_sequence_info_list:
@@ -770,10 +772,28 @@ class AssemblyManager(object):
                 continue
             unique_seq.append(set(sequence))
             filtered_info_list.append(assembly_sequence_info)
-
         
+        #region robust sequence
+        robust_sequence = []
+        sorted_sequence_info = sorted(filtered_info_list, key=(lambda x: x["cost"]))
+        assembly_sequence_info_ex = sorted_sequence_info[0]
+        sequence = assembly_sequence_info_ex["sequence"]
+        for pair_idx in sequence:
+            assembly_pair = self.assembly_info["assembly"][pair_idx]
+            is_robust = assembly_pair["is_robust"]
+            if is_robust:
+                robust_sequence.append(pair_idx)
+        
+        robust_checker = set(robust_sequence)
+        robust_filtered_info_list = []
+        for sequence_info in filtered_info_list:
+            sequence = sequence_info["sequence"]
+            if robust_checker.issubset(set(sequence)):
+                robust_filtered_info_list.append(sequence_info) 
+        self.assembly_info["robust_sequence"] = robust_sequence
+        #endregion
         temp_dict = {}
-        for idx, v in enumerate(filtered_info_list):
+        for idx, v in enumerate(robust_filtered_info_list):
             temp_dict[idx] = v
         self.assembly_info["assembly_sequence"] = temp_dict
 
@@ -842,6 +862,8 @@ class AssemblyManager(object):
             possible_sequences, available_pair = self._extract_possible_sequence(group_info=group_info,
                                                                                  connector_instance=target_connector_instance)
             # all possible case is same result
+            for robust_pair_info in available_pair:
+                robust_pair_info["is_robust"] = True
             for sequence in possible_sequences:
                 sequence_info = {
                     "sequence": list(sequence),
@@ -860,6 +882,8 @@ class AssemblyManager(object):
             possible_sequences, available_pair_0 = self._extract_possible_sequence(group_info=group_info,
                                                                                    connector_instance=target_connector_instance)
             
+            for robust_pair_info in available_pair_0:
+                robust_pair_info["is_robust"] = True 
             possible_sequences = self._get_available_sequence(available_pair_0, assembly_num=1)
 
             assembly_info = group_info["connection_loc"]
@@ -889,6 +913,8 @@ class AssemblyManager(object):
             
             possible_sequences, available_pair_1 = self._extract_possible_sequence(group_info=group_info,
                                                                                    connector_instance=target_connector_instance)
+            for unrobust_pair_info in available_pair_1:
+                unrobust_pair_info["is_robust"] = False
             assembly_info = group_info["connection_loc"]
             assert assembly_info, "No connection loc in group-connector-group"
             part_id = assembly_info["part_id"]
@@ -937,6 +963,8 @@ class AssemblyManager(object):
             for idx, group_info in enumerate(group_info_list):
                 # connector to group
                 possible_sequences, available_pair_0 = self._extract_possible_sequence(group_info, target_connector_instance)
+                for robust_pair_info in available_pair_0:
+                    robust_pair_info["is_robust"] = True
                 if not len(possible_sequences) > 0:
                     continue
                 assembly_info = group_info["connection_loc"]
@@ -1048,7 +1076,8 @@ class AssemblyManager(object):
                                                                          penet=connector_name)
                 
                     possible_sequences = self._get_available_sequence(available_pair_1, assembly_num=1)
-
+                for unrobust_pair_info in available_pair_1:
+                    unrobust_pair_info["is_robust"] = False
                 for sequence in possible_sequences:
                     current_sequence_info = copy.deepcopy(connector_sequence_info)
                     current_sequence = current_sequence_info["sequence"]
@@ -1155,16 +1184,26 @@ class AssemblyManager(object):
     def simulate_instruction_assembly(self):
         assert len(self.assembly_info["assembly_sequence"]) > 0
         assembly_sequence_info = self.assembly_info["assembly_sequence"]
+        robust_sequence = self.assembly_info["robust_sequence"]
         sorted_sequence_info = sorted(assembly_sequence_info.items(), key=(lambda x: x[1]["cost"]))
         
         # assert len(assembly_sequences) == 1, "Not Implemented for multi case"
         assembly_sequences = [sequence_info[1]["sequence"] for sequence_info in sorted_sequence_info]
         target_sequence = None
+        
+        # try robust assembly
+        is_possible = self._simulate_assembly_sequecne(robust_sequence)
+        assert is_possible, "Fail to assemble robust"
+
         is_possible = False
+
         for assembly_sequence in assembly_sequences:
-            if assembly_sequence:
-                is_possible = self._simulate_assembly_sequecne(assembly_sequence)
+            unrobust_sequence = list(set(assembly_sequence) - set(robust_sequence))
             
+            if unrobust_sequence:
+                is_possible = self._simulate_assembly_sequecne(unrobust_sequence)
+            else:
+                is_possible = True
             if is_possible:
                 target_sequence = assembly_sequence
                 break
@@ -1987,7 +2026,7 @@ class AssemblyManager(object):
                 sequence_idx = used_assembly.index(target_assembly)
                 whole_sequence.append(sequence_idx)
             step_num += 1
-        self.saved_step = step_num
+        self.saved_step = step_num - 1
 
         """compiled info"""
         compiled_assembly_info = {}

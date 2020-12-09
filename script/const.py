@@ -106,11 +106,11 @@ class SocketType(Enum):
         # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
         "host": '192.168.0.9', # panda
-        "port": 9071,
+        "port": 7777,
     }
     dyros_2 = {
         # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
         "host": '192.168.0.9', # panda
-        "port": 9072,
+        "port": 7778,
     }
