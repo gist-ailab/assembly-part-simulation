@@ -52,7 +52,11 @@ if __name__ == "__main__":
         
         asm_manager.search_assembly_sequence()
         # assemble parts and calculate cost by distance taken during assembly
-        asm_manager.simulate_instruction_assembly()
+        is_possible = asm_manager.simulate_instruction_assembly()
+        if is_possible:
+            pass
+        else:
+            break
 
         asm_manager.simulate_hidden_assembly()
         

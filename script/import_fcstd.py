@@ -10,8 +10,8 @@ class ENVPATH:
 
 
 #TODO: check before running script
-# FREECADPATH = ENVPATH.raeyo_ubuntu
-FREECADPATH = ENVPATH.dyros
+FREECADPATH = ENVPATH.raeyo_ubuntu
+# FREECADPATH = ENVPATH.dyros
 
 for path in FREECADPATH:
     if path in sys.path:

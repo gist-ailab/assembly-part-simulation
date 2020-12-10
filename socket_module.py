@@ -32,13 +32,36 @@ class SocketModule():
                         print("...waiting for parsing")
                         is_once = False
                     time.sleep(1)
+        
         if self.is_visualize:
-            self.c_blender = self.initialize_blender_client()
+            is_connected = False
+            is_once = True
+            while not is_connected:
+                try:
+                    self.c_blender = self.initialize_blender_client()
+                    is_connected = True
+                except:
+                    if is_once:
+                        print("...waiting for visualization")
+                        is_once = False
+                    time.sleep(1)
+            
         if self.is_dyros:
-            # self.c_dyros = self.initialize_dyros_client()
-            self.c_dyros_1 = self.initialize_dyros_client_1()
-            self.c_dyros_2 = self.initialize_dyros_client_2()
-
+            is_connected = False
+            is_once = True
+            while not is_connected:
+                try:
+                    # self.c_dyros = self.initialize_dyros_client()
+                    self.c_dyros_1 = self.initialize_dyros_client_1()
+                    self.c_dyros_2 = self.initialize_dyros_client_2()
+                    is_connected = True
+                except:
+                    if is_once:
+                        print("...waiting for dyros server")
+                        is_once = False
+                    time.sleep(1)
+            
+            
     def initialize_freecad_client(self):
         host = SocketType.freecad.value["host"]
         port = SocketType.freecad.value["port"]

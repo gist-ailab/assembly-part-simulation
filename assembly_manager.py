@@ -153,7 +153,7 @@ class AssemblyManager(object):
             09 4.000000000000003  
             10 4.0000000000000036
             11 5.65 # bolt:0
-            12 6.0 # pan_head_screw_iso(4ea):0
+            12 6.0 # ikea_stefan_bolt_hip:0
             13 6.1 # bottom
             14 6.2 # bracket(to bottom)
             15 7.9 # left, right(to long short mid)
@@ -178,7 +178,7 @@ class AssemblyManager(object):
             "bracket": [5, 6],
             "side_penet": [2, 15], 
             "flat": [3, 4, 11],
-            "pan": [12, 16],
+            "bolt_hip": [12, 16],
             "bottom": [13, 14]
         }
         bracket_additional = {
@@ -257,7 +257,7 @@ class AssemblyManager(object):
                             if get_group(point_1["radius"]) == "side_penet":
                                 penet = "ikea_stefan_bolt_side"
                             if get_group(point_1["radius"]) == "bottom":
-                                penet = "pan_head_screw_iso(4ea)"
+                                penet = "ikea_stefan_bolt_hip"
                             target = {
                                 "part_name": part_name_2,
                                 "assembly_point": point_idx_2,
@@ -1214,11 +1214,12 @@ class AssemblyManager(object):
             self.logger.info("No available sequence for connection => Try other region matching...")
             self.part_instance_status = self.second_solution["part_instance_status"]
             self.group_status = self.second_solution["group_status"]
-            self.assembly_info["target_sequence"] = self.second_solution["target_sequence"]
-            
+            self.assembly_info["target_sequence"] = robust_sequence + self.second_solution["target_sequence"]
+            return False
         else:
             self.assembly_info["target_sequence"] = copy.deepcopy(target_sequence)
             self.logger.info("End to simulate instruction assembly")
+            return True
 
     def _simulate_assembly_sequecne(self, assembly_sequence):
         assembly_pairs = self.assembly_info["assembly"]
@@ -1254,7 +1255,7 @@ class AssemblyManager(object):
                 self.logger.info("ERROR!")
 
             if not is_possible:
-                return False
+                break
             # update local status
             new_status = response["status"]
             possible_sequence.append(pair_id)
@@ -1797,7 +1798,7 @@ class AssemblyManager(object):
             "ikea_stefan_bracket": [],
             "ikea_stefan_pin": [],
             "ikea_stefan_bolt_side": [],
-            "pan_head_screw_iso(4ea)": []
+            "ikea_stefan_bolt_hip": []
         }
         parts = assembly_info["part"] # dict
         all_assembly = assembly_info["assembly"] # dict
@@ -1845,9 +1846,9 @@ class AssemblyManager(object):
                     connector_2_sequence[connector_name].append(assembly_idx)
         
         sorted_whole_sequence = []
-        pan_head_seq = connector_2_sequence["pan_head_screw_iso(4ea)"]
+        pan_head_seq = connector_2_sequence["ikea_stefan_bolt_hip"]
         if len(pan_head_seq):
-            sorted_whole_sequence = connector_2_sequence["pan_head_screw_iso(4ea)"]
+            sorted_whole_sequence = connector_2_sequence["ikea_stefan_bolt_hip"]
         
         for connector_name in connector_2_sequence.keys():
         

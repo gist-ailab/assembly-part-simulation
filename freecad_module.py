@@ -47,7 +47,7 @@ hole_condition = {
     "ikea_stefan_bolt_side": [0, 1, 2],
     "ikea_stefan_bracket": [1, 2],
     "ikea_stefan_pin": [],
-    "pan_head_screw_iso(4ea)": [0,1,2],
+    "ikea_stefan_bolt_hip": [0,1,2],
     "ikea_stefan_bottom": [],
     "ikea_stefan_long": [3,4,5,7,8,9,10,11],
     "ikea_stefan_middle": [0,1,2,6,7,8,9,11],
@@ -73,13 +73,6 @@ hole_condition = {
     14 5.65 => flat head
     15 6.0 => pan head
 """
-# pair condition
-radius_group = {
-    "pin group": [0, 1, 7, 9, 10, 11, 12, 13],
-    "braket group": [5, 6, 8],
-    "flat_penet group": [2, 3, 4, 14],
-    "pan": [15]
-}
 # region condition
 region_condition = {
     "ikea_stefan_bottom": {

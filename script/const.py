@@ -36,7 +36,7 @@ CONNECTOR_PARTS = (
     "ikea_stefan_bolt_side",
     "ikea_stefan_bracket",
     "ikea_stefan_pin",
-    "pan_head_screw_iso(4ea)"
+    "ikea_stefan_bolt_hip"
 )
 
 class AssemblyPoint(object):
@@ -74,20 +74,20 @@ class DyrosRequestType():
 
 class SocketType(Enum):
     pyrep = {
-        "host": '192.168.0.8', # dyros - test
-        # "host": '172.27.183.179',
+        # "host": '192.168.0.8', # dyros - test
+        "host": '172.27.183.179',
         "port": 8282,
     }
     freecad = {
-        "host": '192.168.0.8', # dyros - test
-        # "host": '172.27.183.179',
+        # "host": '192.168.0.8', # dyros - test
+        "host": '172.27.183.179',
         "port": 9293,
     }
     instruction = {
-        # "host": '172.27.183.179',
+        "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
         # "host": '172.27.183.203', # gyuri
-        "host": '192.168.0.3', # gyuri - test
+        # "host": '192.168.0.3', # gyuri - test
         "port": 5050,
     }
     blender = {
