@@ -52,6 +52,7 @@ class AssemblyManager(object):
         self.is_visualize = is_visualize
         self.is_dyros = is_dyros
         self.is_end = False
+        self.pin_end_step = -1
 
         self.socket_module = SocketModule(self.logger, is_instruction, 
                                                        is_visualize,
@@ -1354,9 +1355,9 @@ class AssemblyManager(object):
             
             """update group status"""
             # update existance state of group
-            if current_group_id_0 and (not current_group_id_0 == new_group_id):
+            if (not current_group_id_0 == None) and (not current_group_id_0 == new_group_id):
                 sequence_group_status[current_group_id_0]["is_exist"] = False
-            if current_group_id_1 and (not current_group_id_1 == new_group_id):
+            if (not current_group_id_1 == None) and (not current_group_id_1 == new_group_id):
                 sequence_group_status[current_group_id_1]["is_exist"] = False
 
             # add new assembly to status => new_status
@@ -1748,6 +1749,16 @@ class AssemblyManager(object):
         SNU_assembly_info = copy.deepcopy(sorted_doc)
         save_dic_to_yaml(SNU_assembly_info, join(self.SNU_result_path, "snu_sequence_{}.yaml".format(self.current_step)))
         self.sorted_assembly_info = SNU_assembly_info
+        self._check_pin_assembled_state()
+
+    def _check_pin_assembled_state(self):
+        is_end = True
+        for pin_status in self.part_instance_status["ikea_stefan_pin"].values():
+            if pin_status["group_id"] == None:
+                is_end = False
+                break
+        if is_end and (self.pin_end_step == -1):
+            self.pin_end_step = self.current_step
 
     @staticmethod
     def compile_test(assembly_info):
@@ -1791,7 +1802,7 @@ class AssemblyManager(object):
             set(["ikea_stefan_side_right", "ikea_stefan_long"]),
             set(["ikea_stefan_side_right", "ikea_stefan_short"]),
             set(["ikea_stefan_side_right","ikea_stefan_middle"]),
-            set(["ikea_stefan_bottom", "ikea_stefan_bracket"])
+            # set(["ikea_stefan_bottom", "ikea_stefan_bracket"])
         ]
         furniture_2_part_id = {}
         connector_2_part_id = {
@@ -1845,10 +1856,7 @@ class AssemblyManager(object):
                     assembly[1] = temp
                     connector_2_sequence[connector_name].append(assembly_idx)
         
-        sorted_whole_sequence = []
-        pan_head_seq = connector_2_sequence["ikea_stefan_bolt_hip"]
-        if len(pan_head_seq):
-            sorted_whole_sequence = connector_2_sequence["ikea_stefan_bolt_hip"]
+        pan_head_seq = copy.deepcopy(connector_2_sequence["ikea_stefan_bolt_hip"])
         
         for connector_name in connector_2_sequence.keys():
         
@@ -1866,7 +1874,7 @@ class AssemblyManager(object):
     
             connector_2_sequence[connector_name] = copy.deepcopy(sorted_sequence)
         """sorting sequence by used state"""
-        
+        sorted_whole_sequence = []
         used_connector = []
         """special case for connector + connector"""
         for connector_name in connector_2_sequence.keys():
@@ -1883,6 +1891,9 @@ class AssemblyManager(object):
                 if remain_sequence in sorted_whole_sequence:
                     continue
                 sorted_whole_sequence.append(remain_sequence)
+        """add bolt_hip assembly"""
+        sorted_whole_sequence += pan_head_seq
+        
         """compiled info"""
         compiled_assembly_info = {}
         
@@ -1983,7 +1994,8 @@ class AssemblyManager(object):
         used_part = []
         used_assembly = []
         whole_sequence = []
-        start_step = self.saved_step + 1
+        # start_step = self.saved_step + 1
+        start_step = 1
         step_num = start_step
         self.logger.info("Compile manual sequence step {} to {}".format(start_step, self.current_step))
         while step_num < self.current_step + 1:

@@ -74,20 +74,20 @@ class DyrosRequestType():
 
 class SocketType(Enum):
     pyrep = {
-        # "host": '192.168.0.8', # dyros - test
-        "host": '172.27.183.179',
+        "host": '192.168.0.8', # dyros - test
+        # "host": '172.27.183.179',
         "port": 8282,
     }
     freecad = {
-        # "host": '192.168.0.8', # dyros - test
-        "host": '172.27.183.179',
+        "host": '192.168.0.8', # dyros - test
+        # "host": '172.27.183.179',
         "port": 9293,
     }
     instruction = {
-        "host": '172.27.183.179',
+        # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
         # "host": '172.27.183.203', # gyuri
-        # "host": '192.168.0.3', # gyuri - test
+        "host": '192.168.0.3', # gyuri - test
         "port": 5050,
     }
     blender = {

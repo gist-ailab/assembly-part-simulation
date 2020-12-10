@@ -1,7 +1,7 @@
 Connector:
 - connector_id: 3
   number_of_connector: null
-  part_name: pan_head_screw_iso(4ea)
+  part_name: ikea_stefan_bolt_hip
 Group:
 - group_id: 9
   rotation: null

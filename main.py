@@ -61,7 +61,8 @@ if __name__ == "__main__":
         asm_manager.simulate_hidden_assembly()
         
         asm_manager.compile_2_SNU_format()
-        if asm_manager.current_step == 4:
+
+        if asm_manager.current_step == asm_manager.pin_end_step:
             asm_manager.compile_whole_sequence()
 
         asm_manager.step()
