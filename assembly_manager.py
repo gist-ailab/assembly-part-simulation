@@ -3,6 +3,7 @@ from operator import add, pos
 
 from script.const import CONNECTOR_PARTS, PartType, AssemblyType
 from script.fileApi import *
+from script.timeout import timeout
 from enum import Enum
 from socket_module import SocketModule
 
@@ -543,10 +544,8 @@ class AssemblyManager(object):
                     })
 
         # search matching for each connection location to region(PyRep Module)
-        connection_solutions = {
-            0: connection_list
-        }
-
+        connection_solutions = [copy.deepcopy(connection_list)]
+        count = 0
         for group_id in group_2_connection_point.keys():
             group_connection_list = group_2_connection_point[group_id]
             if len(group_connection_list) == 0:
@@ -567,46 +566,53 @@ class AssemblyManager(object):
                                                                    connection_locs=group_connection_locs,
                                                                    connector_name=connector_name)
         
+            new_connection_solutions = []
+            for target_connection_list in connection_solutions:
+                for compiled_locations in compiled_location_solutions:
+                    current_connection_list = copy.deepcopy(target_connection_list)
+                    
+                    for loc_idx, group_connection in enumerate(group_connection_list):
+                        con_idx = group_connection["connection_idx"]
+                        com_idx = group_connection["component_idx"]
 
-            for sol_idx, compiled_locations in enumerate(compiled_location_solutions):
-                connection_solutions.setdefault(sol_idx, copy.deepcopy(connection_list))
-                target_connection_list = connection_solutions[sol_idx]
-                
-                for loc_idx, group_connection in enumerate(group_connection_list):
-                    con_idx = group_connection["connection_idx"]
-                    com_idx = group_connection["component_idx"]
+                        compiled_loc = compiled_locations[loc_idx]
+                        part_name = compiled_loc["part_name"]
+                        instance_id = compiled_loc["instance_id"]
+                        point_cost = compiled_loc["point_cost"]
 
-                    compiled_loc = compiled_locations[loc_idx]
-                    part_name = compiled_loc["part_name"]
-                    instance_id = compiled_loc["instance_id"]
-                    point_cost = compiled_loc["point_cost"]
+                        part_instance = {
+                            "part_name": part_name,
+                            "instance_id": instance_id,
+                        }
+                        part_id = group_part_instances.index(part_instance)
 
-                    part_instance = {
-                        "part_name": part_name,
-                        "instance_id": instance_id,
-                    }
-                    part_id = group_part_instances.index(part_instance)
-
-                    target_connection = target_connection_list[con_idx]
-                    target_connection["component"]["group"][com_idx]["connection_loc"] = {
-                        "part_id": part_id,
-                        "point_cost": copy.deepcopy(point_cost)
-                    }
-                is_possible = True
-                for target_connection in target_connection_list:
-                    group_info_list = target_connection["component"]["group"]
-                    for group_info in group_info_list:
-                        try:
-                            _ = group_info["connection_loc"]["part_id"]
-                        except:
-                            connection_solutions.pop(sol_idx)
-                            is_possible = False
-                            break
-                    if not is_possible:
-                        break
+                        target_connection = current_connection_list[con_idx]
+                        target_connection["component"]["group"][com_idx]["connection_loc"] = {
+                            "part_id": part_id,
+                            "point_cost": copy.deepcopy(point_cost)
+                        }
+                    new_connection_solutions.append(current_connection_list)
+            if len(new_connection_solutions) > 0:
+                if count > 1: # for second group
+                    filtered_connection_solutions = []
+                    for target_connection in new_connection_solutions:
+                        group_info_list = target_connection["component"]["group"]
+                        for group_info in group_info_list:
+                            try:
+                                _ = group_info["connection_loc"]["part_id"]
+                            except:
+                                break
+                            filtered_connection_solutions.append(target_connection)
+                    new_connection_solutions = filtered_connection_solutions
+                connection_solutions = new_connection_solutions
+                count += 1
+        
 
         self.instruction_assembly_info["group_part_instance"] = group_part_instances
-        self.instruction_assembly_info["connection_solutions"] = connection_solutions
+        temp = {}
+        for idx, val in enumerate(connection_solutions):
+            temp[idx] = copy.deepcopy(val)
+        self.instruction_assembly_info["connection_solutions"] = temp
 
         instruction_checker["connection"] = {connection_idx: False \
             for connection_idx in range(len(connection_list))}
@@ -765,6 +771,7 @@ class AssemblyManager(object):
             if available_sequence:
                 whole_assembly_sequence_info_list += assembly_sequence_info_list
         
+        assert len(whole_assembly_sequence_info_list) > 0, "No available sequence"
         # filter overlap sequence
         unique_seq = []
         filtered_info_list = []
@@ -985,7 +992,7 @@ class AssemblyManager(object):
                         }
                         assembly_sequence_info_list.append(sequence_info)
                 else:
-                    point_cost =assembly_info["point_cost"]
+                    point_cost = assembly_info["point_cost"]
                     for sequence in possible_sequences:
                         pair_idx = sequence[0]
                         target_assembly_pair = available_pair_0[pair_idx]
