@@ -865,7 +865,7 @@ class AssemblyManager(object):
                                                                                  connector_instance=target_connector_instance)
             # all possible case is same result
             for robust_pair_info in available_pair:
-                robust_pair_info["is_robust"] = True
+                robust_pair_info["is_robust"] = False
             for sequence in possible_sequences:
                 sequence_info = {
                     "sequence": list(sequence),
@@ -885,7 +885,7 @@ class AssemblyManager(object):
                                                                                    connector_instance=target_connector_instance)
             
             for robust_pair_info in available_pair_0:
-                robust_pair_info["is_robust"] = True 
+                robust_pair_info["is_robust"] = False 
             possible_sequences = self._get_available_sequence(available_pair_0, assembly_num=1)
 
             assembly_info = group_info["connection_loc"]
@@ -1216,6 +1216,7 @@ class AssemblyManager(object):
             self.part_instance_status = self.second_solution["part_instance_status"]
             self.group_status = self.second_solution["group_status"]
             self.assembly_info["target_sequence"] = robust_sequence + self.second_solution["target_sequence"]
+            self.is_end = True            
             return False
         else:
             self.assembly_info["target_sequence"] = copy.deepcopy(target_sequence)

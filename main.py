@@ -46,37 +46,53 @@ if __name__ == "__main__":
     
     asm_manager.get_instruction_info()
     # assembly simulation
+    is_success = True
     while not asm_manager.is_end: # end sign from instruction_info
-        # extract assembly info 
-        asm_manager.compile_instruction_assembly_info()
-        
-        asm_manager.search_assembly_sequence()
-        # assemble parts and calculate cost by distance taken during assembly
-        is_possible = asm_manager.simulate_instruction_assembly()
-        if is_possible:
-            pass
-        else:
-            break
+        try:
+            # extract assembly info 
+            asm_manager.compile_instruction_assembly_info()
+            
+            asm_manager.search_assembly_sequence()
+            # assemble parts and calculate cost by distance taken during assembly
+            is_possible = asm_manager.simulate_instruction_assembly()
+            if is_possible:
+                pass
+            else:
+                is_success = False
+                break
 
-        asm_manager.simulate_hidden_assembly()
-        
-        asm_manager.compile_2_SNU_format()
+            asm_manager.simulate_hidden_assembly()
+            
+            asm_manager.compile_2_SNU_format()
 
-        if asm_manager.current_step == asm_manager.pin_end_step:
-            asm_manager.compile_whole_sequence()
+            if asm_manager.current_step == asm_manager.pin_end_step:
+                asm_manager.compile_whole_sequence()
 
-        asm_manager.step()
+            asm_manager.step()
 
-        if is_visualize:
-            asm_manager.visualization()
+            if is_visualize:
+                asm_manager.visualization()
 
-        asm_manager.get_instruction_info()
+            asm_manager.get_instruction_info()
+        except:
+            is_success = False
         
     #endregion
-    if is_visualize:
-        asm_manager.visualization()
-    
-    asm_manager.compile_whole_sequence()
-
+    if is_success:
+        asm_manager.compile_whole_sequence()
+        if is_visualize:
+            asm_manager.visualization()
+       
+    else:
+        try:
+            asm_manager.compile_2_SNU_format()
+            asm_manager.step()
+            if is_visualize:
+                asm_manager.visualization()
+        except:
+            pass
+        asm_manager.compile_whole_sequence()
+        
+        
         
 

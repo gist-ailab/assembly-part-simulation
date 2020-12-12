@@ -1,45 +1,45 @@
 Connector:
 - connector_id: 2
-  number_of_connector: 4
+  number_of_connector: 3
   part_name: ikea_stefan_pin
 Group:
 - camera_position:
   - 1.2
   - 0.0
   - 0.0
-  group_id: 1
+  group_id: 2
   rotation:
-  - -0.4970959424972534
-  - 270.9711608886719
-  - 269.5024108886719
+  - 0.0
+  - 1.3962634016
+  - 4.563572844929629
   translation:
-  - -0.0004340799350757152
-  - -0.0153959346935153
-  - 0.16791008412837982
+  - -0.003210856579244137
+  - -0.0011791227152571082
+  - 0.09690211713314056
 - camera_position:
   - 1.2
-  - 30.0
-  - -5.0
+  - -60.0
+  - 0.0
   group_id: 6
   rotation:
-  - 50.44888687133789
-  - 52.618629455566406
-  - 318.5137023925781
+  - 0.7735024094581604
+  - 2.186858892440796
+  - -0.4940735101699829
   translation:
-  - -0.012595973908901215
-  - 0.03467068448662758
-  - 0.05530969798564911
+  - 0.024003399536013603
+  - -0.21641658246517181
+  - -0.07019302994012833
 connection:
 - components:
   - id: 2
     loc: null
     order: 1
     type: connector
-  - id: 1
+  - id: 2
     loc:
-    - 0.008496380411088467
-    - 0.012304650619626045
-    - 0.1647404134273529
+    - -0.0015611150301992893
+    - -0.00347919762134552
+    - -0.11614599823951721
     order: 2
     type: group
   connection_id: 0
@@ -47,59 +47,45 @@ connection:
 - components:
   - id: 2
     loc: null
-    order: 1
-    type: connector
-  - id: 1
-    loc:
-    - 0.0
-    - -0.008604606613516808
-    - 0.1666928231716156
     order: 2
+    type: connector
+  - id: 2
+    loc:
+    - 0.015963327139616013
+    - 0.0049012452363967896
+    - 0.13500000536441803
+    order: 1
+    type: group
+  - id: 6
+    loc:
+    - -0.38490089774131775
+    - -0.051760971546173096
+    - -0.15662823617458344
+    order: 3
     type: group
   connection_id: 1
-  num_component: 2
+  num_component: 3
 - components:
   - id: 2
     loc: null
     order: 2
     type: connector
-  - id: 1
+  - id: 2
     loc:
-    - 0.019999999552965164
-    - 0.013035885989665985
-    - -0.132170170545578
+    - 0.0010707424953579903
+    - 0.021943137049674988
+    - 0.13500000536441803
     order: 1
     type: group
   - id: 6
     loc:
-    - 0.3789308965206146
-    - 0.010257471352815628
-    - 0.17000000178813934
+    - -0.37796252965927124
+    - -0.01953732967376709
+    - -0.16500000655651093
     order: 3
     type: group
   connection_id: 2
   num_component: 3
-- components:
-  - id: 2
-    loc: null
-    order: 2
-    type: connector
-  - id: 1
-    loc:
-    - 0.019999999552965164
-    - -0.016345256939530373
-    - -0.12990643084049225
-    order: 1
-    type: group
-  - id: 6
-    loc:
-    - 0.394014835357666
-    - -0.014343805611133575
-    - 0.16999998688697815
-    order: 3
-    type: group
-  connection_id: 3
-  num_component: 3
-file_name: /data_2/sung/src/furniture/manual-parser/data/image/mission1/6.png
+file_name: /data_2/sung/src/furniture/manual-parser/data/image/2-shortflip-middle/6.png
 group_info: ./data/group_info/group_info_2.yaml
 sequence_id: 3

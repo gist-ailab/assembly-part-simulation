@@ -265,7 +265,7 @@ class GroupObject():
                         target_point = primitive_object.assembly_points[point_idx]
                         target_position = np.array(target_point.get_position())
 
-                        cost = np.linalg.norm(connection_position - target_position)
+                        cost = np.linalg.norm(connection_position - target_position)**2
                         connection_2_point_cost[connection_idx][point_idx] = float(cost)
                     
                 for connection_idx in connection_idx_list:
