@@ -74,8 +74,10 @@ if __name__ == "__main__":
                 asm_manager.visualization()
 
             asm_manager.get_instruction_info()
-        except:
+        except Exception as e:
+            logger.info("Error occur {}".format(e))
             is_success = False
+            break
         
     #endregion
     if is_success:
@@ -89,7 +91,8 @@ if __name__ == "__main__":
             asm_manager.step()
             if is_visualize:
                 asm_manager.visualization()
-        except:
+        except Exception as e:
+            logger.info("Error occur {}".format(e))
             pass
         asm_manager.compile_whole_sequence()
         
