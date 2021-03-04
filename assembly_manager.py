@@ -595,14 +595,21 @@ class AssemblyManager(object):
             if len(new_connection_solutions) > 0:
                 if count > 1: # for second group
                     filtered_connection_solutions = []
-                    for target_connection in new_connection_solutions:
-                        group_info_list = target_connection["component"]["group"]
-                        for group_info in group_info_list:
-                            try:
-                                _ = group_info["connection_loc"]["part_id"]
-                            except:
+                    for target_connection_list in new_connection_solutions:
+                        is_available = True
+                        for target_connection in target_connection_list:
+                            group_info_list = target_connection["component"]["group"]
+                            for group_info in group_info_list:
+                                try:
+                                    _ = group_info["connection_loc"]["part_id"]
+                                except:
+                                    is_available = False
+                                    break
+                            if not is_available:
                                 break
-                            filtered_connection_solutions.append(target_connection)
+                        if not is_available:
+                            continue
+                        filtered_connection_solutions.append(target_connection_list)
                     new_connection_solutions = filtered_connection_solutions
                 connection_solutions = new_connection_solutions
                 count += 1
