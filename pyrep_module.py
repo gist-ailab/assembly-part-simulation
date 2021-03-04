@@ -377,9 +377,6 @@ class PyRepModule(object):
         self.pr = PyRep()
         self.pr.launch(headless=headless)
         self.pr.start()
-        # self.scene_th = threading.Thread(target=self.scene_binding)
-        # self.scene_th.start()
-        
 
         self.scene_path = "./test_scene"
         # used to visualize and assembly
@@ -411,14 +408,6 @@ class PyRepModule(object):
     def get_callback(self, request):
         return self.callback[request]
 
-    def scene_binding(self):
-        try:
-            while True:
-                self.pr.step()
-                
-        except:
-            self.logger.info("pyrep error")
-    
     def save_scene(self, path):
         self.pr.export_scene(path)
 

@@ -45,7 +45,11 @@ FREEECADPATH = ENVPATH.raeyo_ubuntu
 - https://github.com/stepjam/PyRep
 
 # How to Run
-## terminal #1 main.py
+## Before run the script
+1. check the freecad env path in script.import_fcstd.py
+2. check the socket address in script.const.py
+
+## Run Servers(FreeCAD, PyRep, ...)
 ```shell
 # with all other modules
 python main.py --instruction -- visualize -- dyros 
