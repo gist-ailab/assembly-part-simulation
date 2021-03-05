@@ -987,6 +987,19 @@ class FreeCADModule():
         used_assembly.append(current_assembly_info)
         is_possible = False
         is_possible = self._solve_current_constraint()
+        count = 0
+        while not is_possible and count < 5:
+            for sim_obj_key in self.assembly_obj.keys():
+                if not "middle" in sim_obj_key[0]:
+                    continue
+                print("Try to reassemble after randomize middle part")
+                sim_obj = self.assembly_obj[sim_obj_key]
+                rand_rot = np.random.randint(0, 100, 3)
+                print("\n","\n", obj_key, "\n", rand_rot)
+                random_rotation = FreeCAD.Rotation(*rand_rot)
+                sim_obj.Placement = FreeCAD.Placement(FreeCAD.Vector(0,0,0), random_rotation ,FreeCAD.Vector(0,0,0))
+            is_possible = self._solve_current_constraint()
+            count += 1
         # additional assembly
         if len(self.additional_assmbly_pair) > 0:
             is_possible = is_possible and self._additional_assembly()
