@@ -1,6 +1,6 @@
 from os import stat
 from yaml import compose
-
+import random
 from yaml.events import DocumentEndEvent
 from script import import_fcstd
 import FreeCAD
@@ -959,18 +959,24 @@ class FreeCADModule():
                     added_object_key.append((part_name, instance_id))
         
         target_pair = current_assembly_info["target_pair"]
+        
         # check unique instance part
+        target_objs = []
         for key in target_pair.keys(): # key is 0, 1
             part_info = target_pair[key]
             part_name = part_info["part_name"]
             instance_id = part_info["instance_id"]
             if (part_name, instance_id) in self.assembly_obj.keys():
+                target_objs.append(self.assembly_obj[(part_name, instance_id)])
                 continue
             else:
                 part_path = self.part_info[part_name]["document"]
                 obj = self.assembly_doc.import_part(part_path)
+                target_objs.append(obj)
                 self.assembly_obj[(part_name, instance_id)] = obj
                 added_object_key.append((part_name, instance_id))
+        
+
 
         self.assembly_doc.show()
         self.assembly_pair = []
@@ -986,7 +992,15 @@ class FreeCADModule():
         target_constraint = self._add_pair_constraint(current_assembly_info)
         used_assembly.append(current_assembly_info)
         is_possible = False
-        is_possible = self._solve_current_constraint()
+        count = 0
+        while count < 5:
+            is_possible = self._solve_current_constraint()
+            if is_possible:
+                break
+            target_obj = random.choice(target_objs)
+            self.rotate(target_obj)
+            count += 1
+        
         # additional assembly
         if len(self.additional_assmbly_pair) > 0:
             is_possible = is_possible and self._additional_assembly()
@@ -1185,6 +1199,13 @@ class FreeCADModule():
         return True
 
     #endregion
+    @staticmethod
+    def rotate(obj):
+        angle = 10.0
+        pos = FreeCAD.Vector(0, 0, 0.0)
+        axis = FreeCAD.Vector(0.0,0.0,1.0)
+        Draft.rotate([obj], angle , pos, axis=axis ,copy=False)
+    
     @staticmethod
     def assembly_pair_test(all_part_info, assembly_pair):
         unique_radius = []
