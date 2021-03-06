@@ -524,7 +524,7 @@ class AssemblyManager(object):
         - search best matching region for connection loc
         - search all matching for connection loc => assembly point, cost
         """
-        # cluster
+        # cluster connection points by group 
         group_2_connection_point = {group_id: [] for group_id in instruction_checker["Group"].keys()}
         for connection_idx, connection in enumerate(connection_list):
             group_component_list = connection["component"]["group"]
@@ -595,14 +595,21 @@ class AssemblyManager(object):
             if len(new_connection_solutions) > 0:
                 if count > 1: # for second group
                     filtered_connection_solutions = []
-                    for target_connection in new_connection_solutions:
-                        group_info_list = target_connection["component"]["group"]
-                        for group_info in group_info_list:
-                            try:
-                                _ = group_info["connection_loc"]["part_id"]
-                            except:
+                    for target_connection_list in new_connection_solutions:
+                        is_available = True
+                        for target_connection in target_connection_list:
+                            group_info_list = target_connection["component"]["group"]
+                            for group_info in group_info_list:
+                                try:
+                                    _ = group_info["connection_loc"]["part_id"]
+                                except:
+                                    is_available = False
+                                    break
+                            if not is_available:
                                 break
-                            filtered_connection_solutions.append(target_connection)
+                        if not is_available:
+                            continue
+                        filtered_connection_solutions.append(target_connection_list)
                     new_connection_solutions = filtered_connection_solutions
                 connection_solutions = new_connection_solutions
                 count += 1
@@ -953,8 +960,15 @@ class AssemblyManager(object):
                             current_cost += point_cost[point_id]
                         current_sequence.append(pair_idx)
                     is_possible = self._check_available_sequence(available_pair, current_sequence)
+                    if connector_name == "ikea_stefan_pin":
+                        connector_id = used_assembly_instance.index(target_connector_instance)
+                        is_possible = self._check_available_pin_sequence(pin_id=connector_id,
+                                                                         assembly_pairs=available_pair,
+                                                                         sequence=current_sequence)
+                        
                     if not is_possible:
                         continue
+                    
                     new_assembly_sequence_info_list.append({
                         "sequence": current_sequence,
                         "cost": current_cost
@@ -1123,7 +1137,6 @@ class AssemblyManager(object):
         
         else:
             assert False
-        
         return assembly_sequence_info_list, available_pair
     def _extract_possible_sequence(self, group_info, connector_instance):
         connector_name = connector_instance["part_name"]
@@ -1981,6 +1994,14 @@ class AssemblyManager(object):
         return possible_sequence
     @staticmethod
     def _check_available_sequence(assembly_pairs, sequence):
+        """chech sequence keep the rule that "each assembly point used once"
+        Args:
+            assembly_pairs ([list]): [list of pairs]
+            sequence ([list]): [list of pair idx]
+
+        Returns:
+            [bool]: [is sequence available or not]
+        """
         used_point = [] # point == {assembly point, part_id}
         is_possible = True
         for pair_idx in sequence:
@@ -1994,6 +2015,51 @@ class AssemblyManager(object):
                 else:
                     used_point.append(point)
         return is_possible
+    def _check_available_pin_sequence(self, pin_id, assembly_pairs, sequence):
+        """pin have to used between side and other parts
+
+        Args:
+            pin_id (int): [pin part idx used in pair]
+            assembly_pairs (list): [pair info list]
+            sequence (list): [list of pair idx]
+
+        Returns:
+            [type]: [description]
+        """
+        used_assembly_instance = self.assembly_info["part"]
+        side_group = ["ikea_stefan_side_left", "ikea_stefan_side_right"]
+        side_part_ids = []
+        for part_id, instance in enumerate(used_assembly_instance):
+            if instance["part_name"] in side_group:
+                side_part_ids.append(part_id)
+
+        is_possible = True
+        pin_assembly_sequence = []
+        for pair_idx in sequence:
+            target_assembly_pair = assembly_pairs[pair_idx]
+            target_pair = target_assembly_pair["target_pair"]
+            for target_pair_info in target_pair.values():
+                if target_pair_info["part_id"] == pin_id:
+                    pin_assembly_sequence.append(target_assembly_pair)
+                    break
+        if len(pin_assembly_sequence) < 2:
+            return is_possible
+
+        else:
+            checker = [False, False] # 0 => side, 1 => other
+            for pin_assembly in pin_assembly_sequence:
+                target_pair = pin_assembly["target_pair"]
+                for target_pair_info in target_pair.values():
+                    if target_pair_info["part_id"] == pin_id:
+                        continue
+                    if target_pair_info["part_id"] in side_part_ids:
+                        checker[0] = True
+                    else:
+                        checker[1] = True
+
+            is_possible = all(checker)
+            return is_possible
+
     #endregion
     
     # @staticmethod

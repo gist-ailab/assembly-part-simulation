@@ -13,8 +13,31 @@ from easy_tcp_python2_3 import socket_utils as su
 class SocketModule():
     def __init__(self, logger, is_instruction, is_visualize, is_dyros):
         self.logger = logger
-        self.c_freecad = self.initialize_freecad_client()
-        self.c_pyrep = self.initialize_pyrep_client()
+
+        is_connected = False
+        is_once = True
+        while not is_connected:
+            try:
+                self.c_freecad = self.initialize_freecad_client()
+                is_connected = True
+            except:
+                if is_once:
+                    print("...waiting for freecad")
+                    is_once = False
+                time.sleep(1)
+    
+        is_connected = False
+        is_once = True
+        while not is_connected:
+            try:
+                self.c_pyrep = self.initialize_pyrep_client()
+                is_connected = True
+            except:
+                if is_once:
+                    print("...waiting for pyrep")
+                    is_once = False
+                time.sleep(1)
+        
         
         self.is_instruction = is_instruction
         self.is_visualize = is_visualize
@@ -98,13 +121,6 @@ class SocketModule():
         
         return sock
 
-    # def initialize_dyros_client(self):
-    #     host = SocketType.dyros.value["host"]
-    #     port = SocketType.dyros.value["port"]
-    #     sock = su.initialize_client(host, port)
-    #     self.logger.info("==> Connected to Dyros server on {}:{}".format(host, port))
-        
-    #     return sock
     def initialize_dyros_client_1(self):
         host = SocketType.dyros_1.value["host"]
         port = SocketType.dyros_1.value["port"]
