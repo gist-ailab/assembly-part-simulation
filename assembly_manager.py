@@ -960,6 +960,9 @@ class AssemblyManager(object):
                             current_cost += point_cost[point_id]
                         current_sequence.append(pair_idx)
                     is_possible = self._check_available_sequence(available_pair, current_sequence)
+                    if not is_possible:
+                        continue
+                    
                     if connector_name == "ikea_stefan_pin":
                         connector_id = used_assembly_instance.index(target_connector_instance)
                         is_possible = self._check_available_pin_sequence(pin_id=connector_id,
@@ -2028,10 +2031,23 @@ class AssemblyManager(object):
         """
         used_assembly_instance = self.assembly_info["part"]
         side_group = ["ikea_stefan_side_left", "ikea_stefan_side_right"]
+        long_side_pair = {
+            "left": {
+                1: 0, # side_point: long_point
+                2: 2
+            },
+            "right": {
+                1: 3,
+                2: 5
+            }
+        }
         side_part_ids = []
+        long_part_id = None
         for part_id, instance in enumerate(used_assembly_instance):
             if instance["part_name"] in side_group:
                 side_part_ids.append(part_id)
+            elif instance["part_name"] == "ikea_stefan_long":
+                long_part_id = part_id
 
         is_possible = True
         pin_assembly_sequence = []
@@ -2046,19 +2062,57 @@ class AssemblyManager(object):
             return is_possible
 
         else:
+            # check for side and other part
             checker = [False, False] # 0 => side, 1 => other
+            pair_point = [None, None] # 0: side point 1: other point
             for pin_assembly in pin_assembly_sequence:
                 target_pair = pin_assembly["target_pair"]
                 for target_pair_info in target_pair.values():
-                    if target_pair_info["part_id"] == pin_id:
+                    target_part_id = target_pair_info["part_id"]
+                    target_point_id = target_pair_info["assembly_point"]
+                    if target_part_id == pin_id:
                         continue
-                    if target_pair_info["part_id"] in side_part_ids:
+
+                    elif target_part_id in side_part_ids:
+                        pair_point[0] = (target_part_id, target_point_id)
                         checker[0] = True
                     else:
+                        pair_point[1] = (target_part_id, target_point_id)
                         checker[1] = True
 
             is_possible = all(checker)
-            return is_possible
+
+            if not is_possible:
+                return False
+
+            side_point_info = pair_point[0]
+            side_part_id = side_point_info[0]
+            side_part_point = side_point_info[1]
+            side_part_name = used_assembly_instance[side_part_id]["part_name"]
+
+            other_point_info = pair_point[1]
+            other_part_id = other_point_info[0]
+            other_part_point = other_point_info[1]
+            other_part_name = used_assembly_instance[other_part_id]["part_name"]
+
+            if side_part_point in [1, 2]: # point for long part
+                if not "long" in other_part_name:
+                    return False
+
+                is_available = False    
+                for side_name in long_side_pair.keys():
+                    if side_name in side_part_name:
+                        if long_side_pair[side_name][side_part_point] == other_part_point:
+                            is_available = True
+                    else:
+                        continue
+                return is_available
+            else:
+                if "long" in other_part_name:
+                    return False
+                else:
+                    return True
+
 
     #endregion
     
