@@ -1108,7 +1108,7 @@ class FreeCADModule():
         sorted_instance = sorted(num_contraints.items(), key=(lambda x:x[1]), reverse=True)
         # sorted_instance = sorted(diagoanl.items(), key=(lambda x:x[1]))
         # print(sorted_instance)
-        
+        count = count % len(num_contraints.keys())
         fixed_obj_key = sorted_instance[count][0]
         self.assembly_obj[fixed_obj_key].fixedPosition = True
         
