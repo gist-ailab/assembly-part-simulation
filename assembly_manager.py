@@ -2194,7 +2194,9 @@ class AssemblyManager(object):
         return compiled_assembly_info
 
     def _send_sequence_to_dyros(self, sequence):
-        self.socket_module.send_final_assembly_sequence(sequence, self.is_end)
+        # self.socket_module.send_final_assembly_sequence(sequence, self.is_end)
+        is_pin_end = self.current_step == self.pin_end_step
+        self.socket_module.send_assembly_sequence(sequence, is_pin_end, self.is_end)
 
 if __name__ == "__main__":
     assembly_info = load_yaml_to_dic("./assembly/STEFAN/result/assembly_info_9.yaml")
