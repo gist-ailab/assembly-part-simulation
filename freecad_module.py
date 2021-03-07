@@ -1015,7 +1015,7 @@ class FreeCADModule():
                 print("\n","\n", obj_key, "\n", rand_rot)
                 random_rotation = FreeCAD.Rotation(*rand_rot)
                 sim_obj.Placement = FreeCAD.Placement(FreeCAD.Vector(0,0,0), random_rotation ,FreeCAD.Vector(0,0,0))
-            is_possible = self._solve_current_constraint()
+            is_possible = self._solve_current_constraint(count=count)
             count += 1
 
         # additional assembly
@@ -1089,7 +1089,7 @@ class FreeCADModule():
 
         return co
 
-    def _solve_current_constraint(self):
+    def _solve_current_constraint(self, count=0):
         is_possible = True
         num_contraints = {}
         # diagoanl = {}
@@ -1109,7 +1109,7 @@ class FreeCADModule():
         # sorted_instance = sorted(diagoanl.items(), key=(lambda x:x[1]))
         # print(sorted_instance)
         
-        fixed_obj_key = sorted_instance[0][0]
+        fixed_obj_key = sorted_instance[count][0]
         self.assembly_obj[fixed_obj_key].fixedPosition = True
         
         is_possible = self.assembly_doc.solve_system()

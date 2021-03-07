@@ -2131,8 +2131,14 @@ class AssemblyManager(object):
         used_part = []
         used_assembly = []
         whole_sequence = []
-        start_step = self.saved_step + 1
-        # start_step = 1
+        # start_step = self.saved_step + 1
+        if self.pin_end_step > 0:
+            if self.current_step == self.pin_end_step:
+                start_step = 1
+            else:
+                start_step = self.pin_end_step + 1
+        else:
+            start_step = 1
         step_num = start_step
         self.logger.info("Compile manual sequence step {} to {}".format(start_step, self.current_step))
         while step_num < self.current_step + 1:
