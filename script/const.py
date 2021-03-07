@@ -71,6 +71,7 @@ class BlenderRequestType():
 
 class DyrosRequestType():
     send_final_assembly_sequence = "send_final_assembly_sequence"
+    send_assembly_sequence = "send_assembly_sequence"
 
 class SocketType(Enum):
     pyrep = {
@@ -88,7 +89,7 @@ class SocketType(Enum):
     instruction = {
         # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
-        "host": '172.27.183.203', # gyuri
+        "host": '172.27.183.206', # gyuri
         # "host": '192.168.0.3', # gyuri - test
         "port": 5050,
     }
@@ -102,7 +103,7 @@ class SocketType(Enum):
         # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
         "host": '192.168.0.9', # panda
-        "port": 9070,
+        "port": 7776,
     }
     dyros_1 = {
         # "host": '172.27.183.179',

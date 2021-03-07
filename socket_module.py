@@ -74,16 +74,15 @@ class SocketModule():
             is_once = True
             while not is_connected:
                 try:
-                    # self.c_dyros = self.initialize_dyros_client()
-                    self.c_dyros_1 = self.initialize_dyros_client_1()
-                    self.c_dyros_2 = self.initialize_dyros_client_2()
+                    self.c_dyros = self.initialize_dyros_client()
+                    # self.c_dyros_1 = self.initialize_dyros_client_1()
+                    # self.c_dyros_2 = self.initialize_dyros_client_2()
                     is_connected = True
                 except:
                     if is_once:
                         print("...waiting for dyros server")
                         is_once = False
                     time.sleep(1)
-            
             
     def initialize_freecad_client(self):
         host = SocketType.freecad.value["host"]
@@ -121,6 +120,13 @@ class SocketModule():
         
         return sock
 
+    def initialize_dyros_client(self):
+        host = SocketType.dyros.value["host"]
+        port = SocketType.dyros.value["port"]
+        sock = su.initialize_client(host, port)
+        self.logger.info("==> Connected to Dyros server on {}:{}".format(host, port))
+        
+        return sock
     def initialize_dyros_client_1(self):
         host = SocketType.dyros_1.value["host"]
         port = SocketType.dyros_1.value["port"]
@@ -348,6 +354,26 @@ class SocketModule():
     #endregion
 
     #region dyros module
+    def send_assembly_sequence(self, assembly_sequence, is_pin_end, is_end):
+        request = DyrosRequestType.send_assembly_sequence
+        self.logger.info("Request {} to Dyros Module".format(request))
+        
+        su.sendall_pickle(self.c_dyros, request)
+        response = su.recvall_pickle(self.c_dyros)
+        assert response, "Not ready to dyros"
+        request = {
+            "assembly_sequence": assembly_sequence,
+            "is_pin_end": is_pin_end,
+            "is_end": is_end
+        }
+        su.sendall_pickle(self.c_dyros, request)
+        is_success = su.recvall_pickle(self.c_dyros)
+        
+        if is_success:
+            self.logger.info("Success to send sequence")
+        assert is_success, "sdfsfadfasdfsdfsdfsdfsadf"
+        return is_success
+
     def send_final_assembly_sequence(self, assembly_sequence, is_end):
         request = DyrosRequestType.send_final_assembly_sequence
         self.logger.info("Request {} to Dyros Module".format(request))
