@@ -125,6 +125,9 @@ class AssemblyManager(object):
         }
         self.used_instance_set = []
         
+        # extra
+        self.start_side_name = None
+
     def initialize_CAD_info(self):
         self.logger.info("...Waiting for cad info from FreeCAD Module")
         self.part_info = self.socket_module.initialize_cad_info(self.cad_path)
