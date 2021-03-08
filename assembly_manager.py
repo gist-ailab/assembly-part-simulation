@@ -2117,6 +2117,20 @@ class AssemblyManager(object):
                     else:
                         continue
                 return is_available
+            elif side_part_point in [8, 9]: # point in side part(add middle condition)
+                if not "middle" in other_part_name:
+                    return True
+                # if middle part to side 8, 9 point
+                if side_part_point == 8:
+                    if other_part_point in [0, 3]:
+                        return True
+                    else:
+                        return False
+                else: # side_part_point == 9
+                    if other_part_point in [1, 4]:
+                        return True
+                    else:
+                        return False
             else:
                 if "long" in other_part_name:
                     return False
