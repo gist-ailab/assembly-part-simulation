@@ -72,29 +72,30 @@ class BlenderRequestType():
 class DyrosRequestType():
     send_final_assembly_sequence = "send_final_assembly_sequence"
     send_assembly_sequence = "send_assembly_sequence"
+    send_side_signal = "side_signal"
 
 class SocketType(Enum):
     pyrep = {
-        # "host": '192.168.0.8', # dyros - test
-        "host": '172.27.183.179',
+        "host": '192.168.66.6', # dyros - test
+        # "host": '172.27.183.179',
         # "host": 'localhost',
         "port": 8282,
     }
     freecad = {
-        # "host": '192.168.0.8', # dyros - test
+        "host": '192.168.66.6', # dyros - test
         # "host": 'localhost',
-        "host": '172.27.183.179',
+        # "host": '172.27.183.179',
         "port": 9293,
     }
     instruction = {
         # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
-        "host": '172.27.183.206', # gyuri
+        "host": '192.168.66.20', # gyuri
         # "host": '192.168.0.3', # gyuri - test
         "port": 5050,
     }
     blender = {
-        "host": '192.168.0.2', # DEMO Food - test
+        "host": '192.168.66.10', # DEMO Food - test
         # "host": '172.27.183.183', # DEMO Food
         # "host": '172.27.183.205', # hinton
         "port": 7942,
@@ -102,18 +103,18 @@ class SocketType(Enum):
     dyros = {
         # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
-        "host": '192.168.0.9', # panda
+        "host": '192.168.66.5', # panda
         "port": 7776,
     }
     dyros_1 = {
         # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
-        "host": '192.168.0.9', # panda
+        "host": '192.168.66.5', # panda
         "port": 7777,
     }
     dyros_2 = {
         # "host": '172.27.183.179',
         # "host": '172.27.183.205', # hinton
-        "host": '192.168.0.9', # panda
+        "host": '192.168.66.5', # panda
         "port": 7778,
     }

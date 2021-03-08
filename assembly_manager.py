@@ -125,8 +125,8 @@ class AssemblyManager(object):
         }
         self.used_instance_set = []
         
-        # extra
-        self.start_side_name = None
+
+        self.side_start = None
 
     def initialize_CAD_info(self):
         self.logger.info("...Waiting for cad info from FreeCAD Module")
@@ -489,6 +489,13 @@ class AssemblyManager(object):
                 }
                 group_part_instances.append(used_part_info)
         
+        for used_part_info in group_part_instances:
+            part_name = used_part_info["part_name"]
+            if "side" in part_name and self.side_start is None:
+                self.side_start = part_name
+                if self.is_dyros:
+                    self._send_side_signal_to_dyros()
+
         """compile instruction connector info
         - update checker
         """
@@ -2125,8 +2132,14 @@ class AssemblyManager(object):
         used_part = []
         used_assembly = []
         whole_sequence = []
-        start_step = self.saved_step + 1
-        # start_step = 1
+        # start_step = self.saved_step + 1
+        if self.pin_end_step > 0:
+            if self.current_step == self.pin_end_step:
+                start_step = 1
+            else:
+                start_step = self.pin_end_step + 1
+        else:
+            start_step = 1
         step_num = start_step
         self.logger.info("Compile manual sequence step {} to {}".format(start_step, self.current_step))
         while step_num < self.current_step + 1:
@@ -2200,6 +2213,10 @@ class AssemblyManager(object):
         # self.socket_module.send_final_assembly_sequence(sequence, self.is_end)
         is_pin_end = self.current_step == self.pin_end_step
         self.socket_module.send_assembly_sequence(sequence, is_pin_end, self.is_end)
+    def _send_side_signal_to_dyros(self):
+        assert self.side_start
+        self.socket_module.send_side_signal(self.side_start)
+
 
 if __name__ == "__main__":
     assembly_info = load_yaml_to_dic("./assembly/STEFAN/result/assembly_info_9.yaml")

@@ -993,30 +993,30 @@ class FreeCADModule():
         used_assembly.append(current_assembly_info)
         is_possible = False
         # randomize random part
-        count = 0
-        while count < 5:
-            is_possible = self._solve_current_constraint()
-            if is_possible:
-                break
-            target_obj = random.choice(target_objs)
-            self.rotate(target_obj)
-            count += 1
+        # count = 0
+        # while count < 5:
+        #     is_possible = self._solve_current_constraint()
+        #     if is_possible:
+        #         break
+        #     target_obj = random.choice(target_objs)
+        #     self.rotate(target_obj)
+        #     count += 1
         
         # randomize middle part
-        # is_possible = self._solve_current_constraint()
-        # count = 0
-        # while not is_possible and count < 5:
-        #     for sim_obj_key in self.assembly_obj.keys():
-        #         if not "middle" in sim_obj_key[0]:
-        #             continue
-        #         print("Try to reassemble after randomize middle part")
-        #         sim_obj = self.assembly_obj[sim_obj_key]
-        #         rand_rot = np.random.randint(0, 100, 3)
-        #         print("\n","\n", obj_key, "\n", rand_rot)
-        #         random_rotation = FreeCAD.Rotation(*rand_rot)
-        #         sim_obj.Placement = FreeCAD.Placement(FreeCAD.Vector(0,0,0), random_rotation ,FreeCAD.Vector(0,0,0))
-        #     is_possible = self._solve_current_constraint()
-        #     count += 1
+        is_possible = self._solve_current_constraint()
+        count = 0
+        while not is_possible and count < 5:
+            for sim_obj_key in self.assembly_obj.keys():
+                if not "middle" in sim_obj_key[0]:
+                    continue
+                print("Try to reassemble after randomize middle part")
+                sim_obj = self.assembly_obj[sim_obj_key]
+                rand_rot = np.random.randint(0, 100, 3)
+                print("\n","\n", obj_key, "\n", rand_rot)
+                random_rotation = FreeCAD.Rotation(*rand_rot)
+                sim_obj.Placement = FreeCAD.Placement(FreeCAD.Vector(0,0,0), random_rotation ,FreeCAD.Vector(0,0,0))
+            is_possible = self._solve_current_constraint(count=count)
+            count += 1
 
         # additional assembly
         if len(self.additional_assmbly_pair) > 0:
@@ -1089,7 +1089,7 @@ class FreeCADModule():
 
         return co
 
-    def _solve_current_constraint(self):
+    def _solve_current_constraint(self, count=0):
         is_possible = True
         num_contraints = {}
         # diagoanl = {}
@@ -1108,8 +1108,8 @@ class FreeCADModule():
         sorted_instance = sorted(num_contraints.items(), key=(lambda x:x[1]), reverse=True)
         # sorted_instance = sorted(diagoanl.items(), key=(lambda x:x[1]))
         # print(sorted_instance)
-        
-        fixed_obj_key = sorted_instance[0][0]
+        count = count % len(num_contraints.keys())
+        fixed_obj_key = sorted_instance[count][0]
         self.assembly_obj[fixed_obj_key].fixedPosition = True
         
         is_possible = self.assembly_doc.solve_system()

@@ -354,6 +354,23 @@ class SocketModule():
     #endregion
 
     #region dyros module
+    def send_side_signal(self, side_name):
+        request = DyrosRequestType.send_side_signal
+        self.logger.info("Request {} to Dyros Module".format(request))
+        su.sendall_pickle(self.c_dyros, request)
+
+        response = su.recvall_pickle(self.c_dyros)
+        assert response, "Not ready to dyros"
+
+        request = side_name
+        su.sendall_pickle(self.c_dyros, request)
+        is_success = su.recvall_pickle(self.c_dyros)
+        
+        if is_success:
+            self.logger.info("Success to send side signal")
+        assert is_success, "sdfsfadfasdfsdfsdfsdfsadf"
+        return is_success
+
     def send_assembly_sequence(self, assembly_sequence, is_pin_end, is_end):
         request = DyrosRequestType.send_assembly_sequence
         self.logger.info("Request {} to Dyros Module".format(request))
