@@ -434,7 +434,7 @@ class AssemblyManager(object):
         
     def compile_instruction_assembly_info(self):
         assert self.instruction_info
-        
+        self.assembly_info = {}
         """initialize compiled assembly info"""
         self.instruction_assembly_info = {
             "group_part_instance": {}, # all part instances in current stage
@@ -502,7 +502,7 @@ class AssemblyManager(object):
         for connector_info in instruction_connector_info:
             connector_id = connector_info["connector_id"]
             connector_name = connector_info["part_name"]
-            assert connector_id == self.connector_parts.index(connector_name)
+            assert connector_id == self.connector_parts.index(connector_name), "connector_id not matched"
             
             connector_num = connector_info["number_of_connector"]
             if connector_num == None:
@@ -678,6 +678,7 @@ class AssemblyManager(object):
             connection_loc = component["loc"]
             if component_type == "connector":
                 component_info["connector"] = component_id
+
             elif component_type == "group":
                 connection_group_info = {
                     "id": component_id,
@@ -686,7 +687,7 @@ class AssemblyManager(object):
                 component_info["group"].append(connection_group_info)
 
             else:
-                assert False                
+                assert False, "Component type error {}".format(component_type)
         
         connection["assembly_type"] = AssemblyType.find_type(assembly_type)
         
@@ -715,7 +716,7 @@ class AssemblyManager(object):
         return compiled_locations
 
     def search_assembly_sequence(self):
-        self.assembly_info = {}
+        
         self.assembly_info["part"] = self.instruction_assembly_info["group_part_instance"]
         self.assembly_info["assembly"] = []
         self.assembly_info["robust_sequence"] = []
@@ -1766,6 +1767,7 @@ class AssemblyManager(object):
             "sequence"
         }
         """
+        assert self.assembly_info, "No solved sequence for current step"
         self.sorted_assembly_info = {}
         SNU_assembly_info = {}
         SNU_assembly_info["part"] = copy.deepcopy(self.assembly_info["part"])
