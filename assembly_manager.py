@@ -1796,6 +1796,7 @@ class AssemblyManager(object):
         if is_end and (self.pin_end_step == -1):
             self.pin_end_step = self.current_step
 
+    # utils
     @staticmethod
     def compile_test(assembly_info):
         sorted_assembly_info = {}
@@ -1816,7 +1817,6 @@ class AssemblyManager(object):
         sorted_assembly_info = SNU_assembly_info
 
         return sorted_assembly_info
-        
     def visualization(self):
         self.socket_module.start_visualization(current_step=self.current_step,
                                                group_info=self.group_info,
@@ -1825,7 +1825,6 @@ class AssemblyManager(object):
                                                assembly_info=self.sorted_assembly_info,
                                                is_end=self.is_end)
         self.logger.info("Visualize Step {} using Blender".format(self.current_step))
-
     @staticmethod
     def _sorting_assembly_info(assembly_info):
         used_part = assembly_info["part"]
@@ -1943,8 +1942,6 @@ class AssemblyManager(object):
         compiled_assembly_info["sequence"] = sorted_whole_sequence
 
         return compiled_assembly_info
-
-    #region utils
     def _get_available_points(self, part_name, part_status):
         assert self.part_info
         all_points = set(self.part_info[part_name]["assembly_points"].keys())
@@ -2120,6 +2117,8 @@ class AssemblyManager(object):
                         continue
                 return is_available
             elif side_part_point in [8, 9]: # point in side part(add middle condition)
+                if "long" in other_part_name:
+                    return False
                 if not "middle" in other_part_name:
                     return True
                 # if middle part to side 8, 9 point
@@ -2139,9 +2138,6 @@ class AssemblyManager(object):
                 else:
                     return True
 
-
-    #endregion
-    
     # @staticmethod
     def compile_whole_sequence(self):
         sequence_root = self.SNU_result_path
